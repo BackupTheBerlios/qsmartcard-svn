@@ -15,20 +15,23 @@
  *  along with this program; if not, write to the Free Software Foundation,
  *  Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *  
- *
  */
 
-#include <QtCore>
-#include <Terminal.h>
+#ifndef QFRANKTERMINAL_H
+#define QFRANKTERMINAL_H
 
-int main(int argc, char *argv[])
+#include <QtCore>
+
+class QFrankTerminal : public QObject
 {
-	QCoreApplication Programm(argc,argv);
-#ifdef MEINDEBUG
-	qDebug()<<"Mit Debug";
-#else
-	qDebug()<<"Ohne Debug";
+	Q_OBJECT
+	public:
+			QFrankTerminal(QObject *eltern=0);
+			QFrankTerminal(QObject *eltern,QString pluginVerzeichnis);
+			bool	Treiberladen();
+			void	PluginverzeichnisSetzen(QString pluginVerzeichnis);
+			
+	private:
+			QString	Pluginverzeichnis;
+};
 #endif
-	return 0;
-	return Programm.exec();
-}

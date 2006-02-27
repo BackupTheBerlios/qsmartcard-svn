@@ -15,20 +15,23 @@
  *  along with this program; if not, write to the Free Software Foundation,
  *  Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *  
- *
  */
 
-#include <QtCore>
-#include <Terminal.h>
+#include "Terminal.h"
 
-int main(int argc, char *argv[])
+QFrankTerminal::QFrankTerminal(QObject *eltern):QObject(eltern)
 {
-	QCoreApplication Programm(argc,argv);
-#ifdef MEINDEBUG
-	qDebug()<<"Mit Debug";
-#else
-	qDebug()<<"Ohne Debug";
-#endif
-	return 0;
-	return Programm.exec();
+	setObjectName("QFrankTerminal");
+	PluginverzeichnisSetzen(QCoreApplication::applicationDirPath());
+
+}
+
+QFrankTerminal::QFrankTerminal(QObject *eltern,QString pluginVerzeichnis):QObject(eltern)
+{
+	PluginverzeichnisSetzen(pluginVerzeichnis);	
+}
+
+void QFrankTerminal::PluginverzeichnisSetzen(QString pluginVerzeichnis)
+{
+	Pluginverzeichnis=pluginVerzeichnis;
 }

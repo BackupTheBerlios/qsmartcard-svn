@@ -1,4 +1,4 @@
-# Copyright (C) 2005 Frank Büttner frank-buettner@gmx.net
+# Copyright (C) 2005-2006 Frank Büttner frank-buettner@gmx.net
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -15,7 +15,9 @@
 # Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 PROJEKTTEIL   = Terminal
-TEMPLATE    = subdirs
-#TEMPLATE      = lib
+TEMPLATE      = lib
 include (../../Vorgaben.pri)
 VERSION       = 0.0.1
+TARGET	      = terminal
+HEADERS	      = Quellen/Terminal.h
+SOURCES	      = Quellen/Terminal.cpp
