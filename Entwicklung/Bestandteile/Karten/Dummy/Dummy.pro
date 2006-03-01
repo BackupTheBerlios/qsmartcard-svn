@@ -14,13 +14,19 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-PROJEKTTEIL   = Terminal
+PROJEKTTEIL   = Dummykarte
 TEMPLATE      = lib
-CONFIG       += dll
-include (../../Vorgaben.pri)
+CONFIG		 += plugin
+include (../../../Vorgaben.pri)
 VERSION       = 0.0.0.1
-TARGET	      = terminal
+TARGET	      = Dummykarte
+QMAKE_TARGET_DESCRIPTION = Dummykarte zum Testen
 DEFINES	     += DLL_BAUEN
-INCLUDEPATH	 += ../Karten/SmartCard
-HEADERS	      = Quellen/Terminal.h
-SOURCES	      = Quellen/Terminal.cpp
+INCLUDEPATH	 += ../SmartCard
+HEADERS	      = Quellen/Dummykarte.h\
+				../SmartCard/SmartCard.h\
+				../SmartCard/SmartCardPlugin.h
+SOURCES	      = Quellen/Dummykarte.cpp\
+				Quellen/DummykartePlugin.cpp\
+				../SmartCard/SmartCard.cpp\
+				../SmartCard/SmartCardPlugin.cpp

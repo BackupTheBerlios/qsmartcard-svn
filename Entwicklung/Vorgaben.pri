@@ -32,6 +32,12 @@ contains(Strip, ja) {
 #Müll entfernen
 QMAKE_POST_LINK =strip -s $$DESTDIR/$(TARGET)
 }
+#damit die Datei .dll und nicht 0.dll heist.
+win32 {
+	contains(TEMPLATE, lib) {
+		TARGET_EXT = .dll
+}
+}
 QMAKE_TARGET_COMPANY = Frank Büttner
 QMAKE_TARGET_PRODUCT = QSmartCard
 QMAKE_TARGET_DESCRIPTION = C++ Bibliothek für den Zugriff auf SmartCards unter Qt.

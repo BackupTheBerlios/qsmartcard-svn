@@ -14,13 +14,10 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-PROJEKTTEIL   = Terminal
+PROJEKTTEIL   = Krankenversicherungskarte
 TEMPLATE      = lib
 CONFIG       += dll
-include (../../Vorgaben.pri)
+include (../../../Vorgaben.pri)
 VERSION       = 0.0.0.1
-TARGET	      = terminal
+TARGET	      = KVKKarte
 DEFINES	     += DLL_BAUEN
-INCLUDEPATH	 += ../Karten/SmartCard
-HEADERS	      = Quellen/Terminal.h
-SOURCES	      = Quellen/Terminal.cpp

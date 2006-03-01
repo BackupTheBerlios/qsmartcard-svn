@@ -17,3 +17,5 @@
 PROJEKTTEIL = Karten
 TEMPLATE    = subdirs
 include (../../Vorgaben.pri)
+SUBDIRS	   += Dummy\
+#			  KVK

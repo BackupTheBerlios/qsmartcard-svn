@@ -27,7 +27,25 @@ int main(int argc, char *argv[])
 	QFrankTerminal *Terminal=new QFrankTerminal(&Programm);
 	qDebug()<<"Es wurden folgende Geräte Plug-In's gefunden:\r\n"<<Terminal->ListeDerLeser().join("\r\n");
 	qDebug()<<"Es wurden folgende SmartCard Plug-In's gefunden:\r\n"<<Terminal->ListeDerKarten().join("\r\n");
+	
+	
+	//Mit Extras suchen mit dem QtProperty System
+	foreach(QString Karte,Terminal->ListeDerKarten())
+	{
+		qDebug()<<"Karte"<<Karte<<"hat folgende"<< ((QObject *)Terminal->KarteHohlen(Karte))->metaObject()->propertyCount() <<"Extras:";
+		for (int i=0;i<((QObject *)Terminal->KarteHohlen(Karte))->metaObject()->propertyCount();i++)
+		{
+			qDebug()<<"Name:"<<((QObject *)Terminal->KarteHohlen(Karte))->metaObject()->property(i).name();
+			qDebug()<<"Type"<<((QObject *)Terminal->KarteHohlen(Karte))->metaObject()->property(i).typeName();
+			if(((QObject *)Terminal->KarteHohlen(Karte))->metaObject()->property(i).isReadable())
+			{
+				qDebug()<<"Der Wert ist lesbar und beinhaltet:"<<((QObject *)Terminal->KarteHohlen(Karte))->property(((QObject *)Terminal->KarteHohlen(Karte))->metaObject()->property(i).name());
+			}
+			
+		}
+	}
 
+	
 	delete Terminal;
 	return 0;
 	return Programm.exec();

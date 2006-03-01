@@ -18,12 +18,10 @@
  */
 
 #include "Terminal.h"
-
+#include <Karteninterface.h>
+#include <SmartCard.h>
 
 //Dummy nur zum testen anfang
-QFrankSmartCard::QFrankSmartCard()
-{
-}
 QFrankLeser::QFrankLeser()
 {
 }
@@ -32,16 +30,15 @@ QFrankLeser::QFrankLeser()
 QFrankTerminal::QFrankTerminal(QObject *eltern,QString pluginVerzeichnis):QObject(eltern)
 {
 	setObjectName("QFrankTerminal");
-	Pluginverzeichnis=pluginVerzeichnis;
-#ifdef MEINDEBUG
-	qDebug()<<"Plugins werden gesucht in:"<<Pluginverzeichnis;
-#endif
+	PlugInsLaden(QDir(pluginVerzeichnis));
 
 	//Dummy Geräte
-	TabelleKarten.insert("Dummy Karte1",new QFrankSmartCard());
-	TabelleKarten.insert("Dummy Karte2",new QFrankSmartCard());
 	TabelleLeser.insert("Dummy Leser1",new QFrankLeser());
 	TabelleLeser.insert("Dumme Leser2",new QFrankLeser());
+}
+
+QFrankTerminal::~QFrankTerminal()
+{
 }
 
 QStringList QFrankTerminal::ListeDerKarten()
@@ -75,4 +72,43 @@ bool QFrankTerminal::ArgumentLeer(QString &argument)
 	if(argument.isEmpty() | argument.isNull())
 		return true;
 	return false;
+}
+
+void QFrankTerminal::PlugInsLaden(QDir pfad)
+{
+	
+#ifdef MEINDEBUG
+	qDebug()<<"Lade Plugins aus:"<<pfad.absolutePath();
+#endif
+	foreach (QString Datei, pfad.entryList(QDir::Files))
+	{
+#ifdef MEINDEBUG
+		qDebug()<<"prüfe Datei:"<<Datei;
+#endif
+		QPluginLoader PlugInLader(pfad.absoluteFilePath(Datei));
+		QObject *PlugIn = PlugInLader.instance();
+		if (PlugIn)
+		{
+#ifdef MEINDEBUG
+			qDebug()<<Datei<<"geladen";
+#endif
+			/*
+				Datei konnte geladen werden.
+				Nun wird geprüft, was es für ein PlugIn ist
+			*/
+			QFrankKarteninterface *Karte=qobject_cast<QFrankKarteninterface *>(PlugIn);
+			if(Karte)
+			{
+#ifdef MEINDEBUG
+				qDebug()<<Datei<<"ist ein Kartenplugin";
+#endif
+				//Jedes Bibliothek könnte mehrere Plug-Ins bereitstellen
+			    foreach (QString Pluginname,Karte->Karten())
+				{
+					//Neues Objekt anlegen und den Zeiger in die Liste:)
+					TabelleKarten.insert(Pluginname,Karte->erstellen(Pluginname));
+				}
+			}
+		}
+	}
 }
