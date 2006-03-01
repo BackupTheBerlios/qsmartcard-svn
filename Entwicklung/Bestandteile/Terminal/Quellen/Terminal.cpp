@@ -19,19 +19,60 @@
 
 #include "Terminal.h"
 
-QFrankTerminal::QFrankTerminal(QObject *eltern):QObject(eltern)
-{
-	setObjectName("QFrankTerminal");
-	PluginverzeichnisSetzen(QCoreApplication::applicationDirPath());
 
+//Dummy nur zum testen anfang
+QFrankSmartCard::QFrankSmartCard()
+{
 }
+QFrankLeser::QFrankLeser()
+{
+}
+//Dummy nur zum testen ende
 
 QFrankTerminal::QFrankTerminal(QObject *eltern,QString pluginVerzeichnis):QObject(eltern)
 {
-	PluginverzeichnisSetzen(pluginVerzeichnis);	
+	setObjectName("QFrankTerminal");
+	Pluginverzeichnis=pluginVerzeichnis;
+#ifdef MEINDEBUG
+	qDebug()<<"Plugins werden gesucht in:"<<Pluginverzeichnis;
+#endif
+
+	//Dummy Geräte
+	TabelleKarten.insert("Dummy Karte1",new QFrankSmartCard());
+	TabelleKarten.insert("Dummy Karte2",new QFrankSmartCard());
+	TabelleLeser.insert("Dummy Leser1",new QFrankLeser());
+	TabelleLeser.insert("Dumme Leser2",new QFrankLeser());
 }
 
-void QFrankTerminal::PluginverzeichnisSetzen(QString pluginVerzeichnis)
+QStringList QFrankTerminal::ListeDerKarten()
 {
-	Pluginverzeichnis=pluginVerzeichnis;
+	return TabelleKarten.keys();
+}
+
+QStringList QFrankTerminal::ListeDerLeser()
+{
+	return TabelleLeser.keys();
+}
+
+QFrankSmartCard* QFrankTerminal::KarteHohlen(QString karte)
+{
+	//Argument leer? oder nicht in der Liste
+	if(ArgumentLeer(karte) | !TabelleKarten.contains(karte))
+		return 0;
+	return TabelleKarten.value(karte);
+}
+
+QFrankLeser* QFrankTerminal::LeserHohlen(QString lesegeraet)
+{
+	//Argument leer? oder nicht in der Liste
+	if(ArgumentLeer(lesegeraet) | !TabelleLeser.contains(lesegeraet))
+		return 0;
+	return TabelleLeser.value(lesegeraet);
+}
+
+bool QFrankTerminal::ArgumentLeer(QString &argument)
+{
+	if(argument.isEmpty() | argument.isNull())
+		return true;
+	return false;
 }

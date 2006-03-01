@@ -24,11 +24,11 @@
 int main(int argc, char *argv[])
 {
 	QCoreApplication Programm(argc,argv);
-#ifdef MEINDEBUG
-	qDebug()<<"Mit Debug";
-#else
-	qDebug()<<"Ohne Debug";
-#endif
+	QFrankTerminal *Terminal=new QFrankTerminal(&Programm);
+	qDebug()<<"Es wurden folgende Geräte Plug-In's gefunden:\r\n"<<Terminal->ListeDerLeser().join("\r\n");
+	qDebug()<<"Es wurden folgende SmartCard Plug-In's gefunden:\r\n"<<Terminal->ListeDerKarten().join("\r\n");
+
+	delete Terminal;
 	return 0;
 	return Programm.exec();
 }

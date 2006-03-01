@@ -1,7 +1,9 @@
 CONFIG 	      += qt release
 QT 		      -= gui
-#Mit Debug Infos??
+#Mit Debug Infos? ja/nein
 Debuginfos	       = ja
+#strip unter unix/mingw? ja/nein
+Strip              = nein
 isEmpty(PFAD) {
 	win32 {
 			PFAD=$$system(type $$(TMP)"\x.x")
@@ -26,9 +28,10 @@ contains(Debuginfos, ja) {
 }
 }
 }
+contains(Strip, ja) {
 #Müll entfernen
 QMAKE_POST_LINK =strip -s $$DESTDIR/$(TARGET)
-
+}
 QMAKE_TARGET_COMPANY = Frank Büttner
 QMAKE_TARGET_PRODUCT = QSmartCard
 QMAKE_TARGET_DESCRIPTION = C++ Bibliothek für den Zugriff auf SmartCards unter Qt.

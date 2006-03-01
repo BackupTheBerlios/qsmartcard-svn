@@ -22,16 +22,47 @@
 
 #include <QtCore>
 
-class QFrankTerminal : public QObject
+//der MS Compiler braucht Hilfe beim exportieren
+#if defined(_WIN32) && !defined(__GNUC__)
+	#ifdef DLL_BAUEN
+		#define DLL_EXPORT __declspec(dllexport)
+	#else
+		#define DLL_EXPORT __declspec(dllimport)
+	#endif
+#else
+	#define DLL_EXPORT
+#endif
+
+//class QFrankSmartCard;
+//class QFrankLeser;
+
+//Dummy nur zum testen anfang
+class  DLL_EXPORT QFrankSmartCard
+{
+public:
+QFrankSmartCard();
+};
+class DLL_EXPORT QFrankLeser
+{
+public:
+QFrankLeser();
+};
+//Dummy nur zum testen ende
+
+class DLL_EXPORT QFrankTerminal : public QObject
 {
 	Q_OBJECT
 	public:
-			QFrankTerminal(QObject *eltern=0);
-			QFrankTerminal(QObject *eltern,QString pluginVerzeichnis);
-			bool	Treiberladen();
-			void	PluginverzeichnisSetzen(QString pluginVerzeichnis);
-			
+			QFrankTerminal(QObject *eltern=0,QString pluginVerzeichnis=QCoreApplication::applicationDirPath());
+			QStringList						ListeDerKarten();
+			QStringList						ListeDerLeser();
+			QFrankSmartCard*				KarteHohlen(QString karte);
+			QFrankLeser*					LeserHohlen(QString lesegeraet);
+
 	private:
-			QString	Pluginverzeichnis;
+			QString							Pluginverzeichnis;
+			bool							ArgumentLeer(QString &argument);
+			QHash<QString,QFrankSmartCard*>	TabelleKarten;
+			QHash<QString,QFrankLeser*>		TabelleLeser;
 };
 #endif

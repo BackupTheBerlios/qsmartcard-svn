@@ -1,4 +1,4 @@
-# Copyright (C) 2005-2006 Frank Büttner frank-buettner@gmx.net
+# Copyright (C) 2005-2006 Frank BÃ¼ttner frank-buettner@gmx.net
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License

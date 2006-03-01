@@ -1,4 +1,4 @@
-# Copyright (C) 2005-2006 Frank Büttner frank-buettner@gmx.net
+# Copyright (C) 2005-2006 Frank BÃ¼ttner frank-buettner@gmx.net
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -16,8 +16,14 @@
 
 PROJEKTTEIL   = Terminal
 TEMPLATE      = lib
+CONFIG       += dll
 include (../../Vorgaben.pri)
-VERSION       = 0.0.1
+VERSION       = 0.0.0.1
 TARGET	      = terminal
+DEFINES	     += DLL_BAUEN
 HEADERS	      = Quellen/Terminal.h
 SOURCES	      = Quellen/Terminal.cpp
+#damit die Datei .dll und nicht 0.dll heist.
+win32 {
+TARGET_EXT = .dll
+}
