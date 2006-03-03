@@ -20,6 +20,9 @@
 #ifndef QFRANKKVK_H
 #define QFRANKKVK_H
 
+//XXYYZZ XX=Major YY=Minor ZZ=Patch
+#define KVKVersion 0x000100
+
 #include <QtCore>
 #include <SmartCard.h>
 
@@ -64,6 +67,7 @@ class QFrankKVK: public QFrankSmartCard
 			QDate		GueltigBis();
 			bool		KVKLeser();
 			void		KVKLeserSetzen(bool kvk);
+			ulong		Version();
 
 	private:
 			void		VariabelnInitialisieren();

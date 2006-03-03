@@ -23,12 +23,22 @@
 #include <QtCore>
 #include <Lesegeraet.h>
 
+//XXYYZZ XX=Major YY=Minor ZZ=Patch
+#define DummyleserVersion 0x000100
+
 class QFrankDummyleser: public QFrankLesegeraet
 {
 	Q_OBJECT
-	Q_PROPERTY(QString QFrankLesegeraertExtra READ Extrafunktion)
+	Q_PROPERTY(bool QFrankLesegeraertISO_SelectFileFehler READ ISO_SelectFileFehler WRITE ISO_SelectFileFehlerSetzen)
 	public:
 			QFrankDummyleser(QObject* eltern);
-			QString Extrafunktion();
+			bool								ISO_SelectFileFehler();
+			void								ISO_SelectFileFehlerSetzen(bool fehler);
+			QFrankLesegeraet::Rueckgabecodes	ISO_SelectFile(QByteArray datenfeld);
+			ulong								Version();
+
+	private:
+			bool								FehlerSF;
+			QString								FeldNachHex(QByteArray feld);
 };
 #endif

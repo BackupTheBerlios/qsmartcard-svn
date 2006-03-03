@@ -20,13 +20,26 @@
 #ifndef QFRANKLESEGERAET_H
 #define QFRANKLESEGERAET_H
 
+//XXYYZZ XX=Major YY=Minor ZZ=Patch
+#define LesegeraetAPI_Version 0x000100
+
 #include <QtCore>
 
 class QFrankLesegeraet: public QObject
 {
 	Q_OBJECT
 	public:
+			enum Rueckgabecode
+			{
+				CommandSuccessful=0x9000,
+				FileNotFound=0x6a82,
+				ParameterFalsch=0xffff
+			};
+			Q_DECLARE_FLAGS(Rueckgabecodes, Rueckgabecode)
 			QFrankLesegeraet(QObject* eltern);
+			virtual ulong								Version()=0;
+			virtual QFrankLesegeraet::Rueckgabecodes	ISO_SelectFile(QByteArray datenfeld)=0;
 
 };
+Q_DECLARE_OPERATORS_FOR_FLAGS(QFrankLesegeraet::Rueckgabecodes)
 #endif

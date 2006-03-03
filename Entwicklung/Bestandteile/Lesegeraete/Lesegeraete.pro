@@ -17,5 +17,7 @@
 PROJEKTTEIL = Lesegeräte
 TEMPLATE    = subdirs
 include (../../Vorgaben.pri)
-SUBDIRS	   += Dummy
-			  #CT-API
+include (../../Module.pri)
+contains(Lesegeraete, Dummyleser)	: SUBDIRS += Dummy
+contains(Lesegeraete, CT-API)		: SUBDIRS += CT-API
+

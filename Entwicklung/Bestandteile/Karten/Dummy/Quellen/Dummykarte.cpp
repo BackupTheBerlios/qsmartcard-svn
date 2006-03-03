@@ -28,3 +28,8 @@ QString QFrankDummykarte::Extrafunktion()
 {
 	return "Extrafunktion der Dummykarte";
 }
+
+ulong QFrankDummykarte::Version()
+{
+	return DummykarteVersion;
+}

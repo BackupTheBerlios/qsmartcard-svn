@@ -17,5 +17,6 @@
 PROJEKTTEIL = Karten
 TEMPLATE    = subdirs
 include (../../Vorgaben.pri)
-SUBDIRS	   += Dummy\
-			  KVK
+include (../../Module.pri)
+contains(Karten, Dummykarte)	: SUBDIRS += Dummy
+contains(Karten, KVK)			: SUBDIRS += KVK

@@ -20,6 +20,7 @@
 
 #include <QtCore>
 #include <Terminal.h>
+#include <Lesegeraet.h>
 
 int main(int argc, char *argv[])
 {
@@ -28,7 +29,7 @@ int main(int argc, char *argv[])
 	qDebug()<<"Es wurden folgende Geräte Plug-In's gefunden:\r\n"<<Terminal->ListeDerLeser().join("\r\n");
 	qDebug()<<"Es wurden folgende SmartCard Plug-In's gefunden:\r\n"<<Terminal->ListeDerKarten().join("\r\n");
 	
-	
+/*
 	//Mit Extras suchen mit dem QtProperty System
 	foreach(QString Karte,Terminal->ListeDerKarten())
 	{
@@ -44,8 +45,24 @@ int main(int argc, char *argv[])
 			
 		}
 	}
+*/
+	//teste für den Dummyleser
+	foreach(QString Leser,Terminal->ListeDerLeser())
+	{
+		if(Leser=="Dummyleser1")
+		{
+			QByteArray Testfeld(5,0x00);
+			Testfeld[0]=0x04;
+			Testfeld[1]=0x00;
+			Testfeld[2]=0x02;
+			Testfeld[3]=0x01;
+			Testfeld[4]=0x02;
+			qDebug()<<"Teste für den Dummyleser";
+			//((QObject*)Terminal->LeserHohlen(Leser))->setProperty("QFrankLesegeraertISO_SelectFileFehler",true);
+			Terminal->LeserHohlen(Leser)->ISO_SelectFile(Testfeld);
+		}
+	}
 
-	
 	delete Terminal;
 	return 0;
 	return Programm.exec();

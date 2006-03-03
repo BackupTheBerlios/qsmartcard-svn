@@ -136,3 +136,7 @@ void QFrankKVK::KVKLeserSetzen(bool kvk)
 	KVKLeserWert=kvk;
 }
 
+ulong QFrankKVK::Version()
+{
+	return KVKVersion;
+}

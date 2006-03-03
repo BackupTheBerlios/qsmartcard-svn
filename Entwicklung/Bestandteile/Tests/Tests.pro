@@ -18,7 +18,8 @@ PROJEKTTEIL   = Tester
 TEMPLATE      = app
 include (../../Vorgaben.pri)
 TARGET	      = tests
-INCLUDEPATH  += ../Terminal/Quellen
+INCLUDEPATH  += ../Terminal/Quellen\
+				../Lesegeraete/Lesegeraet
 SOURCES      += Quellen/haupt.cpp
 LIBS	     += -lterminal -L$$DESTDIR
 

@@ -20,6 +20,9 @@
 #ifndef QFRANKSMARTCARD_H
 #define QFRANKSMARTCARD_H
 
+//XXYYZZ XX=Major YY=Minor ZZ=Patch
+#define SmartCardAPI_Version 0x000100
+
 #include <QtCore>
 
 class QFrankSmartCard: public QObject
@@ -27,6 +30,7 @@ class QFrankSmartCard: public QObject
 	Q_OBJECT
 	public:
 			QFrankSmartCard(QObject* eltern);
+			virtual ulong Version()=0;
 
 };
 #endif

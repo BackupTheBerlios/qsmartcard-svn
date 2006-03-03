@@ -14,17 +14,11 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-TEMPLATE       =subdirs
-
-win32 {
-        PFAD = $$system(echo %CD%)
-	system(echo $$PFAD >$$(TMP)/x.x)
-}
-else {
-        PFAD = $$system(pwd)
-	system(echo $$PFAD >/tmp/x.x)
-}
-SUBDIRS	+= Bestandteile/Karten\
-		   Bestandteile/Terminal\
-		   Bestandteile/Lesegeraete\		  
-		   Bestandteile/Tests
+ Karten		  = 
+ Lesegeraete  =
+ #Was soll gebaut werden nicht gewünschte Moduel auskommentieren.
+ Karten		 += Dummykarte
+ Karten		 += KVK
+ Lesegeraete += Dummyleser
+ #Lesegeraete += CT-API
+ 

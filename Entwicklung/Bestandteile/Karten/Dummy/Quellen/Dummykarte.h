@@ -20,6 +20,9 @@
 #ifndef QFRANKDUMMYKARTE_H
 #define QFRANKDUMMYKARTE_H
 
+//XXYYZZ XX=Major YY=Minor ZZ=Patch
+#define DummykarteVersion 0x000100
+
 #include <QtCore>
 #include <SmartCard.h>
 
@@ -30,5 +33,6 @@ class QFrankDummykarte: public QFrankSmartCard
 	public:
 			QFrankDummykarte(QObject* eltern);
 			QString Extrafunktion();
+			ulong	Version();
 };
 #endif
