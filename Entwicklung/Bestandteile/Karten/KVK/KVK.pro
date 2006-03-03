@@ -1,4 +1,4 @@
-# Copyright (C) 2005-2006 Frank BÃ¼ttner frank-buettner@gmx.net
+# Copyright (C) 2005-2006 Frank Büttner frank-buettner@gmx.net
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -16,8 +16,19 @@
 
 PROJEKTTEIL   = Krankenversicherungskarte
 TEMPLATE      = lib
-CONFIG       += dll
+CONFIG       += plugin
 include (../../../Vorgaben.pri)
 VERSION       = 0.0.0.1
-TARGET	      = KVKKarte
+TARGET	      = KVK
+QMAKE_TARGET_DESCRIPTION = Modul für die Krankenversicherungskarte
 DEFINES	     += DLL_BAUEN
+INCLUDEPATH	 += ../SmartCard
+HEADERS		  = Quellen/KVK.h\
+				../SmartCard/SmartCard.h\
+				../SmartCard/SmartCardPlugin.h				
+SOURCES		  = Quellen/KVK.cpp\
+				Quellen/KVKPlugin.cpp\
+				../SmartCard/SmartCard.cpp\
+				../SmartCard/SmartCardPlugin.cpp
+				
+				

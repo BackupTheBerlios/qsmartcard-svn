@@ -19,22 +19,15 @@
 
 #include "Terminal.h"
 #include <Karteninterface.h>
+#include <Lesegeraetinterface.h>
 #include <SmartCard.h>
+#include <Lesegeraet.h>
 
-//Dummy nur zum testen anfang
-QFrankLeser::QFrankLeser()
-{
-}
-//Dummy nur zum testen ende
 
 QFrankTerminal::QFrankTerminal(QObject *eltern,QString pluginVerzeichnis):QObject(eltern)
 {
 	setObjectName("QFrankTerminal");
 	PlugInsLaden(QDir(pluginVerzeichnis));
-
-	//Dummy Geräte
-	TabelleLeser.insert("Dummy Leser1",new QFrankLeser());
-	TabelleLeser.insert("Dumme Leser2",new QFrankLeser());
 }
 
 QFrankTerminal::~QFrankTerminal()
@@ -59,7 +52,7 @@ QFrankSmartCard* QFrankTerminal::KarteHohlen(QString karte)
 	return TabelleKarten.value(karte);
 }
 
-QFrankLeser* QFrankTerminal::LeserHohlen(QString lesegeraet)
+QFrankLesegeraet* QFrankTerminal::LeserHohlen(QString lesegeraet)
 {
 	//Argument leer? oder nicht in der Liste
 	if(ArgumentLeer(lesegeraet) | !TabelleLeser.contains(lesegeraet))
@@ -107,6 +100,17 @@ void QFrankTerminal::PlugInsLaden(QDir pfad)
 				{
 					//Neues Objekt anlegen und den Zeiger in die Liste:)
 					TabelleKarten.insert(Pluginname,Karte->erstellen(Pluginname));
+				}
+			}
+			QFrankLesegeraetinterface *Leser=qobject_cast<QFrankLesegeraetinterface *>(PlugIn);
+			if(Leser)
+			{
+#ifdef MEINDEBUG
+				qDebug()<<Datei<<"ist ein Lesegerätplugin";
+#endif
+				foreach (QString Pluginname,Leser->Geraete())
+				{
+					TabelleLeser.insert(Pluginname,Leser->erstellen(Pluginname));
 				}
 			}
 		}

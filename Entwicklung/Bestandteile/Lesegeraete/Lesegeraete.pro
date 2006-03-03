@@ -17,3 +17,5 @@
 PROJEKTTEIL = Lesegeräte
 TEMPLATE    = subdirs
 include (../../Vorgaben.pri)
+SUBDIRS	   += Dummy
+			  #CT-API

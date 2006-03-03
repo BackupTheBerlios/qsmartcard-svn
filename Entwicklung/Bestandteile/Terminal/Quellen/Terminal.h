@@ -33,17 +33,11 @@
 	#define DLL_EXPORT
 #endif
 
+
 class QFrankKarteninterface;
-//class QFrankLeser;
+class QFrankLesegeraetinterface;
 
-//Dummy nur zum testen anfang
-class DLL_EXPORT QFrankLeser
-{
-public:
-QFrankLeser();
-};
-//Dummy nur zum testen ende
-
+class QFrankLesegeraet;
 class QFrankSmartCard;
 
 class DLL_EXPORT QFrankTerminal : public QObject
@@ -55,12 +49,12 @@ class DLL_EXPORT QFrankTerminal : public QObject
 			QStringList								ListeDerKarten();
 			QStringList								ListeDerLeser();
 			QFrankSmartCard*						KarteHohlen(QString karte);
-			QFrankLeser*							LeserHohlen(QString lesegeraet);
+			QFrankLesegeraet*						LeserHohlen(QString lesegeraet);
 
 	private:
 			bool									ArgumentLeer(QString &argument);
 			QHash<QString,QFrankSmartCard*>			TabelleKarten;
-			QHash<QString,QFrankLeser*>				TabelleLeser;
+			QHash<QString,QFrankLesegeraet*>		TabelleLeser;
 			void									PlugInsLaden(QDir pfad);
 };
 #endif

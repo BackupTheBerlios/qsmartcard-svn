@@ -14,14 +14,19 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-PROJEKTTEIL   = Terminal
+PROJEKTTEIL   = Dummyleser
 TEMPLATE      = lib
-CONFIG       += dll
-include (../../Vorgaben.pri)
+CONFIG		 += plugin
+include (../../../Vorgaben.pri)
 VERSION       = 0.0.0.1
-TARGET	      = terminal
+TARGET	      = Dummyleser
+QMAKE_TARGET_DESCRIPTION = Dummyleser zum Testen
 DEFINES	     += DLL_BAUEN
-INCLUDEPATH	 += ../Karten/SmartCard\
-				../Lesegeraete/Lesegeraet
-HEADERS	      = Quellen/Terminal.h
-SOURCES	      = Quellen/Terminal.cpp
+INCLUDEPATH	 += ../Lesegeraet
+HEADERS	      = Quellen/Dummyleser.h\
+				../Lesegeraet/Lesegeraet.h\
+				../Lesegeraet/LesegeraetPlugin.h
+SOURCES	      = Quellen/Dummyleser.cpp\
+				Quellen/DummyleserPlugin.cpp\
+				../Lesegeraet/Lesegeraet.cpp\
+				../Lesegeraet/LesegeraetPlugin.cpp
