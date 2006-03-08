@@ -32,18 +32,50 @@ class QFrankLesegeraet: public QObject
 			enum Rueckgabecode
 			{
 				CommandSuccessful=0x9000,
+				Error=0x6200,
 				DataCorrupted=0x6281,
 				WarningEOFbeforeLeBytes=0x6282,
+				VerificationUnsuccessfullOneLeft=0x63c0,
+				VerificationUnsuccessfullTwoLeft=0x63c1,
+				VerificationUnsuccessfullThreeLeft=0x63c2,
+				VerificationUnsuccessfullFourLeft=0x63c3,
+				VerificationUnsuccessfullFifeLeft=0x63c4,
+				VerificationUnsuccessfullSixLeft=0x63c5,
+				VerificationUnsuccessfullSevenLeft=0x63c6,
+				VerificationUnsuccessfullEightLeft=0x63c7,
+				VerificationUnsuccessfullNineLeft=0x63c8,
+				VerificationUnsuccessfullTenLeft=0x63c9,
+				VerificationUnsuccessfullElevenLeft=0x63ca,
+				VerificationUnsuccessfullTwelveLeft=0x63cb,
+				VerificationUnsuccessfullThirteenLeft=0x63cc,
+				VerificationUnsuccessfullFourteenLeft=0x63cd,
+				VerificationUnsuccessfullFifteenLeft=0x63ce,
+				VerificationUnsuccessfullSixteenLeft=0x63cf,
+				VerificationMethodBlocked=0x6983,
 				MemoryFailure=0x6501,
 				FileNotFound=0x6a82,
 				ParameterFalsch=0xffff
 			};
+			enum Klasse
+			{
+				Klasse1=0x00,
+				Klasse2=0x01,
+				Klasse3=0x02,
+				Klasse4=0x03,
+				KlasseUnbekannt=0xff
+			};
 			Q_DECLARE_FLAGS(Rueckgabecodes, Rueckgabecode)
+			Q_DECLARE_FLAGS(Leserklasse, Klasse)
 			QFrankLesegeraet(QObject* eltern);
 			virtual ulong								Version()=0;
 			virtual QFrankLesegeraet::Rueckgabecodes	ISO_SelectFile(QByteArray datenfeld)=0;
 			virtual QFrankLesegeraet::Rueckgabecodes	ISO_ReadBinary(QByteArray datenfeld,QByteArray &Zielfeld)=0;
+			virtual	QFrankLesegeraet::Rueckgabecodes	ISO_UpdateBinary(QByteArray datenfeld)=0;
+			virtual	QFrankLesegeraet::Rueckgabecodes	ISO_Verify(QByteArray datenfeld)=0;
+			virtual	QFrankLesegeraet::Rueckgabecodes	ISO_ChangeReferenceData(QByteArray datenfeld)=0;
+			virtual QFrankLesegeraet::Leserklasse		Sicherheitsklasse()=0;
 
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(QFrankLesegeraet::Rueckgabecodes)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QFrankLesegeraet::Leserklasse)
 #endif

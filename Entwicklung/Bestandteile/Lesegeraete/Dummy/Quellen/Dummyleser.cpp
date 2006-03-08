@@ -24,21 +24,15 @@ QFrankDummyleser::QFrankDummyleser(QObject* eltern):QFrankLesegeraet(eltern)
 	setObjectName("QFrankDummyleser");
 	FehlerSF=false;
 	RueckgabecodeReadBinary=QFrankLesegeraet::CommandSuccessful;
+	RueckgabecodeUpdateBinary=QFrankLesegeraet::CommandSuccessful;
+	RueckgabecodeVerify=QFrankLesegeraet::CommandSuccessful;
+	RueckgabecodeChangeReferenceData=QFrankLesegeraet::CommandSuccessful;
+	SicherheitsklasseWert=QFrankLesegeraet::KlasseUnbekannt;
 }
 
 ulong QFrankDummyleser::Version()
 {
 	return DummyleserVersion;
-}
-
-bool QFrankDummyleser::ISO_SelectFileFehler()
-{
-	return FehlerSF;
-}
-
-void QFrankDummyleser::ISO_SelectFileFehlerSetzen(bool fehler)
-{
-	FehlerSF=fehler;
 }
 
 QString QFrankDummyleser::FeldNachHex(QByteArray feld)
@@ -61,58 +55,34 @@ QString QFrankDummyleser::FeldNachHex(QByteArray feld)
 	return tmp.left(tmp.size()-1);
 }
 
-void QFrankDummyleser::ISO_ReadBinaryDatenSetzen(QByteArray dummydaten)
+QString QFrankDummyleser::BCDNachDez(QByteArray feld)
 {
-	Datenfeld=dummydaten;
+	uchar low,high;
+	QString tmp="";
+	for(int x=0;x<feld.size();x++)
+	{
+		high=(feld.at(x)>>4) & 0x0f;
+		low=feld.at(x) &0x0f;
+		if(high>0x09)
+			break;
+		else
+			tmp.append(high+0x30);
+		if(low>0x09)
+			break;
+		else
+			tmp.append(low+0x30);
+	}
+	return tmp;
 }
 
-QByteArray QFrankDummyleser::ISO_ReadBinaryDaten()
+bool QFrankDummyleser::ISO_SelectFileFehler()
 {
-	return Datenfeld;
+	return FehlerSF;
 }
 
-void QFrankDummyleser::ISO_ReadBinaryStatuscodeSetzen(ulong status)
+void QFrankDummyleser::ISO_SelectFileFehlerSetzen(bool fehler)
 {
-	RueckgabecodeReadBinary=(QFrankLesegeraet::Rueckgabecodes)status;
-}
-
-ulong QFrankDummyleser::ISO_ReadBinaryStatuscode()
-{
-	return RueckgabecodeReadBinary;
-}
-
-QFrankLesegeraet::Rueckgabecodes QFrankDummyleser::ISO_ReadBinary(QByteArray datenfeld,QByteArray &Zielfeld)
-{
-	qDebug()<<"Read Binary Anfang";
-	//P1+P2 Adresse
-	//LC=Länge der zu lesenden Daten 00=alles
-	if(datenfeld.size()<3)
-	{
-		//steht nur Müll drin
-		qCritical()<<"Das Datenfeld ist zu klein Größe:"<<datenfeld.size()<<"\r\nRead Binary Ende";
-		return QFrankLesegeraet::ParameterFalsch;
-	}
-	Zielfeld=Datenfeld;
-	qDebug()<<"Es soll ab Adresse"<<FeldNachHex(datenfeld.mid(0,2))<<FeldNachHex(datenfeld.mid(2))<<"Bytes gelesen werden";
-	qDebug()<<"Das wurde gelesen:"<<FeldNachHex(Datenfeld);
-	// Zu Lesendenbytes größer als die Dummydaten? Dann EOF vor Le
-	qulonglong ZuLesendeDaten=0;
-	for (int x=2;x<datenfeld.size();x++)
-	{
-		ZuLesendeDaten=ZuLesendeDaten <<8 | datenfeld.at(x);
-	}
-	if(Datenfeld.size()<ZuLesendeDaten)
-	{
-		qDebug()<<"Warnung EOF vor Le\r\nRead Binary Ende";
-		return QFrankLesegeraet::WarningEOFbeforeLeBytes;
-	}
-	if(RueckgabecodeReadBinary!=QFrankLesegeraet::CommandSuccessful)
-	{
-		qDebug()<<"Read Binary Fehler wird simmuliert\r\nRead Binary Ende";
-		return RueckgabecodeReadBinary;
-	}
-	qDebug()<<"Read Binary Ende";
-	return QFrankLesegeraet::CommandSuccessful;
+	FehlerSF=fehler;
 }
 
 QFrankLesegeraet::Rueckgabecodes QFrankDummyleser::ISO_SelectFile(QByteArray datenfeld)
@@ -172,7 +142,7 @@ QFrankLesegeraet::Rueckgabecodes QFrankDummyleser::ISO_SelectFile(QByteArray dat
 			qDebug()<<QString("FID ist: %1").arg(FID,0,16);
 		else
 		{
-			qDebug()<<QString("FID ungülitig erkannt wurde:%1 \r\n%2").arg(FID,0,16).arg("Select File Ende");
+			qDebug()<<QString("FID ungültig erkannt wurde:%1 \r\n%2").arg(FID,0,16).arg("Select File Ende");
 			return QFrankLesegeraet::ParameterFalsch;
 		}
 	}
@@ -191,6 +161,211 @@ QFrankLesegeraet::Rueckgabecodes QFrankDummyleser::ISO_SelectFile(QByteArray dat
 		qDebug()<<"Select File Fehler wird simmuliert\r\nSelect File Ende";
 		return QFrankLesegeraet::FileNotFound;
 	}
-	qDebug()<<"Selct File Ende";
+	qDebug()<<"Select File Ende";
 	return QFrankLesegeraet::CommandSuccessful;
+}
+
+ulong QFrankDummyleser::ISO_ReadBinaryStatuscode()
+{
+	return RueckgabecodeReadBinary;
+}
+
+void QFrankDummyleser::ISO_ReadBinaryStatuscodeSetzen(ulong status)
+{
+	RueckgabecodeReadBinary=(QFrankLesegeraet::Rueckgabecodes)status;
+}
+
+QByteArray QFrankDummyleser::ISO_ReadBinaryDaten()
+{
+	return Datenfeld;
+}
+
+void QFrankDummyleser::ISO_ReadBinaryDatenSetzen(QByteArray dummydaten)
+{
+	Datenfeld=dummydaten;
+}
+
+QFrankLesegeraet::Rueckgabecodes QFrankDummyleser::ISO_ReadBinary(QByteArray datenfeld,QByteArray &Zielfeld)
+{
+	qDebug()<<"Read Binary Anfang";
+	//P1+P2 Adresse
+	//LC=Länge der zu lesenden Daten 00=alles
+	if(datenfeld.size()<3)
+	{
+		//steht nur Müll drin
+		qCritical()<<"Das Datenfeld ist zu klein Größe:"<<datenfeld.size()<<"\r\nRead Binary Ende";
+		return QFrankLesegeraet::ParameterFalsch;
+	}
+	Zielfeld=Datenfeld;
+	qDebug()<<"Es soll ab Adresse"<<FeldNachHex(datenfeld.mid(0,2))<<FeldNachHex(datenfeld.mid(2))<<"Bytes gelesen werden";
+	qDebug()<<"Das wurde gelesen:"<<FeldNachHex(Datenfeld);
+	// Zu Lesendenbytes größer als die Dummydaten? Dann EOF vor Le
+	qulonglong ZuLesendeDaten=0;
+	for (int x=2;x<datenfeld.size();x++)
+	{
+		ZuLesendeDaten=ZuLesendeDaten <<8 | datenfeld.at(x);
+	}
+	if(Datenfeld.size()<ZuLesendeDaten)
+	{
+		qDebug()<<"Warnung EOF vor Le\r\nRead Binary Ende";
+		return QFrankLesegeraet::WarningEOFbeforeLeBytes;
+	}
+	if(RueckgabecodeReadBinary!=QFrankLesegeraet::CommandSuccessful)
+	{
+		qDebug()<<"Read Binary Fehler wird simmuliert\r\nRead Binary Ende";
+		return RueckgabecodeReadBinary;
+	}
+	qDebug()<<"Read Binary Ende";
+	return QFrankLesegeraet::CommandSuccessful;
+}
+
+ulong QFrankDummyleser::ISO_UpdateBinaryStatuscode()
+{
+	return RueckgabecodeUpdateBinary;
+}
+
+void QFrankDummyleser::ISO_UpdateBinaryStatuscodeSetzen(ulong status)
+{
+	RueckgabecodeUpdateBinary=(QFrankLesegeraet::Rueckgabecodes)status;
+}
+
+QFrankLesegeraet::Rueckgabecodes QFrankDummyleser::ISO_UpdateBinary(QByteArray datenfeld)
+{
+	qDebug()<<"Update Binary Anfang";
+	/*Datenfeld muss min 4 Byte gross sein
+	  1-2 Offset
+	  3 Länge der Daten
+	  ab 4 Daten
+	*/
+	if(datenfeld.size()<4)
+	{
+		qCritical()<<"Das Datenfeld ist zu klein Größe:"<<datenfeld.size()<<"\r\nUpdate Binary Ende";
+		return QFrankLesegeraet::ParameterFalsch;
+	}
+	if((datenfeld.size()-3)>256)
+	{
+		qCritical()<<"Das Datenfeld ist zu groß Größe:"<<datenfeld.size()<<"\r\nUpdate Binary Ende";
+		return QFrankLesegeraet::ParameterFalsch;
+	}
+	if(((uint)datenfeld.at(2))!=(datenfeld.size()-3))
+	{
+		qCritical()<<"Die angegeben Länge der Daten stimmt nicht mit der Länge des Feldes überein."<<
+					"Länge soll:"<<(uint)datenfeld.at(2)<<"ist:"<<(datenfeld.size()-3)<<"\r\nUpdate Binary Ende";
+		return QFrankLesegeraet::ParameterFalsch;
+	}
+	qDebug()<<"Ab Adresse"<<FeldNachHex(datenfeld.mid(0,2))<<"werden"<<datenfeld.size()-3<<"Bytes geschrieben";
+	qDebug()<<"Inhalt:"<<FeldNachHex(datenfeld.mid(3));
+	if(RueckgabecodeUpdateBinary!=QFrankLesegeraet::CommandSuccessful)
+	{
+		qDebug()<<"Update Binary Fehler wird simmuliert\r\nUpdate Binary Ende";
+		return RueckgabecodeUpdateBinary;
+	}
+	qDebug()<<"Update Binary Ende";
+	return QFrankLesegeraet::CommandSuccessful;
+}
+
+ulong QFrankDummyleser::ISO_VerifyStatuscode()
+{
+	return RueckgabecodeVerify;
+}
+
+void QFrankDummyleser::ISO_VerifyStatuscodeSetzen(ulong status)
+{
+	RueckgabecodeVerify=(QFrankLesegeraet::Rueckgabecodes)status;
+}
+
+QFrankLesegeraet::Rueckgabecodes QFrankDummyleser::ISO_Verify(QByteArray datenfeld)
+{
+	/* Das Datenfeld muss exakt 6 Bytes lang sein
+		1+2 00-00
+		3. 03
+		4-7 XX jedes der 3 Felder enthält 2 Zahlen des Pin's die Restlichen sind F
+	*/
+	qDebug()<<"Verify Anfang";
+	if(datenfeld.size()!=6)
+	{
+		qCritical()<<"Das Datenfeld ist nicht exakt 6 Bytes sondern"<<datenfeld.size()<<"Bytes lang.\r\nVerify Binary Ende";
+		return QFrankLesegeraet::ParameterFalsch;
+	}
+	if(datenfeld.at(2)!=0x03 || (datenfeld.at(0)!=0x00 && datenfeld.at(1)!=0x00))
+	{
+		qCritical()<<"Die Struktur des Datenfeldes ist falsch."<<FeldNachHex(datenfeld)<<"\r\nVerify Binary Ende";
+		return QFrankLesegeraet::ParameterFalsch;
+	}
+	qDebug()<<"Der Pin lautet:"<<BCDNachDez(datenfeld.mid(3))<<".";
+	if(RueckgabecodeVerify!=QFrankLesegeraet::CommandSuccessful)
+	{
+		qDebug()<<"Verify Fehler wird simmuliert\r\nVerify Ende";
+		return RueckgabecodeVerify;
+	}
+	qDebug()<<"Verify Ende";
+	return QFrankLesegeraet::CommandSuccessful;
+}
+
+ulong QFrankDummyleser::ISO_ChangeReferenceDataStatuscode()
+{
+	return RueckgabecodeChangeReferenceData;
+}
+
+void QFrankDummyleser::ISO_ChangeReferenceDataStatuscodeSetzen(ulong status)
+{
+	RueckgabecodeChangeReferenceData=(QFrankLesegeraet::Rueckgabecodes)status;
+}
+
+QFrankLesegeraet::Rueckgabecodes QFrankDummyleser::ISO_ChangeReferenceData(QByteArray datenfeld)
+{
+	qDebug()<<"Change Reference Data Anfang";
+	//Datenstruktur wie bei Verify jedoch 2. Pinblock für den neuen Pin.
+	if(datenfeld.size()!=9)
+	{
+		qCritical()<<"Das Datenfeld ist nicht exakt 9 Bytes sondern"<<datenfeld.size()<<"Bytes lang.\r\nChange Reference Ende";
+		return QFrankLesegeraet::ParameterFalsch;
+	}
+	if(datenfeld.at(2)!=0x06 || (datenfeld.at(0)!=0x00 && datenfeld.at(1)!=0x00))
+	{
+		qCritical()<<"Die Struktur des Datenfeldes ist falsch."<<FeldNachHex(datenfeld)<<"\r\nChange Reference Ende";
+		return QFrankLesegeraet::ParameterFalsch;
+	}
+	qDebug()<<"Der Pin :"<<BCDNachDez(datenfeld.mid(3,3))<<"wird in"<<BCDNachDez(datenfeld.mid(6))<<"geändert";
+	if(RueckgabecodeChangeReferenceData!=QFrankLesegeraet::CommandSuccessful)
+	{
+		qDebug()<<"Change Reference Data Fehler wird simmuliert\r\nVerify Ende";
+		return RueckgabecodeChangeReferenceData;
+	}
+	qDebug()<<"Change Reference Data Ende";
+	return QFrankLesegeraet::CommandSuccessful;
+}
+
+QFrankLesegeraet::Leserklasse QFrankDummyleser::Sicherheitsklasse()
+{
+	qDebug()<<"Sicherheitsklasse Annfang";
+	switch(SicherheitsklasseWert)
+	{
+		case QFrankLesegeraet::Klasse1:
+										qDebug()<<"Ich bin ein Leser der Klasse 1, d.h. ohne alles.";
+										break;
+		case QFrankLesegeraet::Klasse2:
+										qDebug()<<"Ich bin ein Leser der Klasse 2, d.h. mit eigener Tastatur.";
+										break;
+		case QFrankLesegeraet::Klasse3:
+										qDebug()<<"Ich bin ein Leser der Klasse 3, d.h. mit Tastaur und Display.";
+										break;
+		case QFrankLesegeraet::Klasse4:
+										qDebug()<<"Ich bin ein Leser der Klasse 4, d.h. mit Tastatur,Display und Sicherheitsmodul.";
+										break;
+		case QFrankLesegeraet::KlasseUnbekannt:
+										qDebug()<<"Meine Sicherheitsklasse konnte nicht ermittelt werden.:(";
+										break;
+		default:
+										qDebug()<<"Ein unbekannter Wert für die Sicherheitsklasse wurde angegeben.";
+										qDebug()<<"Das darf und sollte NIE passieren!!!!";
+										break;
+	}
+	qDebug()<<"Sicherheitsklasse Ende";
+	return SicherheitsklasseWert;
+}
+
+void QFrankDummyleser::SicherheitsklasseSetzen(ulong klasse)
+{
+	SicherheitsklasseWert=(QFrankLesegeraet::Leserklasse)klasse;
 }

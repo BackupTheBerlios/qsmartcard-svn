@@ -39,4 +39,6 @@ void QFrankDummykarte::welchenLeser(QFrankLesegeraet *diesen)
 {
 	Leser=diesen;
 	qDebug()<<"Es soll der Leser"<<Leser->objectName()<<"benutzt werden";
+	qDebug()<<"Wie sicher ist dieser??";
+	Leser->Sicherheitsklasse();
 }

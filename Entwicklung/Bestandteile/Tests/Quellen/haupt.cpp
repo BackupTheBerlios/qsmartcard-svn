@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 		
 	}
 
-	//Was hat das Lesegerät füt Sonderfunktionen
+	//Was hat das Lesegerät für Sonderfunktionen
 	foreach(QString Leser,Terminal->ListeDerLeser())
 	{
 		qDebug()<<"Das Lesegerät"<<Leser<<"hat folgende Sonderfunktionen:";
@@ -75,6 +75,33 @@ int main(int argc, char *argv[])
 	{
 		qDebug()<<QString("%1").arg((uchar)Zielfeld.at(x),0,16);
 	}
+
+	((QObject*)Terminal->LeserHohlen("Dummyleser1"))->setProperty("QFrankDummyleserSicherheitsklasse",QFrankLesegeraet::Klasse2);
+	
+	QByteArray Schreibfeld(4,0x55);
+	Schreibfeld[0]=0x00;
+	Schreibfeld[1]=0x01;
+	Schreibfeld[2]=0x01;
+	Terminal->LeserHohlen("Dummyleser1")->ISO_UpdateBinary(Schreibfeld);
+
+	QByteArray Pinfeld(6,0xff);
+	Pinfeld[0]=0x00;
+	Pinfeld[1]=0x00;
+	Pinfeld[2]=0x03;
+	Pinfeld[3]=0x12;
+	Pinfeld[4]=0x34;
+	Pinfeld[5]=0xf6;
+	Terminal->LeserHohlen("Dummyleser1")->ISO_Verify(Pinfeld);
+
+	QByteArray PinAendernfeld(9,0xff);
+	PinAendernfeld[0]=0x00;
+	PinAendernfeld[1]=0x00;
+	PinAendernfeld[2]=0x06;
+	PinAendernfeld[3]=0x12;
+	PinAendernfeld[4]=0x34;
+	PinAendernfeld[5]=0xf6;
+	PinAendernfeld[6]=0x6a;
+	Terminal->LeserHohlen("Dummyleser1")->ISO_ChangeReferenceData(PinAendernfeld);
 
 	//Verbinden des Dummylesers mit der Dummykarte
 	Terminal->KarteHohlen("Dummy Karte1")->welchenLeser(Terminal->LeserHohlen("Dummyleser1"));
