@@ -23,6 +23,7 @@ QFrankDummyleser::QFrankDummyleser(QObject* eltern):QFrankLesegeraet(eltern)
 {
 	setObjectName("QFrankDummyleser");
 	FehlerSF=false;
+	RueckgabecodeReadBinary=QFrankLesegeraet::CommandSuccessful;
 }
 
 ulong QFrankDummyleser::Version()
@@ -58,6 +59,60 @@ QString QFrankDummyleser::FeldNachHex(QByteArray feld)
 		tmp.append("-");
 	}
 	return tmp.left(tmp.size()-1);
+}
+
+void QFrankDummyleser::ISO_ReadBinaryDatenSetzen(QByteArray dummydaten)
+{
+	Datenfeld=dummydaten;
+}
+
+QByteArray QFrankDummyleser::ISO_ReadBinaryDaten()
+{
+	return Datenfeld;
+}
+
+void QFrankDummyleser::ISO_ReadBinaryStatuscodeSetzen(ulong status)
+{
+	RueckgabecodeReadBinary=(QFrankLesegeraet::Rueckgabecodes)status;
+}
+
+ulong QFrankDummyleser::ISO_ReadBinaryStatuscode()
+{
+	return RueckgabecodeReadBinary;
+}
+
+QFrankLesegeraet::Rueckgabecodes QFrankDummyleser::ISO_ReadBinary(QByteArray datenfeld,QByteArray &Zielfeld)
+{
+	qDebug()<<"Read Binary Anfang";
+	//P1+P2 Adresse
+	//LC=Länge der zu lesenden Daten 00=alles
+	if(datenfeld.size()<3)
+	{
+		//steht nur Müll drin
+		qCritical()<<"Das Datenfeld ist zu klein Größe:"<<datenfeld.size()<<"\r\nRead Binary Ende";
+		return QFrankLesegeraet::ParameterFalsch;
+	}
+	Zielfeld=Datenfeld;
+	qDebug()<<"Es soll ab Adresse"<<FeldNachHex(datenfeld.mid(0,2))<<FeldNachHex(datenfeld.mid(2))<<"Bytes gelesen werden";
+	qDebug()<<"Das wurde gelesen:"<<FeldNachHex(Datenfeld);
+	// Zu Lesendenbytes größer als die Dummydaten? Dann EOF vor Le
+	qulonglong ZuLesendeDaten=0;
+	for (int x=2;x<datenfeld.size();x++)
+	{
+		ZuLesendeDaten=ZuLesendeDaten <<8 | datenfeld.at(x);
+	}
+	if(Datenfeld.size()<ZuLesendeDaten)
+	{
+		qDebug()<<"Warnung EOF vor Le\r\nRead Binary Ende";
+		return QFrankLesegeraet::WarningEOFbeforeLeBytes;
+	}
+	if(RueckgabecodeReadBinary!=QFrankLesegeraet::CommandSuccessful)
+	{
+		qDebug()<<"Read Binary Fehler wird simmuliert\r\nRead Binary Ende";
+		return RueckgabecodeReadBinary;
+	}
+	qDebug()<<"Read Binary Ende";
+	return QFrankLesegeraet::CommandSuccessful;
 }
 
 QFrankLesegeraet::Rueckgabecodes QFrankDummyleser::ISO_SelectFile(QByteArray datenfeld)

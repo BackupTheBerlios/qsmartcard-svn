@@ -29,64 +29,66 @@
 class QFrankKVK: public QFrankSmartCard
 {
 	Q_OBJECT
-	Q_PROPERTY(QString Krankenkassenname READ Krankenkassenname)
-	Q_PROPERTY(ulong Krankenkassennummer READ Krankenkassennummer)
-	Q_PROPERTY(uint WOP READ WOP)
-	Q_PROPERTY(qulonglong Versichertennummer READ Versichertennummer)
-	Q_PROPERTY(uint Versichertenstatus READ Versichertenstatus)
-	Q_PROPERTY(QChar Statusergaenzung READ Statusergaenzung)
-	Q_PROPERTY(QString Titel READ Titel)
-	Q_PROPERTY(QString Vorname READ Vorname)
-	Q_PROPERTY(QString Namenszusatz READ Namenszusatz)
-	Q_PROPERTY(QString Nachname READ Nachname)
-	Q_PROPERTY(QDate Geburtsdatum READ Geburtsdatum)
-	Q_PROPERTY(QString Strasse READ Strasse)
-	Q_PROPERTY(QString Land READ Land)
-	Q_PROPERTY(QString PLZ READ PLZ)
-	Q_PROPERTY(QString Ort READ Ort)
-	Q_PROPERTY(QDate GueltigBis READ GueltigBis)
-	Q_PROPERTY(bool KVKLeser READ KVKLeser WRITE KVKLeserSetzen)
+	Q_PROPERTY(QString QFrankKVKKrankenkassenname READ Krankenkassenname)
+	Q_PROPERTY(ulong QFrankKVKKrankenkassennummer READ Krankenkassennummer)
+	Q_PROPERTY(uint QFrankKVKWOP READ WOP)
+	Q_PROPERTY(qulonglong QFrankKVKVersichertennummer READ Versichertennummer)
+	Q_PROPERTY(uint QFrankKVKVersichertenstatus READ Versichertenstatus)
+	Q_PROPERTY(QChar QFrankKVKStatusergaenzung READ Statusergaenzung)
+	Q_PROPERTY(QString QFrankKVKTitel READ Titel)
+	Q_PROPERTY(QString QFrankKVKVorname READ Vorname)
+	Q_PROPERTY(QString QFrankKVKNamenszusatz READ Namenszusatz)
+	Q_PROPERTY(QString QFrankKVKNachname READ Nachname)
+	Q_PROPERTY(QDate QFrankKVKGeburtsdatum READ Geburtsdatum)
+	Q_PROPERTY(QString QFrankKVKStrasse READ Strasse)
+	Q_PROPERTY(QString QFrankKVKLand READ Land)
+	Q_PROPERTY(QString QFrankKVKPLZ READ PLZ)
+	Q_PROPERTY(QString QFrankKVKOrt READ Ort)
+	Q_PROPERTY(QDate QFrankKVKGueltigBis READ GueltigBis)
+	Q_PROPERTY(bool QFrankKVKKVKLeser READ KVKLeser WRITE KVKLeserSetzen)
 
 	public:
 			QFrankKVK(QObject* eltern);
-			QString		Krankenkassenname();
-			ulong		Krankenkassennummer();
-			uint		WOP();
-			qulonglong	Versichertennummer();
-			uint		Versichertenstatus();
-			QChar		Statusergaenzung();
-			QString		Titel();
-			QString		Vorname();
-			QString		Namenszusatz();
-			QString		Nachname();
-			QDate		Geburtsdatum();
-			QString		Strasse();
-			QString		Land();
-			QString		PLZ();
-			QString		Ort();
-			QDate		GueltigBis();
-			bool		KVKLeser();
-			void		KVKLeserSetzen(bool kvk);
-			ulong		Version();
+			QString				Krankenkassenname();
+			ulong				Krankenkassennummer();
+			uint				WOP();
+			qulonglong			Versichertennummer();
+			uint				Versichertenstatus();
+			QChar				Statusergaenzung();
+			QString				Titel();
+			QString				Vorname();
+			QString				Namenszusatz();
+			QString				Nachname();
+			QDate				Geburtsdatum();
+			QString				Strasse();
+			QString				Land();
+			QString				PLZ();
+			QString				Ort();
+			QDate				GueltigBis();
+			bool				KVKLeser();
+			void				KVKLeserSetzen(bool kvk);
+			ulong				Version();
+			void				welchenLeser(QFrankLesegeraet *diesen);
 
 	private:
-			void		VariabelnInitialisieren();
-			QString		KrankenkassennameWert;
-			ulong		KrankenkassennummerWert;
-			uint		WOPWert;
-			qulonglong	VersichertennummerWert;
-			uint		VersichertenstatusWert;
-			QChar		StatusergaenzungWert;
-			QString		TitelWert;
-			QString		VornameWert;
-			QString		NamenszusatzWert;
-			QString		NachnameWert;
-			QDate		GeburtsdatumWert;
-			QString		StrasseWert;
-			QString		LandWert;
-			QString		PLZWert;
-			QString		OrtWert;
-			QDate		GueltigBisWert;
-			bool		KVKLeserWert;
+			void				VariabelnInitialisieren();
+			QString				KrankenkassennameWert;
+			ulong				KrankenkassennummerWert;
+			uint				WOPWert;
+			qulonglong			VersichertennummerWert;
+			uint				VersichertenstatusWert;
+			QChar				StatusergaenzungWert;
+			QString				TitelWert;
+			QString				VornameWert;
+			QString				NamenszusatzWert;
+			QString				NachnameWert;
+			QDate				GeburtsdatumWert;
+			QString				StrasseWert;
+			QString				LandWert;
+			QString				PLZWert;
+			QString				OrtWert;
+			QDate				GueltigBisWert;
+			bool				KVKLeserWert;
+			QFrankLesegeraet	*Leser;
 };
 #endif

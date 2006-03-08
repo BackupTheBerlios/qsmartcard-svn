@@ -22,7 +22,8 @@ VERSION       = 0.0.0.1
 TARGET	      = Dummykarte
 QMAKE_TARGET_DESCRIPTION = Dummykarte zum Testen
 DEFINES	     += DLL_BAUEN
-INCLUDEPATH	 += ../SmartCard
+INCLUDEPATH	 += ../SmartCard\
+				../../Lesegeraete/Lesegeraet
 HEADERS	      = Quellen/Dummykarte.h\
 				../SmartCard/SmartCard.h\
 				../SmartCard/SmartCardPlugin.h

@@ -25,12 +25,14 @@
 
 #include <QtCore>
 
+class QFrankLesegeraet;
 class QFrankSmartCard: public QObject
 {
 	Q_OBJECT
 	public:
 			QFrankSmartCard(QObject* eltern);
 			virtual ulong Version()=0;
+			virtual void  welchenLeser(QFrankLesegeraet *diesen)=0;
 
 };
 #endif

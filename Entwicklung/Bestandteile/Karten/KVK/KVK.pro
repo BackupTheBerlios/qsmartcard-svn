@@ -22,7 +22,8 @@ VERSION       = 0.0.0.1
 TARGET	      = KVK
 QMAKE_TARGET_DESCRIPTION = Modul für die Krankenversicherungskarte
 DEFINES	     += DLL_BAUEN
-INCLUDEPATH	 += ../SmartCard
+INCLUDEPATH	 += ../SmartCard\
+				../../Lesegeraete/Lesegeraet
 HEADERS		  = Quellen/KVK.h\
 				../SmartCard/SmartCard.h\
 				../SmartCard/SmartCardPlugin.h				

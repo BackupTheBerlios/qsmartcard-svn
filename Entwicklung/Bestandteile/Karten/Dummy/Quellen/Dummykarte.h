@@ -29,10 +29,14 @@
 class QFrankDummykarte: public QFrankSmartCard
 {
 	Q_OBJECT
-	Q_PROPERTY(QString QFrankSmartCardExtra READ Extrafunktion)
+	Q_PROPERTY(QString QFrankDummykarteExtra READ Extrafunktion)
 	public:
 			QFrankDummykarte(QObject* eltern);
-			QString Extrafunktion();
-			ulong	Version();
+			QString				Extrafunktion();
+			ulong				Version();
+			void				welchenLeser(QFrankLesegeraet *diesen);
+
+	private:
+			QFrankLesegeraet*	Leser;
 };
 #endif

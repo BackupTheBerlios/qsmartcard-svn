@@ -18,6 +18,7 @@
  */
 
 #include "KVK.h"
+#include <Lesegeraet.h>
 
 QFrankKVK::QFrankKVK(QObject* eltern):QFrankSmartCard(eltern)
 {
@@ -139,4 +140,9 @@ void QFrankKVK::KVKLeserSetzen(bool kvk)
 ulong QFrankKVK::Version()
 {
 	return KVKVersion;
+}
+
+void QFrankKVK::welchenLeser(QFrankLesegeraet *diesen)
+{
+	Leser=diesen;
 }

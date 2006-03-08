@@ -18,6 +18,7 @@
  */
 
 #include "Dummykarte.h"
+#include <Lesegeraet.h>
 
 QFrankDummykarte::QFrankDummykarte(QObject* eltern):QFrankSmartCard(eltern)
 {
@@ -32,4 +33,10 @@ QString QFrankDummykarte::Extrafunktion()
 ulong QFrankDummykarte::Version()
 {
 	return DummykarteVersion;
+}
+
+void QFrankDummykarte::welchenLeser(QFrankLesegeraet *diesen)
+{
+	Leser=diesen;
+	qDebug()<<"Es soll der Leser"<<Leser->objectName()<<"benutzt werden";
 }

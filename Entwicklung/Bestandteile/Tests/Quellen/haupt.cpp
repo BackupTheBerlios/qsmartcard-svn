@@ -20,7 +20,6 @@
 
 #include <QtCore>
 #include <Terminal.h>
-#include <Lesegeraet.h>
 
 int main(int argc, char *argv[])
 {
@@ -29,40 +28,56 @@ int main(int argc, char *argv[])
 	qDebug()<<"Es wurden folgende Geräte Plug-In's gefunden:\r\n"<<Terminal->ListeDerLeser().join("\r\n");
 	qDebug()<<"Es wurden folgende SmartCard Plug-In's gefunden:\r\n"<<Terminal->ListeDerKarten().join("\r\n");
 	
-/*
-	//Mit Extras suchen mit dem QtProperty System
+	
+	//Was kann die Karte alles??
 	foreach(QString Karte,Terminal->ListeDerKarten())
 	{
-		qDebug()<<"Karte"<<Karte<<"hat folgende"<< ((QObject *)Terminal->KarteHohlen(Karte))->metaObject()->propertyCount() <<"Extras:";
-		for (int i=0;i<((QObject *)Terminal->KarteHohlen(Karte))->metaObject()->propertyCount();i++)
+		qDebug()<<"Die Karte"<<Karte<<"stellt folgende Funktionen bereit:";
+		//alle Eigenschalften auflisten
+		for(int x=1;x<((QObject *)Terminal->KarteHohlen(Karte))->metaObject()->propertyCount();x++)
 		{
-			qDebug()<<"Name:"<<((QObject *)Terminal->KarteHohlen(Karte))->metaObject()->property(i).name();
-			qDebug()<<"Type"<<((QObject *)Terminal->KarteHohlen(Karte))->metaObject()->property(i).typeName();
-			if(((QObject *)Terminal->KarteHohlen(Karte))->metaObject()->property(i).isReadable())
-			{
-				qDebug()<<"Der Wert ist lesbar und beinhaltet:"<<((QObject *)Terminal->KarteHohlen(Karte))->property(((QObject *)Terminal->KarteHohlen(Karte))->metaObject()->property(i).name());
-			}
-			
+			QString tmp=((QObject *)Terminal->KarteHohlen(Karte))->metaObject()->property(x).name();
+			if(tmp.startsWith(((QObject *)Terminal->KarteHohlen(Karte))->objectName()))
+				qDebug()<<tmp<<"mit dem Datentyp"<<
+						((QObject *)Terminal->KarteHohlen(Karte))->metaObject()->property(x).typeName();
 		}
+		
 	}
-*/
-	//teste für den Dummyleser
+
+	//Was hat das Lesegerät füt Sonderfunktionen
 	foreach(QString Leser,Terminal->ListeDerLeser())
 	{
-		if(Leser=="Dummyleser1")
+		qDebug()<<"Das Lesegerät"<<Leser<<"hat folgende Sonderfunktionen:";
+		//Alle Sonderfunktionen auflisten
+		for(int x=1;x<((QObject *)Terminal->LeserHohlen(Leser))->metaObject()->propertyCount();x++)
 		{
-			QByteArray Testfeld(5,0x00);
-			Testfeld[0]=0x04;
-			Testfeld[1]=0x00;
-			Testfeld[2]=0x02;
-			Testfeld[3]=0x01;
-			Testfeld[4]=0x02;
-			qDebug()<<"Teste für den Dummyleser";
-			//((QObject*)Terminal->LeserHohlen(Leser))->setProperty("QFrankLesegeraertISO_SelectFileFehler",true);
-			Terminal->LeserHohlen(Leser)->ISO_SelectFile(Testfeld);
+			QString tmp=((QObject *)Terminal->LeserHohlen(Leser))->metaObject()->property(x).name();
+			if(tmp.startsWith(((QObject *)Terminal->LeserHohlen(Leser))->objectName()))
+				qDebug()<<tmp<<"mit dem Datentyp"<<
+						((QObject *)Terminal->LeserHohlen(Leser))->metaObject()->property(x).typeName();
 		}
 	}
 
+	//tests für den Dummyleser
+	qDebug()<<"Tests für den Dummyleser";
+	QByteArray Testfeld(5,0x00);
+	QByteArray Zielfeld(10,0x77);
+	Testfeld[0]=0x04;
+	Testfeld[1]=0x00;
+	Testfeld[2]=0x00;
+	Testfeld[3]=0x00;
+	Testfeld[4]=0x06;
+	//((QObject*)Terminal->LeserHohlen("Dummyleser1"))->setProperty("QFrankDummyleserISO_SelectFileFehler",true);
+	Terminal->LeserHohlen("Dummyleser1")->ISO_SelectFile(Testfeld);
+	((QObject*)Terminal->LeserHohlen("Dummyleser1"))->setProperty("QFrankDummyleserISO_ReadBinaryDaten",QByteArray(7,0x55));
+	Terminal->LeserHohlen("Dummyleser1")->ISO_ReadBinary(Testfeld,Zielfeld);
+	for (int x=0;x<Zielfeld.size();x++)
+	{
+		qDebug()<<QString("%1").arg((uchar)Zielfeld.at(x),0,16);
+	}
+
+	//Verbinden des Dummylesers mit der Dummykarte
+	Terminal->KarteHohlen("Dummy Karte1")->welchenLeser(Terminal->LeserHohlen("Dummyleser1"));
 	delete Terminal;
 	return 0;
 	return Programm.exec();

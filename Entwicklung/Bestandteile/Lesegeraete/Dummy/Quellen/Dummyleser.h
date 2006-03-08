@@ -29,16 +29,25 @@
 class QFrankDummyleser: public QFrankLesegeraet
 {
 	Q_OBJECT
-	Q_PROPERTY(bool QFrankLesegeraertISO_SelectFileFehler READ ISO_SelectFileFehler WRITE ISO_SelectFileFehlerSetzen)
+	Q_PROPERTY(bool QFrankDummyleserISO_SelectFileFehler READ ISO_SelectFileFehler WRITE ISO_SelectFileFehlerSetzen)
+	Q_PROPERTY(QByteArray QFrankDummyleserISO_ReadBinaryDaten READ ISO_ReadBinaryDaten WRITE ISO_ReadBinaryDatenSetzen)
+	Q_PROPERTY(ulong QFrankDummyleserISO_ReadBinaryStatuscode READ ISO_ReadBinaryStatuscode WRITE ISO_ReadBinaryStatuscodeSetzen)
 	public:
 			QFrankDummyleser(QObject* eltern);
 			bool								ISO_SelectFileFehler();
 			void								ISO_SelectFileFehlerSetzen(bool fehler);
+			ulong								ISO_ReadBinaryStatuscode();
+			void								ISO_ReadBinaryStatuscodeSetzen(ulong status);
+			QByteArray							ISO_ReadBinaryDaten();
+			void								ISO_ReadBinaryDatenSetzen(QByteArray dummydaten);						
 			QFrankLesegeraet::Rueckgabecodes	ISO_SelectFile(QByteArray datenfeld);
+			QFrankLesegeraet::Rueckgabecodes	ISO_ReadBinary(QByteArray datenfeld,QByteArray &Zielfeld);
 			ulong								Version();
 
 	private:
 			bool								FehlerSF;
 			QString								FeldNachHex(QByteArray feld);
+			QFrankLesegeraet::Rueckgabecodes	RueckgabecodeReadBinary;
+			QByteArray							Datenfeld;
 };
 #endif

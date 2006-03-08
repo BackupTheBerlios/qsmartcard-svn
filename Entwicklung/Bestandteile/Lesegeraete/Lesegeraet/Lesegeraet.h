@@ -32,6 +32,9 @@ class QFrankLesegeraet: public QObject
 			enum Rueckgabecode
 			{
 				CommandSuccessful=0x9000,
+				DataCorrupted=0x6281,
+				WarningEOFbeforeLeBytes=0x6282,
+				MemoryFailure=0x6501,
 				FileNotFound=0x6a82,
 				ParameterFalsch=0xffff
 			};
@@ -39,6 +42,7 @@ class QFrankLesegeraet: public QObject
 			QFrankLesegeraet(QObject* eltern);
 			virtual ulong								Version()=0;
 			virtual QFrankLesegeraet::Rueckgabecodes	ISO_SelectFile(QByteArray datenfeld)=0;
+			virtual QFrankLesegeraet::Rueckgabecodes	ISO_ReadBinary(QByteArray datenfeld,QByteArray &Zielfeld)=0;
 
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(QFrankLesegeraet::Rueckgabecodes)

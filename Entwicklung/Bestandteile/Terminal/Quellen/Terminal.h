@@ -22,6 +22,9 @@
 
 #include <QtCore>
 
+#include <Lesegeraet.h>
+#include <SmartCard.h>
+
 //der MS Compiler braucht Hilfe beim exportieren
 #if defined(_WIN32) && !defined(__GNUC__)
 	#ifdef DLL_BAUEN

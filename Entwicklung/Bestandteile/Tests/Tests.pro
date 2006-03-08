@@ -19,7 +19,8 @@ TEMPLATE      = app
 include (../../Vorgaben.pri)
 TARGET	      = tests
 INCLUDEPATH  += ../Terminal/Quellen\
-				../Lesegeraete/Lesegeraet
+				../Karten/SmartCard\
+				../Lesegeraete/Lesegeraet			
 SOURCES      += Quellen/haupt.cpp
 LIBS	     += -lterminal -L$$DESTDIR
 
