@@ -76,7 +76,6 @@ int main(int argc, char *argv[])
 		qDebug()<<QString("%1").arg((uchar)Zielfeld.at(x),0,16);
 	}
 
-	((QObject*)Terminal->LeserHohlen("Dummyleser1"))->setProperty("QFrankDummyleserSicherheitsklasse",QFrankLesegeraet::Klasse2);
 	
 	QByteArray Schreibfeld(4,0x55);
 	Schreibfeld[0]=0x00;
@@ -102,6 +101,47 @@ int main(int argc, char *argv[])
 	PinAendernfeld[5]=0xf6;
 	PinAendernfeld[6]=0x6a;
 	Terminal->LeserHohlen("Dummyleser1")->ISO_ChangeReferenceData(PinAendernfeld);
+
+	Pinfeld.resize(2);
+	Pinfeld[0]=0x67;
+	Pinfeld[1]=0x89;
+	((QObject*)Terminal->LeserHohlen("Dummyleser1"))->setProperty("QFrankDummyleserSicherheitsklasse",QFrankLesegeraet::Klasse2);
+	((QObject*)Terminal->LeserHohlen("Dummyleser1"))->setProperty("QFrankDummyleserISO_VerifySecurePin",Pinfeld);
+	Testfeld.resize(11);
+	Testfeld[0]=0x02;
+	Testfeld[1]=0x00;
+	Testfeld[2]=0x08; //Länge Feld
+	Testfeld[3]=0x52;
+	Testfeld[4]=0x06; //Länge am hier
+	Testfeld[5]=0x50; //Pin hat 5 Stellen und BCD Kodiert
+	Testfeld[6]=0x06; //Einfügen nach Pos 6 des Befehls
+	Testfeld[7]=0x00; //Ab hier Kartenbefehl
+	Testfeld[8]=0x20;
+	Testfeld[9]=0x00;
+	Testfeld[10]=0x00;
+	Terminal->LeserHohlen("Dummyleser1")->ISO_VerifySecure(Testfeld);
+
+	Testfeld.resize(12);
+	Testfeld[2]=0x09; //Länge Feld
+	Testfeld[4]=0x07; //Länge am hier
+	Testfeld[6]=0x07; //Positions alte Pin(5 Stellig)
+	Testfeld[7]=0x0b; //Postition neue Pin 00 für wahlfreie Länge der neuen Pin
+	Testfeld[8]=0x00; //An hier Kartenbefehl
+	Testfeld[9]=0x24;
+	Testfeld[10]=0x00;
+	Testfeld[11]=0x00;
+	Pinfeld.resize(3);
+	Pinfeld[2]=0x0f;
+	QByteArray PinfeldNeu(2,0xff);
+	PinfeldNeu[0]=0x12;
+	PinfeldNeu[1]=0x3f;
+	((QObject*)Terminal->LeserHohlen("Dummyleser1"))->setProperty("QFrankDummyleserSicherheitsklasse",QFrankLesegeraet::Klasse3);
+	((QObject*)Terminal->LeserHohlen("Dummyleser1"))->setProperty("QFrankDummyleserISO_ChangeReferenceDataSecurePinAlt",Pinfeld);
+	((QObject*)Terminal->LeserHohlen("Dummyleser1"))->setProperty("QFrankDummyleserISO_ChangeReferenceDataSecurePinNeu",PinfeldNeu);
+	Terminal->LeserHohlen("Dummyleser1")->ISO_ChangeReferenceDataSecure(Testfeld);
+
+	Terminal->LeserHohlen("Dummyleser1")->KarteAnfordern(Testfeld);
+	
 
 	//Verbinden des Dummylesers mit der Dummykarte
 	Terminal->KarteHohlen("Dummy Karte1")->welchenLeser(Terminal->LeserHohlen("Dummyleser1"));

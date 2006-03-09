@@ -21,7 +21,8 @@ RCC_DIR		 = $$PFAD/tmp/resourcen
 contains(Debuginfos, ja) {
 	message(Erstelle $$PROJEKTTEIL mit Debugmeldungen)
 	DEFINES      += MEINDEBUG
-	
+	CONFIG	 -= release
+	CONFIG	 += debug
 	win32{
 			contains(TEMPLATE, app) {
 								CONFIG += console

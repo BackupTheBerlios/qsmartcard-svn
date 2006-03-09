@@ -31,8 +31,8 @@ class QFrankLesegeraet: public QObject
 	public:
 			enum Rueckgabecode
 			{
-				CommandSuccessful=0x9000,
 				Error=0x6200,
+				CardPresentAndActivated=0x6201,
 				DataCorrupted=0x6281,
 				WarningEOFbeforeLeBytes=0x6282,
 				VerificationUnsuccessfullOneLeft=0x63c0,
@@ -52,8 +52,13 @@ class QFrankLesegeraet: public QObject
 				VerificationUnsuccessfullFifteenLeft=0x63ce,
 				VerificationUnsuccessfullSixteenLeft=0x63cf,
 				VerificationMethodBlocked=0x6983,
+				ResetNotSuccessful=0x6400,
+				CancelByCancelKey=0x6401,
 				MemoryFailure=0x6501,
+				CommandWithTimerNotSupported=0x6900,
 				FileNotFound=0x6a82,
+				CommandSuccessful=0x9000,
+				CommandSuccessfulAsynchron=0x9001,
 				ParameterFalsch=0xffff
 			};
 			enum Klasse
@@ -68,11 +73,14 @@ class QFrankLesegeraet: public QObject
 			Q_DECLARE_FLAGS(Leserklasse, Klasse)
 			QFrankLesegeraet(QObject* eltern);
 			virtual ulong								Version()=0;
+			virtual QFrankLesegeraet::Rueckgabecodes	KarteAnfordern(QByteArray &ATR)=0;
 			virtual QFrankLesegeraet::Rueckgabecodes	ISO_SelectFile(QByteArray datenfeld)=0;
 			virtual QFrankLesegeraet::Rueckgabecodes	ISO_ReadBinary(QByteArray datenfeld,QByteArray &Zielfeld)=0;
 			virtual	QFrankLesegeraet::Rueckgabecodes	ISO_UpdateBinary(QByteArray datenfeld)=0;
 			virtual	QFrankLesegeraet::Rueckgabecodes	ISO_Verify(QByteArray datenfeld)=0;
 			virtual	QFrankLesegeraet::Rueckgabecodes	ISO_ChangeReferenceData(QByteArray datenfeld)=0;
+			virtual	QFrankLesegeraet::Rueckgabecodes	ISO_VerifySecure(QByteArray datenfeld)=0;
+			virtual	QFrankLesegeraet::Rueckgabecodes	ISO_ChangeReferenceDataSecure(QByteArray datenfeld)=0;
 			virtual QFrankLesegeraet::Leserklasse		Sicherheitsklasse()=0;
 
 };

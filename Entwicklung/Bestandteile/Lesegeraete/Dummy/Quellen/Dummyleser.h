@@ -33,8 +33,17 @@ class QFrankDummyleser: public QFrankLesegeraet
 	Q_PROPERTY(QByteArray QFrankDummyleserISO_ReadBinaryDaten READ ISO_ReadBinaryDaten WRITE ISO_ReadBinaryDatenSetzen)
 	Q_PROPERTY(ulong QFrankDummyleserISO_ReadBinaryStatuscode READ ISO_ReadBinaryStatuscode WRITE ISO_ReadBinaryStatuscodeSetzen)
 	Q_PROPERTY(ulong QFrankDummyleserSicherheitsklasse READ Sicherheitsklasse WRITE SicherheitsklasseSetzen)
-	Q_PROPERTY(ulong QFrankDummyleserISO_UpdateBinaryStatuscode READ ISO_UpdateBinaryStatuscode WRITE ISO_UpdateBinaryStatuscodeSetzen);
-	Q_PROPERTY(ulong QFrankDummyleserISO_VerifyStatuscode READ ISO_VerifyStatuscode WRITE ISO_VerifyStatuscodeSetzen);
+	Q_PROPERTY(ulong QFrankDummyleserISO_UpdateBinaryStatuscode READ ISO_UpdateBinaryStatuscode WRITE ISO_UpdateBinaryStatuscodeSetzen)
+	Q_PROPERTY(ulong QFrankDummyleserISO_VerifyStatuscode READ ISO_VerifyStatuscode WRITE ISO_VerifyStatuscodeSetzen)
+	Q_PROPERTY(ulong QFrankDummyleserISO_ChangeReferenceDataStatuscode READ ISO_ChangeReferenceDataStatuscode WRITE ISO_ChangeReferenceDataStatuscodeSetzen)
+	Q_PROPERTY(QByteArray QFrankDummyleserISO_VerifySecurePin READ ISO_VerifySecurePin WRITE ISO_VerifySecurePinSetzen)
+	Q_PROPERTY(ulong QFrankDummyleserISO_VerifySecureStatuscode READ ISO_VerifyStatuscode WRITE ISO_VerifyStatuscodeSetzen)
+	Q_PROPERTY(QByteArray QFrankDummyleserISO_ChangeReferenceDataSecurePinAlt READ ISO_VerifySecurePin WRITE ISO_VerifySecurePinSetzen)
+	Q_PROPERTY(QByteArray QFrankDummyleserISO_ChangeReferenceDataSecurePinNeu READ ISO_ChangeReferenceDataSecurePinNeu WRITE
+			   ISO_ChangeReferenceDataSecurePinNeuSetzen)
+	Q_PROPERTY(ulong QFrankDummyleserISO_ChangeReferenceDataSecureStatuscode READ ISO_ChangeReferenceDataStatuscode WRITE ISO_ChangeReferenceDataStatuscodeSetzen)
+	Q_PROPERTY(ulong QFrankDummyleserKarteAnfordernStatuscode READ KarteAnfordernStatuscode WRITE KarteAnfordernStatuscodeSetzen)
+	Q_PROPERTY(QByteArray QFrankDummyleserKarteAnfordernDaten READ ISO_ReadBinaryDaten WRITE ISO_ReadBinaryDatenSetzen)
 
 	public:
 			QFrankDummyleser(QObject* eltern);
@@ -59,7 +68,19 @@ class QFrankDummyleser: public QFrankLesegeraet
 			ulong								ISO_ChangeReferenceDataStatuscode();
 			void								ISO_ChangeReferenceDataStatuscodeSetzen(ulong status);
 			QFrankLesegeraet::Rueckgabecodes	ISO_ChangeReferenceData(QByteArray datenfeld);
+
+			QByteArray							ISO_VerifySecurePin();
+			void								ISO_VerifySecurePinSetzen(QByteArray pinsicher);
+			QFrankLesegeraet::Rueckgabecodes	ISO_VerifySecure(QByteArray datenfeld);
+
+			QByteArray							ISO_ChangeReferenceDataSecurePinNeu();
+			void								ISO_ChangeReferenceDataSecurePinNeuSetzen(QByteArray pinneu);
+			QFrankLesegeraet::Rueckgabecodes	ISO_ChangeReferenceDataSecure(QByteArray datenfeld);
 			
+			ulong								KarteAnfordernStatuscode();
+			void								KarteAnfordernStatuscodeSetzen(ulong status);
+			QFrankLesegeraet::Rueckgabecodes	KarteAnfordern(QByteArray &ATR);
+
 			QFrankLesegeraet::Leserklasse		Sicherheitsklasse();
 			void								SicherheitsklasseSetzen(ulong klasse);
 
@@ -73,7 +94,11 @@ class QFrankDummyleser: public QFrankLesegeraet
 			QFrankLesegeraet::Rueckgabecodes	RueckgabecodeUpdateBinary;
 			QFrankLesegeraet::Rueckgabecodes	RueckgabecodeVerify;
 			QFrankLesegeraet::Rueckgabecodes	RueckgabecodeChangeReferenceData;
+			QFrankLesegeraet::Rueckgabecodes	RueckgabecodeKarteAnfordern;
 			QFrankLesegeraet::Leserklasse		SicherheitsklasseWert;
 			QByteArray							Datenfeld;
+			QByteArray							PinSicher;
+			QByteArray							PinSicherNeu;
+			
 };
 #endif
