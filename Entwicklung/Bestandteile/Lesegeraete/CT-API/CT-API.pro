@@ -14,11 +14,19 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
- Karten		  = 
- Lesegeraete  =
- #Was soll gebaut werden nicht gewünschte Moduel auskommentieren.
- Karten		 += Dummykarte
- Karten		 += KVK
- Lesegeraete += Dummyleser
- Lesegeraete += CT-API
- 
+PROJEKTTEIL   = CT-API Leseregät
+TEMPLATE      = lib
+CONFIG		 += plugin
+include (../../../Vorgaben.pri)
+VERSION       = 0.0.0.1
+TARGET	      = CT-API-Leser
+QMAKE_TARGET_DESCRIPTION = Zugriff auf Lesegeräte per CT-API
+DEFINES	     += DLL_BAUEN
+INCLUDEPATH	 += ../Lesegeraet
+HEADERS	      = Quellen/CT-API-Leser.h\
+				../Lesegeraet/Lesegeraet.h\
+				../Lesegeraet/LesegeraetPlugin.h
+SOURCES	      = Quellen/CT-API-Leser.cpp\
+				Quellen/CT-API-LeserPlugin.cpp\
+				../Lesegeraet/Lesegeraet.cpp\
+				../Lesegeraet/LesegeraetPlugin.cpp
