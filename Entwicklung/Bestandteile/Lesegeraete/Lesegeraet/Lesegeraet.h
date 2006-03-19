@@ -59,6 +59,7 @@ class QFrankLesegeraet: public QObject
 				FileNotFound=0x6a82,
 				CommandSuccessful=0x9000,
 				CommandSuccessfulAsynchron=0x9001,
+				LeserNichtInitialisiert=0xfffe,
 				ParameterFalsch=0xffff
 			};
 			enum Klasse
@@ -82,6 +83,7 @@ class QFrankLesegeraet: public QObject
 			virtual	QFrankLesegeraet::Rueckgabecodes	ISO_VerifySecure(QByteArray datenfeld)=0;
 			virtual	QFrankLesegeraet::Rueckgabecodes	ISO_ChangeReferenceDataSecure(QByteArray datenfeld)=0;
 			virtual QFrankLesegeraet::Leserklasse		Sicherheitsklasse()=0;
+			virtual QFrankLesegeraet::Rueckgabecodes	LeserInitialisieren()=0;
 
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(QFrankLesegeraet::Rueckgabecodes)

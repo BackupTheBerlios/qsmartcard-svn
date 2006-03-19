@@ -24,6 +24,7 @@
 int main(int argc, char *argv[])
 {
 	QCoreApplication Programm(argc,argv);
+		
 	QFrankTerminal *Terminal=new QFrankTerminal(&Programm);
 	qDebug()<<"Es wurden folgende Geräte Plug-In's gefunden:\r\n"<<Terminal->ListeDerLeser().join("\r\n");
 	qDebug()<<"Es wurden folgende SmartCard Plug-In's gefunden:\r\n"<<Terminal->ListeDerKarten().join("\r\n");
@@ -145,6 +146,11 @@ int main(int argc, char *argv[])
 
 	//Verbinden des Dummylesers mit der Dummykarte
 	Terminal->KarteHohlen("Dummy Karte1")->welchenLeser(Terminal->LeserHohlen("Dummyleser1"));
+
+	//Test CT-API Treiber
+	qDebug()<<QString("0x%1").arg(Terminal->LeserHohlen("CT-API-Leser")->LeserInitialisieren(),0,16);
+	qDebug()<<QString("0x%1").arg(Terminal->LeserHohlen("CT-API-Leser")->Sicherheitsklasse(),0,16);
+	qDebug()<<QString("0x%1").arg(Terminal->LeserHohlen("CT-API-Leser")->KarteAnfordern(Testfeld),0,16);
 	delete Terminal;
 	return 0;
 	return Programm.exec();

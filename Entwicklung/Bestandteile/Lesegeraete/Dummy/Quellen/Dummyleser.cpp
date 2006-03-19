@@ -43,6 +43,11 @@ ulong QFrankDummyleser::Version()
 	return DummyleserVersion;
 }
 
+QFrankLesegeraet::Rueckgabecodes QFrankDummyleser::LeserInitialisieren()
+{
+	return QFrankLesegeraet::CommandSuccessful;
+}
+
 QString QFrankDummyleser::FeldNachHex(QByteArray feld)
 {
 	QString tmp="";

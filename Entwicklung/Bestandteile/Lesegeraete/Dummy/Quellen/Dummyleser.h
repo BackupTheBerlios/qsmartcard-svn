@@ -83,9 +83,9 @@ class QFrankDummyleser: public QFrankLesegeraet
 
 			QFrankLesegeraet::Leserklasse		Sicherheitsklasse();
 			void								SicherheitsklasseSetzen(ulong klasse);
-
+			QFrankLesegeraet::Rueckgabecodes	LeserInitialisieren();
 			ulong								Version();
-
+			
 	private:
 			bool								FehlerSF;
 			QString								FeldNachHex(QByteArray feld);
