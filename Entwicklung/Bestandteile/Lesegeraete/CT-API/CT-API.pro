@@ -1,4 +1,4 @@
-# Copyright (C) 2005-2006 Frank BÃ¼ttner frank-buettner@gmx.net
+# Copyright (C) 2005-2006 Frank Büttner frank-buettner@gmx.net
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -14,13 +14,13 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-PROJEKTTEIL   = CT-API LeseregÃ¤t
+PROJEKTTEIL   = CT-API Leseregät
 TEMPLATE      = lib
 CONFIG		 += plugin
 include (../../../Vorgaben.pri)
 VERSION       = 0.0.0.1
 TARGET	      = CT-API-Leser
-QMAKE_TARGET_DESCRIPTION = Zugriff auf LesegerÃ¤te per CT-API
+QMAKE_TARGET_DESCRIPTION = Zugriff auf Lesegeräte per CT-API
 DEFINES	     += DLL_BAUEN
 INCLUDEPATH	 += ../Lesegeraet
 HEADERS	      = Quellen/CT-API-Leser.h\

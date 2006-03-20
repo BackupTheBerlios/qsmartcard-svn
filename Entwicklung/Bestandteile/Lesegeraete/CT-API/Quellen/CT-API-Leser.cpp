@@ -58,14 +58,8 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::LeserInitialisieren()
 	if(MeinCT_init==0 || MeinCT_data==0 || MeinCT_close==0)
 	{
 #ifdef MEINDEBUG
-		char MeinCT_initAdresse[64];
-		char MeinCT_dataAdresse[64];
-		char MeinCT_closeAdresse[64];
-		sprintf(MeinCT_initAdresse,"%x",MeinCT_init);
-		sprintf(MeinCT_dataAdresse,"%x",MeinCT_data);
-		sprintf(MeinCT_closeAdresse,"%x",MeinCT_close);
-		qDebug()<<"Der CT-API Treiber konnte nicht geladen werden. Die Zeiger haben folgenden Werte:\r\n"\
-		   	    <<QString("CT_init: 0x%1 CT_data: 0x%2 CT_close: 0x%3").arg(MeinCT_initAdresse).arg(MeinCT_dataAdresse).arg(MeinCT_closeAdresse);
+		qDebug("Der CT-API Treiber konnte nicht geladen werden. Die Zeiger haben folgenden Werte:\r\n"\
+			   "CT_init: 0x%x CT_data: 0x%x CT_close: 0x%x",MeinCT_init,MeinCT_data,MeinCT_close);
 #endif
 		return  QFrankLesegeraet::LeserNichtInitialisiert;
 	}
