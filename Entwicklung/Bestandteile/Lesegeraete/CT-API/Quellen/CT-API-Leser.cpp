@@ -81,7 +81,7 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::LeserInitialisieren()
 	LaengeDesBefehl=5;
 	Zieladresse=1;
 	Quelladresse=2;
-	LaengeDerAntwort=sizeof(Antwort);
+	LaengeDerAntwort=sizeof(Antwort); //Muss immer sein, da vom der CT DLL verbogen wird
 	Rueckgabecode=MeinCT_data(Terminalnummer,&Zieladresse,&Quelladresse,LaengeDesBefehl,Befehl,&LaengeDerAntwort,Antwort);
 	if(Rueckgabecode!=0)
 	{
@@ -208,11 +208,78 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_ChangeReferenceDataSecu
 	return QFrankLesegeraet::ParameterFalsch;
 }
 
+QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::KarteEntfernen()
+{
+	if(!VerbindungTesten("KarteEntfernen"))
+		return QFrankLesegeraet::LeserNichtInitialisiert;
+	Befehl[0]=0x20;
+	Befehl[1]=0x15;
+	Befehl[2]=0x01; //Slot1
+	Befehl[3]=0x03; // Text wenn Display da is sowie mit optischen und akustischen Signal
+	Befehl[4]=0x01; //Länge des Anhangs
+	Befehl[5]=0x04; //Wartezeit für das Entfernen
+	LaengeDesBefehl=6;
+	Zieladresse=1;
+	Quelladresse=2;
+	LaengeDerAntwort=sizeof(Antwort);
+	Rueckgabecode=MeinCT_data(Terminalnummer,&Zieladresse,&Quelladresse,LaengeDesBefehl,Befehl,&LaengeDerAntwort,Antwort);
+	if(Rueckgabecode!=0)
+	{
+#ifdef MEINDEBUG
+		qDebug()<<"Befehl konnte nicht das das Terminal gesendet werden. Rückgabe:"<<(int)Rueckgabecode;
+#endif
+		CT_API_schliessen();
+		return QFrankLesegeraet::Error;
+	}
+	//Auswertung
+	uint Ergebnis=(Antwort[LaengeDerAntwort-2] <<8) | Antwort[LaengeDerAntwort-1];
+#ifdef MEINDEBUG
+	qDebug("Karte auswerfen ergab: %x",Ergebnis);
+#endif
+	return (QFrankLesegeraet::Rueckgabecodes) Ergebnis;
+}
+
 QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::KarteAnfordern(QByteArray &ATR)
 {
 	if(!VerbindungTesten("KarteAnfordern"))
 		return QFrankLesegeraet::LeserNichtInitialisiert;
-	return QFrankLesegeraet::ParameterFalsch;
+	Befehl[0]=0x20; 
+	Befehl[1]=0x12;
+	Befehl[2]=0x01;//Slot1
+	Befehl[3]=0x01;// Text wenn Display da is und als Antwort den ganzen ATR
+	Befehl[4]=0x01; //Länge des Anhangs
+	Befehl[5]=0x04;//Wartezeit auf Karte in Sekunden 00=keine 4=Sekunden
+	Befehl[6]=0x00;//Alles zurückliefern.
+	LaengeDesBefehl=7;
+	Zieladresse=1;
+	Quelladresse=2;
+	LaengeDerAntwort=sizeof(Antwort);
+	Rueckgabecode=MeinCT_data(Terminalnummer,&Zieladresse,&Quelladresse,LaengeDesBefehl,Befehl,&LaengeDerAntwort,Antwort);
+	if(Rueckgabecode!=0)
+	{
+#ifdef MEINDEBUG
+		qDebug()<<"Befehl konnte nicht das das Terminal gesendet werden. Rückgabe:"<<(int)Rueckgabecode;
+#endif
+		CT_API_schliessen();
+		return QFrankLesegeraet::Error;
+	}
+	//Auswerten des Ergebnisses
+	uint Ergebnis=(Antwort[LaengeDerAntwort-2] <<8) | Antwort[LaengeDerAntwort-1];
+	if(Ergebnis==0x9000 || Ergebnis==0x9001)
+	{
+		//Karte wurde gefunden
+#ifdef MEINDEBUG
+		qDebug()<<"Karte anfordern ergab:"<<FeldNachHex(QByteArray((char*)Antwort,LaengeDerAntwort));
+#endif
+		ATR=QByteArray((char*)Antwort,LaengeDerAntwort-2);
+	}
+#ifdef MEINDEBUG
+	else
+	{
+		qDebug()<<"Karte anfordern gescheitert"<<FeldNachHex(QByteArray((char*)Antwort,LaengeDerAntwort));
+	}
+#endif
+	return (QFrankLesegeraet::Rueckgabecodes) Ergebnis;
 }
 
 QFrankLesegeraet::Leserklasse QFrankCT_API_Leser::Sicherheitsklasse()

@@ -75,6 +75,7 @@ class QFrankLesegeraet: public QObject
 			QFrankLesegeraet(QObject* eltern);
 			virtual ulong								Version()=0;
 			virtual QFrankLesegeraet::Rueckgabecodes	KarteAnfordern(QByteArray &ATR)=0;
+			virtual QFrankLesegeraet::Rueckgabecodes	KarteEntfernen()=0;
 			virtual QFrankLesegeraet::Rueckgabecodes	ISO_SelectFile(QByteArray datenfeld)=0;
 			virtual QFrankLesegeraet::Rueckgabecodes	ISO_ReadBinary(QByteArray datenfeld,QByteArray &Zielfeld)=0;
 			virtual	QFrankLesegeraet::Rueckgabecodes	ISO_UpdateBinary(QByteArray datenfeld)=0;

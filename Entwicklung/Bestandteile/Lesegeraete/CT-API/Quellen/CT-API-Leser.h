@@ -43,6 +43,7 @@ class QFrankCT_API_Leser: public QFrankLesegeraet
 			QFrankLesegeraet::Rueckgabecodes	ISO_VerifySecure(QByteArray datenfeld);
 			QFrankLesegeraet::Rueckgabecodes	ISO_ChangeReferenceDataSecure(QByteArray datenfeld);
 			QFrankLesegeraet::Rueckgabecodes	KarteAnfordern(QByteArray &ATR);
+			QFrankLesegeraet::Rueckgabecodes	KarteEntfernen();
 			QFrankLesegeraet::Leserklasse		Sicherheitsklasse();
 			QFrankLesegeraet::Rueckgabecodes	LeserInitialisieren();
 			ulong								Version();

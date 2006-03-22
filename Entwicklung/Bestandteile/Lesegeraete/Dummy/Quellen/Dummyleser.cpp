@@ -462,6 +462,11 @@ void QFrankDummyleser::KarteAnfordernStatuscodeSetzen(ulong status)
 	RueckgabecodeKarteAnfordern=(QFrankLesegeraet::Rueckgabecodes)status;
 }
 
+QFrankLesegeraet::Rueckgabecodes QFrankDummyleser::KarteEntfernen()
+{
+	return RueckgabecodeKarteAnfordern;
+}
+
 QFrankLesegeraet::Rueckgabecodes QFrankDummyleser::KarteAnfordern(QByteArray &ATR)
 {
 	qDebug()<<"Karte Anfordern Anfang";

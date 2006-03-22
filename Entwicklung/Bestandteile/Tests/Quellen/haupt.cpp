@@ -151,6 +151,7 @@ int main(int argc, char *argv[])
 	qDebug()<<QString("0x%1").arg(Terminal->LeserHohlen("CT-API-Leser")->LeserInitialisieren(),0,16);
 	qDebug()<<QString("0x%1").arg(Terminal->LeserHohlen("CT-API-Leser")->Sicherheitsklasse(),0,16);
 	qDebug()<<QString("0x%1").arg(Terminal->LeserHohlen("CT-API-Leser")->KarteAnfordern(Testfeld),0,16);
+	qDebug()<<QString("0x%1").arg(Terminal->LeserHohlen("CT-API-Leser")->KarteEntfernen(),0,16);
 	delete Terminal;
 	return 0;
 	return Programm.exec();

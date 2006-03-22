@@ -44,6 +44,7 @@ class QFrankDummyleser: public QFrankLesegeraet
 	Q_PROPERTY(ulong QFrankDummyleserISO_ChangeReferenceDataSecureStatuscode READ ISO_ChangeReferenceDataStatuscode WRITE ISO_ChangeReferenceDataStatuscodeSetzen)
 	Q_PROPERTY(ulong QFrankDummyleserKarteAnfordernStatuscode READ KarteAnfordernStatuscode WRITE KarteAnfordernStatuscodeSetzen)
 	Q_PROPERTY(QByteArray QFrankDummyleserKarteAnfordernDaten READ ISO_ReadBinaryDaten WRITE ISO_ReadBinaryDatenSetzen)
+	Q_PROPERTY(ulong QFrankDummyleserKarteEntfernenStatuscode READ KarteAnfordernStatuscode WRITE KarteAnfordernStatuscodeSetzen)
 
 	public:
 			QFrankDummyleser(QObject* eltern);
@@ -80,6 +81,8 @@ class QFrankDummyleser: public QFrankLesegeraet
 			ulong								KarteAnfordernStatuscode();
 			void								KarteAnfordernStatuscodeSetzen(ulong status);
 			QFrankLesegeraet::Rueckgabecodes	KarteAnfordern(QByteArray &ATR);
+
+			QFrankLesegeraet::Rueckgabecodes	KarteEntfernen();
 
 			QFrankLesegeraet::Leserklasse		Sicherheitsklasse();
 			void								SicherheitsklasseSetzen(ulong klasse);
