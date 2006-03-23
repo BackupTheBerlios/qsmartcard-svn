@@ -56,7 +56,7 @@ class QFrankDummyleser: public QFrankLesegeraet
 			void								ISO_ReadBinaryStatuscodeSetzen(ulong status);
 			QByteArray							ISO_ReadBinaryDaten();
 			void								ISO_ReadBinaryDatenSetzen(QByteArray dummydaten);						
-			QFrankLesegeraet::Rueckgabecodes	ISO_ReadBinary(QByteArray datenfeld,QByteArray &Zielfeld);
+			QFrankLesegeraet::Rueckgabecodes	ISO_ReadBinary(QByteArray datenfeld,QByteArray &zielfeld);
 			
 			ulong								ISO_UpdateBinaryStatuscode();
 			void								ISO_UpdateBinaryStatuscodeSetzen(ulong status);

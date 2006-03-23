@@ -198,7 +198,7 @@ void QFrankDummyleser::ISO_ReadBinaryDatenSetzen(QByteArray dummydaten)
 	Datenfeld=dummydaten;
 }
 
-QFrankLesegeraet::Rueckgabecodes QFrankDummyleser::ISO_ReadBinary(QByteArray datenfeld,QByteArray &Zielfeld)
+QFrankLesegeraet::Rueckgabecodes QFrankDummyleser::ISO_ReadBinary(QByteArray datenfeld,QByteArray &zielfeld)
 {
 	qDebug()<<"Read Binary Anfang";
 	//P1+P2 Adresse
@@ -209,7 +209,7 @@ QFrankLesegeraet::Rueckgabecodes QFrankDummyleser::ISO_ReadBinary(QByteArray dat
 		qCritical()<<"Das Datenfeld ist zu klein Größe:"<<datenfeld.size()<<"\r\nRead Binary Ende";
 		return QFrankLesegeraet::ParameterFalsch;
 	}
-	Zielfeld=Datenfeld;
+	zielfeld=Datenfeld;
 	qDebug()<<"Es soll ab Adresse"<<FeldNachHex(datenfeld.mid(0,2))<<FeldNachHex(datenfeld.mid(2))<<"Bytes gelesen werden";
 	qDebug()<<"Das wurde gelesen:"<<FeldNachHex(Datenfeld);
 	// Zu Lesenden Bytes größer als die Dummydaten? Dann EOF vor Le

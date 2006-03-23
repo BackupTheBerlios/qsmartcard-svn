@@ -64,7 +64,7 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::LeserInitialisieren()
 		return  QFrankLesegeraet::LeserNichtInitialisiert;
 	}
 	//Aufruf von CT-init
-	Rueckgabecode=MeinCT_init(Terminalnummer,Portnummer);
+	char Rueckgabecode=MeinCT_init(Terminalnummer,Portnummer);
 	if(Rueckgabecode!=0)
 	{
 #ifdef MEINDEBUG
@@ -82,19 +82,15 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::LeserInitialisieren()
 	Zieladresse=1;
 	Quelladresse=2;
 	LaengeDerAntwort=sizeof(Antwort); //Muss immer sein, da vom der CT DLL verbogen wird
-	Rueckgabecode=MeinCT_data(Terminalnummer,&Zieladresse,&Quelladresse,LaengeDesBefehl,Befehl,&LaengeDerAntwort,Antwort);
-	if(Rueckgabecode!=0)
+	if(!DatenSenden(Terminalnummer,&Zieladresse,&Quelladresse,LaengeDesBefehl,Befehl,&LaengeDerAntwort,Antwort ))
 	{
-#ifdef MEINDEBUG
-		qDebug()<<"Befehl konnte nicht das das Terminal gesendet werden. Rückgabe:"<<(int)Rueckgabecode;
-#endif
 		CT_API_schliessen();
 		return QFrankLesegeraet::LeserNichtInitialisiert;
 	}
 	//Auswerten des Ergebnisses
-	if(Antwort[LaengeDerAntwort-2]!=0x90 || Antwort[LaengeDerAntwort-1]!=0x00)
-	{
-		uint Ergebnis=(Antwort[LaengeDerAntwort-2] <<8) | Antwort[LaengeDerAntwort-1];
+	uint Ergebnis=(Antwort[LaengeDerAntwort-2] <<8) | Antwort[LaengeDerAntwort-1];
+	if(Ergebnis!=QFrankLesegeraet::CommandSuccessful)
+	{		
 #ifdef MEINDEBUG
 		qDebug()<<"Befehl Komponentenermittlung fehlgeschlagen Rückgabe:"<<QString("%1").arg(Ergebnis,0,16);
 #endif
@@ -163,14 +159,74 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_SelectFile(QByteArray d
 {
 	if(!VerbindungTesten("ISO_SelectFile"))
 		return QFrankLesegeraet::LeserNichtInitialisiert;
-	return QFrankLesegeraet::ParameterFalsch;
+	if(DatenfeldZuKlein(sizeof(Befehl)-2,datenfeld))
+	{
+		//Datenfeld passt nicht in das Befehlsfeld:(
+		return QFrankLesegeraet::ParameterFalsch;
+	}
+	Befehl[0]=0x00;
+	Befehl[1]=0xa4;
+	LaengeDesBefehl=datenfeld.size()+2;
+	Zieladresse=0; // 0=Slot1  1=Termimal 2=Slot2
+	Quelladresse=2;
+
+	LaengeDerAntwort=sizeof(Antwort);
+	memcpy(Befehl+2,datenfeld.data(),datenfeld.size());//Kopieren des QByteArray in's Befehlsfeld
+#ifdef MEINDEBUG
+	qDebug()<<"Select File Datenfeld:"<<FeldNachHex(QByteArray((char*)Befehl,LaengeDesBefehl));
+#endif
+	if(!DatenSenden(Terminalnummer,&Zieladresse,&Quelladresse,LaengeDesBefehl,Befehl,&LaengeDerAntwort,Antwort))
+	{
+		CT_API_schliessen();
+		return QFrankLesegeraet::LeserNichtInitialisiert;
+	}
+	//Auswertung
+	uint Ergebnis=(Antwort[LaengeDerAntwort-2] <<8) | Antwort[LaengeDerAntwort-1];
+#ifdef MEINDEBUG
+	qDebug("Select File ergab: %x",Ergebnis);
+#endif
+	return (QFrankLesegeraet::Rueckgabecodes) Ergebnis;
 }
 
-QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_ReadBinary(QByteArray datenfeld,QByteArray &Zielfeld)
+QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_ReadBinary(QByteArray datenfeld,QByteArray &zielfeld)
 {
 	if(!VerbindungTesten("ISO_ReadBinary"))
 		return QFrankLesegeraet::LeserNichtInitialisiert;
-	return QFrankLesegeraet::ParameterFalsch;
+	if(DatenfeldZuKlein(sizeof(Befehl)-2,datenfeld))
+	{
+		//Datenfeld passt nicht in das Befehlsfeld:(
+		return QFrankLesegeraet::ParameterFalsch;
+	}
+	Befehl[0]=0x00;
+	Befehl[1]=0xb0;
+	LaengeDesBefehl=datenfeld.size()+2;
+	Zieladresse=0; // 0=Slot1  1=Termimal 2=Slot2
+	Quelladresse=2;
+	LaengeDerAntwort=sizeof(Antwort);
+	memcpy(Befehl+2,datenfeld.data(),datenfeld.size());//Kopieren des QByteArray in's Befehlsfeld
+#ifdef MEINDEBUG
+	qDebug()<<"Read Binary Datenfeld(Quelle):"<<FeldNachHex(QByteArray((char*)Befehl,LaengeDesBefehl));
+#endif
+	if(!DatenSenden(Terminalnummer,&Zieladresse,&Quelladresse,LaengeDesBefehl,Befehl,&LaengeDerAntwort,Antwort))
+	{
+		CT_API_schliessen();
+		return QFrankLesegeraet::LeserNichtInitialisiert;
+	}
+	//Auswertung
+	uint Ergebnis=(Antwort[LaengeDerAntwort-2] <<8) | Antwort[LaengeDerAntwort-1];
+#ifdef MEINDEBUG
+	qDebug("Read Binary ergab: %x",Ergebnis);
+#endif
+	if(Ergebnis==QFrankLesegeraet::CommandSuccessful || Ergebnis==QFrankLesegeraet::WarningEOFbeforeLeBytes)
+	{
+		//Daten konnten gelesen werden
+		zielfeld.resize(LaengeDerAntwort-2);// Die 2 Bytes Status werden nicht mit übergben.
+		memcpy(zielfeld.data(),Antwort,LaengeDerAntwort-2);//In das Rückgabeaary kopieren
+#ifdef MEINDEBUG
+	qDebug()<<"Read Binary Datenfeld(Ziel):"<<FeldNachHex(zielfeld);
+#endif
+	}
+	return (QFrankLesegeraet::Rueckgabecodes) Ergebnis;
 }
 
 QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_UpdateBinary(QByteArray datenfeld)
@@ -222,14 +278,10 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::KarteEntfernen()
 	Zieladresse=1;
 	Quelladresse=2;
 	LaengeDerAntwort=sizeof(Antwort);
-	Rueckgabecode=MeinCT_data(Terminalnummer,&Zieladresse,&Quelladresse,LaengeDesBefehl,Befehl,&LaengeDerAntwort,Antwort);
-	if(Rueckgabecode!=0)
+	if(!DatenSenden(Terminalnummer,&Zieladresse,&Quelladresse,LaengeDesBefehl,Befehl,&LaengeDerAntwort,Antwort))
 	{
-#ifdef MEINDEBUG
-		qDebug()<<"Befehl konnte nicht das das Terminal gesendet werden. Rückgabe:"<<(int)Rueckgabecode;
-#endif
 		CT_API_schliessen();
-		return QFrankLesegeraet::Error;
+		return QFrankLesegeraet::LeserNichtInitialisiert;
 	}
 	//Auswertung
 	uint Ergebnis=(Antwort[LaengeDerAntwort-2] <<8) | Antwort[LaengeDerAntwort-1];
@@ -254,18 +306,14 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::KarteAnfordern(QByteArray &
 	Zieladresse=1;
 	Quelladresse=2;
 	LaengeDerAntwort=sizeof(Antwort);
-	Rueckgabecode=MeinCT_data(Terminalnummer,&Zieladresse,&Quelladresse,LaengeDesBefehl,Befehl,&LaengeDerAntwort,Antwort);
-	if(Rueckgabecode!=0)
+	if(!DatenSenden(Terminalnummer,&Zieladresse,&Quelladresse,LaengeDesBefehl,Befehl,&LaengeDerAntwort,Antwort))
 	{
-#ifdef MEINDEBUG
-		qDebug()<<"Befehl konnte nicht das das Terminal gesendet werden. Rückgabe:"<<(int)Rueckgabecode;
-#endif
 		CT_API_schliessen();
-		return QFrankLesegeraet::Error;
+		return QFrankLesegeraet::LeserNichtInitialisiert;
 	}
 	//Auswerten des Ergebnisses
 	uint Ergebnis=(Antwort[LaengeDerAntwort-2] <<8) | Antwort[LaengeDerAntwort-1];
-	if(Ergebnis==0x9000 || Ergebnis==0x9001)
+	if(Ergebnis==QFrankLesegeraet::CommandSuccessful || Ergebnis==QFrankLesegeraet::CommandSuccessfulAsynchron)
 	{
 		//Karte wurde gefunden
 #ifdef MEINDEBUG
@@ -346,11 +394,38 @@ bool QFrankCT_API_Leser::VerbindungTesten(QString programmteil)
 
 void QFrankCT_API_Leser::CT_API_schliessen()
 {
-	Rueckgabecode=MeinCT_close(Terminalnummer);
+	char Rueckgabecode=MeinCT_close(Terminalnummer);
 #ifdef MEINDEBUG
 	if(Rueckgabecode!=0)
 		qDebug()<<"CT-Close mit Fehler beendet. Rückgabe:"<<(int)Rueckgabecode;
 #endif
+}
+
+bool QFrankCT_API_Leser::DatenSenden(uint terminalnummer, uchar *ziel,uchar *quelle,\
+									 ushort befehlslaenge,uchar *befehle,ushort *antwortlaenge,\
+															uchar *antworten)
+{
+	char Ergebnis=MeinCT_data(terminalnummer,ziel,quelle,befehlslaenge,befehle,antwortlaenge,antworten);
+	if(Ergebnis!=0)
+	{
+#ifdef MEINDEBUG
+		qDebug()<<objectName()<<"Befehl konnte nicht das das Terminal gesendet werden. Rückgabe:"<<(int)Ergebnis;
+#endif
+		return false;
+	}
+	return true;
+}
+
+bool QFrankCT_API_Leser::DatenfeldZuKlein(int groesse,QByteArray &Feld)
+{
+	if(Feld.size()>groesse)
+	{
+#ifdef MEINDEBUG
+		qDebug()<<QString("%1 Select File: Das übergebene Datenfeld ist zu gross!!").arg(objectName());
+#endif
+		return true;
+	}
+	return false;
 }
 
 #ifdef MEINDEBUG

@@ -36,7 +36,7 @@ class QFrankCT_API_Leser: public QFrankLesegeraet
 			QFrankCT_API_Leser(QObject* eltern);
 			~QFrankCT_API_Leser();
 			QFrankLesegeraet::Rueckgabecodes	ISO_SelectFile(QByteArray datenfeld);
-			QFrankLesegeraet::Rueckgabecodes	ISO_ReadBinary(QByteArray datenfeld,QByteArray &Zielfeld);
+			QFrankLesegeraet::Rueckgabecodes	ISO_ReadBinary(QByteArray datenfeld,QByteArray &zielfeld);
 			QFrankLesegeraet::Rueckgabecodes	ISO_UpdateBinary(QByteArray datenfeld);
 			QFrankLesegeraet::Rueckgabecodes	ISO_Verify(QByteArray datenfeld);
 			QFrankLesegeraet::Rueckgabecodes	ISO_ChangeReferenceData(QByteArray datenfeld);
@@ -63,12 +63,15 @@ class QFrankCT_API_Leser: public QFrankLesegeraet
 			typedef	char(*pCT_close)(unsigned short terminal);		
 			void								CT_API_schliessen();
 			bool								VerbindungTesten(QString programmteil);
+			bool								DatenSenden(uint terminalnummer, uchar *ziel,uchar *quelle,\
+															ushort befehlslaenge,uchar *befehle,ushort *antwortlaenge,\
+															uchar *antworten);
+			bool								DatenfeldZuKlein(int groesse,QByteArray &Feld);
 			uint								Portnummer;
 			QString								Treiberdatei;
 			uint								Terminalnummer;
 			bool								VerbindungZumKartenleser;
 			pCT_init							MeinCT_init;
-			char								Rueckgabecode;
 			unsigned char						Befehl[300];
 			unsigned short						LaengeDesBefehl;
 			unsigned char						Antwort[65500];

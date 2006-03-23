@@ -151,6 +151,18 @@ int main(int argc, char *argv[])
 	qDebug()<<QString("0x%1").arg(Terminal->LeserHohlen("CT-API-Leser")->LeserInitialisieren(),0,16);
 	qDebug()<<QString("0x%1").arg(Terminal->LeserHohlen("CT-API-Leser")->Sicherheitsklasse(),0,16);
 	qDebug()<<QString("0x%1").arg(Terminal->LeserHohlen("CT-API-Leser")->KarteAnfordern(Testfeld),0,16);
+	Testfeld.resize(5);
+	Testfeld[0]=0x04;
+	Testfeld[1]=0x00;
+	Testfeld[2]=0x02;
+	Testfeld[3]=0x3f;
+	Testfeld[4]=0x00;
+	qDebug()<<QString("0x%1").arg(Terminal->LeserHohlen("CT-API-Leser")->ISO_SelectFile(Testfeld),0,16);
+	Testfeld.resize(3);
+	Testfeld[0]=0x00;
+	Testfeld[1]=0x00;
+	Testfeld[2]=0x00;
+	qDebug()<<QString("0x%1").arg(Terminal->LeserHohlen("CT-API-Leser")->ISO_ReadBinary(Testfeld,Testfeld),0,16);
 	qDebug()<<QString("0x%1").arg(Terminal->LeserHohlen("CT-API-Leser")->KarteEntfernen(),0,16);
 	delete Terminal;
 	return 0;
