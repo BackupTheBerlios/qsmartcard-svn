@@ -33,6 +33,10 @@ QFrankCT_API_Leser::QFrankCT_API_Leser(QObject* eltern):QFrankLesegeraet(eltern)
 #else
 	Treiberdatei="/usr/lib/readers/libctapi-cyberjack.so";
 #endif
+	//Warnung bei DEBUG
+#ifdef MEINDEBUG
+	qWarning("WARNUNG Debugversion wird benutzt.\r\nEs könnten sicherheitsrelevante Daten ausgegeben werden!!!!!");
+#endif
 }
 
 ulong QFrankCT_API_Leser::Version()
@@ -159,7 +163,7 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_SelectFile(QByteArray d
 {
 	if(!VerbindungTesten("ISO_SelectFile"))
 		return QFrankLesegeraet::LeserNichtInitialisiert;
-	if(DatenfeldZuKlein(sizeof(Befehl)-2,datenfeld))
+	if(DatenfeldZuKlein(sizeof(Befehl)-2,datenfeld,"ISO_SelectFile"))
 	{
 		//Datenfeld passt nicht in das Befehlsfeld:(
 		return QFrankLesegeraet::ParameterFalsch;
@@ -169,7 +173,6 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_SelectFile(QByteArray d
 	LaengeDesBefehl=datenfeld.size()+2;
 	Zieladresse=0; // 0=Slot1  1=Termimal 2=Slot2
 	Quelladresse=2;
-
 	LaengeDerAntwort=sizeof(Antwort);
 	memcpy(Befehl+2,datenfeld.data(),datenfeld.size());//Kopieren des QByteArray in's Befehlsfeld
 #ifdef MEINDEBUG
@@ -192,7 +195,7 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_ReadBinary(QByteArray d
 {
 	if(!VerbindungTesten("ISO_ReadBinary"))
 		return QFrankLesegeraet::LeserNichtInitialisiert;
-	if(DatenfeldZuKlein(sizeof(Befehl)-2,datenfeld))
+	if(DatenfeldZuKlein(sizeof(Befehl)-2,datenfeld,"ISO_ReadBinary"))
 	{
 		//Datenfeld passt nicht in das Befehlsfeld:(
 		return QFrankLesegeraet::ParameterFalsch;
@@ -233,14 +236,89 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_UpdateBinary(QByteArray
 {
 	if(!VerbindungTesten("ISO_UpdateBinary"))
 		return QFrankLesegeraet::LeserNichtInitialisiert;
+	if(DatenfeldZuKlein(sizeof(Befehl)-2,datenfeld,"ISO_UpdateBinary"))
+	{
+		//Datenfeld passt nicht in das Befehlsfeld:(
+		return QFrankLesegeraet::ParameterFalsch;
+	}
+	//Datenlänge richtig angegeben??
+	if(datenfeld.at(2)!=(datenfeld.size()-3))
+	{
+		//stimmt nicht
+#ifdef MEINDEBUG
+		qDebug()<<"ISO_UpdateBinary Datenlänge falsch";
+#endif
 	return QFrankLesegeraet::ParameterFalsch;
+	}
+	Befehl[0]=0x00;
+	Befehl[1]=0xd6;
+	LaengeDesBefehl=datenfeld.size()+2;
+	LaengeDerAntwort=sizeof(Antwort);
+	Zieladresse=0; // 0=Slot1  1=Termimal 2=Slot2
+	Quelladresse=2;
+	memcpy(Befehl+2,datenfeld.data(),datenfeld.size());//Kopieren des QByteArray in's Befehlsfeld
+#ifdef MEINDEBUG
+	qDebug()<<"ISO_UpdateBinary Datenfeld:"<<FeldNachHex(QByteArray((char*)Befehl,LaengeDesBefehl));
+#endif
+	if(!DatenSenden(Terminalnummer,&Zieladresse,&Quelladresse,LaengeDesBefehl,Befehl,&LaengeDerAntwort,Antwort))
+	{
+		CT_API_schliessen();
+		return QFrankLesegeraet::LeserNichtInitialisiert;
+	}
+	//Auswertung
+	uint Ergebnis=(Antwort[LaengeDerAntwort-2] <<8) | Antwort[LaengeDerAntwort-1];
+#ifdef MEINDEBUG
+	qDebug("ISO_UpdateBinary ergab: %x",Ergebnis);
+#endif
+	return (QFrankLesegeraet::Rueckgabecodes) Ergebnis;	
 }
 
 QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_Verify(QByteArray datenfeld)
 {
 	if(!VerbindungTesten("ISO_Verify"))
 		return QFrankLesegeraet::LeserNichtInitialisiert;
-	return QFrankLesegeraet::ParameterFalsch;
+	//Bei Geräten mit Tastatur sollte besser ISO_VerifySecure benutzt werden
+	if(Lesersicherheit>QFrankLesegeraet::Klasse1 && Lesersicherheit<QFrankLesegeraet::KlasseUnbekannt)
+	{
+		qWarning("Das Lesegerät kennt die sichere Pineingabe.\r\nDiese sollte auch benutzt werden!!");
+	}
+	if(DatenfeldZuKlein(sizeof(Befehl)-4,datenfeld,"ISO_Verify"))
+	{
+		//Datenfeld passt nicht in das Befehlsfeld:(
+		return QFrankLesegeraet::ParameterFalsch;
+	}
+	//hat das Datenfeld mehr als 256 Stellen??
+	if (datenfeld.size()>256)
+	{
+#ifdef MEINDEBUG
+		qDebug()<<"ISO_Verify die PIN ist zu lang.";
+#endif
+		return QFrankLesegeraet::ParameterFalsch;
+	}
+	Befehl[0]=0x00;
+	Befehl[1]=0x20;
+	Befehl[2]=0x00;
+	Befehl[3]=0x00;
+	Befehl[4]=datenfeld.size();
+	LaengeDesBefehl=datenfeld.size()+5;
+	LaengeDerAntwort=sizeof(Antwort);
+	Zieladresse=0; // 0=Slot1  1=Termimal 2=Slot2
+	Quelladresse=2;
+	memcpy(Befehl+5,datenfeld.data(),datenfeld.size());//Kopieren des QByteArray in's Befehlsfeld
+#ifdef MEINDEBUG
+	qDebug()<<"ISO_Verify Datenfeld:"<<FeldNachHex(QByteArray((char*)Befehl,LaengeDesBefehl));
+#endif
+	if(!DatenSenden(Terminalnummer,&Zieladresse,&Quelladresse,LaengeDesBefehl,Befehl,&LaengeDerAntwort,Antwort))
+	{
+		CT_API_schliessen();
+		return QFrankLesegeraet::LeserNichtInitialisiert;
+	}
+	//Auswertung
+	uint Ergebnis=(Antwort[LaengeDerAntwort-2] <<8) | Antwort[LaengeDerAntwort-1];
+#ifdef MEINDEBUG
+	qDebug("ISO_Verify ergab: %x",Ergebnis);
+#endif
+	return (QFrankLesegeraet::Rueckgabecodes) Ergebnis;	
 }
 
 QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_ChangeReferenceData(QByteArray datenfeld)
@@ -416,12 +494,12 @@ bool QFrankCT_API_Leser::DatenSenden(uint terminalnummer, uchar *ziel,uchar *que
 	return true;
 }
 
-bool QFrankCT_API_Leser::DatenfeldZuKlein(int groesse,QByteArray &Feld)
+bool QFrankCT_API_Leser::DatenfeldZuKlein(int groesse,QByteArray &Feld,QString programmteil)
 {
 	if(Feld.size()>groesse)
 	{
 #ifdef MEINDEBUG
-		qDebug()<<QString("%1 Select File: Das übergebene Datenfeld ist zu gross!!").arg(objectName());
+		qDebug()<<QString("%1 %2: Das übergebene Datenfeld ist zu gross!!").arg(objectName()).arg(programmteil);
 #endif
 		return true;
 	}

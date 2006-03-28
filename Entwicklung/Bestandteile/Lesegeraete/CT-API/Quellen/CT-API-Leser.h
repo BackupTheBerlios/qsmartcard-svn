@@ -66,7 +66,7 @@ class QFrankCT_API_Leser: public QFrankLesegeraet
 			bool								DatenSenden(uint terminalnummer, uchar *ziel,uchar *quelle,\
 															ushort befehlslaenge,uchar *befehle,ushort *antwortlaenge,\
 															uchar *antworten);
-			bool								DatenfeldZuKlein(int groesse,QByteArray &Feld);
+			bool								DatenfeldZuKlein(int groesse,QByteArray &Feld,QString programmteil);
 			uint								Portnummer;
 			QString								Treiberdatei;
 			uint								Terminalnummer;
