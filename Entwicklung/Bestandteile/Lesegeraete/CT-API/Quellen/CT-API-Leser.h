@@ -71,6 +71,7 @@ class QFrankCT_API_Leser: public QFrankLesegeraet
 			QString								Treiberdatei;
 			uint								Terminalnummer;
 			bool								VerbindungZumKartenleser;
+			bool								ISO_VerifySecureOderISO_Verify;
 			pCT_init							MeinCT_init;
 			unsigned char						Befehl[300];
 			unsigned short						LaengeDesBefehl;

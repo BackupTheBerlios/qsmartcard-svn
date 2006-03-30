@@ -25,6 +25,7 @@ QFrankCT_API_Leser::QFrankCT_API_Leser(QObject* eltern):QFrankLesegeraet(eltern)
 	Portnummer=1;
 	Terminalnummer=1;
 	VerbindungZumKartenleser=false;
+	ISO_VerifySecureOderISO_Verify=false;
 	Lesersicherheit=QFrankLesegeraet::KlasseUnbekannt;
 //Vordefiniert für Reiner SCT Leser
 #ifdef Q_WS_WIN
@@ -63,7 +64,7 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::LeserInitialisieren()
 	{
 #ifdef MEINDEBUG
 		qDebug("Der CT-API Treiber konnte nicht geladen werden. Die Zeiger haben folgenden Werte:\r\n"\
-			   "CT_init: 0x%x CT_data: 0x%x CT_close: 0x%x",MeinCT_init,MeinCT_data,MeinCT_close);
+			   "CT_init: 0x%X CT_data: 0x%X CT_close: 0x%X",MeinCT_init,MeinCT_data,MeinCT_close);
 #endif
 		return  QFrankLesegeraet::LeserNichtInitialisiert;
 	}
@@ -186,7 +187,7 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_SelectFile(QByteArray d
 	//Auswertung
 	uint Ergebnis=(Antwort[LaengeDerAntwort-2] <<8) | Antwort[LaengeDerAntwort-1];
 #ifdef MEINDEBUG
-	qDebug("Select File ergab: %x",Ergebnis);
+	qDebug("Select File ergab: %X",Ergebnis);
 #endif
 	return (QFrankLesegeraet::Rueckgabecodes) Ergebnis;
 }
@@ -218,7 +219,7 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_ReadBinary(QByteArray d
 	//Auswertung
 	uint Ergebnis=(Antwort[LaengeDerAntwort-2] <<8) | Antwort[LaengeDerAntwort-1];
 #ifdef MEINDEBUG
-	qDebug("Read Binary ergab: %x",Ergebnis);
+	qDebug("Read Binary ergab: %X",Ergebnis);
 #endif
 	if(Ergebnis==QFrankLesegeraet::CommandSuccessful || Ergebnis==QFrankLesegeraet::WarningEOFbeforeLeBytes)
 	{
@@ -268,21 +269,33 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_UpdateBinary(QByteArray
 	//Auswertung
 	uint Ergebnis=(Antwort[LaengeDerAntwort-2] <<8) | Antwort[LaengeDerAntwort-1];
 #ifdef MEINDEBUG
-	qDebug("ISO_UpdateBinary ergab: %x",Ergebnis);
+	qDebug("ISO_UpdateBinary ergab: %X",Ergebnis);
 #endif
 	return (QFrankLesegeraet::Rueckgabecodes) Ergebnis;	
 }
 
 QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_Verify(QByteArray datenfeld)
 {
-	if(!VerbindungTesten("ISO_Verify"))
+	QString Funktionsname;
+	if(!ISO_VerifySecureOderISO_Verify)
+	{
+		//false=ISO_Verify true=ISO_ChangeReferenceData
+		Funktionsname="ISO_Verify";
+		Befehl[1]=0x20;
+	}
+	else
+	{
+		Funktionsname="ISO_ChangeReferenceData";
+		Befehl[1]=0x24;
+	}
+	if(!VerbindungTesten(Funktionsname))
 		return QFrankLesegeraet::LeserNichtInitialisiert;
-	//Bei Geräten mit Tastatur sollte besser ISO_VerifySecure benutzt werden
+	//Bei Geräten mit Tastatur sollte besser die Secure Ausführung benutzt werden
 	if(Lesersicherheit>QFrankLesegeraet::Klasse1 && Lesersicherheit<QFrankLesegeraet::KlasseUnbekannt)
 	{
 		qWarning("Das Lesegerät kennt die sichere Pineingabe.\r\nDiese sollte auch benutzt werden!!");
 	}
-	if(DatenfeldZuKlein(sizeof(Befehl)-4,datenfeld,"ISO_Verify"))
+	if(DatenfeldZuKlein(sizeof(Befehl)-4,datenfeld,Funktionsname))
 	{
 		//Datenfeld passt nicht in das Befehlsfeld:(
 		return QFrankLesegeraet::ParameterFalsch;
@@ -291,12 +304,11 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_Verify(QByteArray daten
 	if (datenfeld.size()>256)
 	{
 #ifdef MEINDEBUG
-		qDebug()<<"ISO_Verify die PIN ist zu lang.";
+		qDebug()<<Funktionsname<< "die PIN ist zu lang.";
 #endif
 		return QFrankLesegeraet::ParameterFalsch;
 	}
 	Befehl[0]=0x00;
-	Befehl[1]=0x20;
 	Befehl[2]=0x00;
 	Befehl[3]=0x00;
 	Befehl[4]=datenfeld.size();
@@ -306,7 +318,7 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_Verify(QByteArray daten
 	Quelladresse=2;
 	memcpy(Befehl+5,datenfeld.data(),datenfeld.size());//Kopieren des QByteArray in's Befehlsfeld
 #ifdef MEINDEBUG
-	qDebug()<<"ISO_Verify Datenfeld:"<<FeldNachHex(QByteArray((char*)Befehl,LaengeDesBefehl));
+	qDebug()<<Funktionsname<<"Datenfeld:"<<FeldNachHex(QByteArray((char*)Befehl,LaengeDesBefehl));
 #endif
 	if(!DatenSenden(Terminalnummer,&Zieladresse,&Quelladresse,LaengeDesBefehl,Befehl,&LaengeDerAntwort,Antwort))
 	{
@@ -316,16 +328,18 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_Verify(QByteArray daten
 	//Auswertung
 	uint Ergebnis=(Antwort[LaengeDerAntwort-2] <<8) | Antwort[LaengeDerAntwort-1];
 #ifdef MEINDEBUG
-	qDebug("ISO_Verify ergab: %x",Ergebnis);
+	
+	qDebug("%s ergab: %X",Funktionsname.toAscii().data(),Ergebnis);
 #endif
 	return (QFrankLesegeraet::Rueckgabecodes) Ergebnis;	
 }
 
 QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_ChangeReferenceData(QByteArray datenfeld)
 {
-	if(!VerbindungTesten("ISO_ChangeReferenceData"))
-		return QFrankLesegeraet::LeserNichtInitialisiert;
-	return QFrankLesegeraet::ParameterFalsch;
+	ISO_VerifySecureOderISO_Verify=true;
+	QFrankLesegeraet::Rueckgabecodes Ergebnis=ISO_Verify(datenfeld);
+	ISO_VerifySecureOderISO_Verify=false;
+	return Ergebnis;		
 }
 
 QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_VerifySecure(QByteArray datenfeld)
@@ -364,7 +378,7 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::KarteEntfernen()
 	//Auswertung
 	uint Ergebnis=(Antwort[LaengeDerAntwort-2] <<8) | Antwort[LaengeDerAntwort-1];
 #ifdef MEINDEBUG
-	qDebug("Karte auswerfen ergab: %x",Ergebnis);
+	qDebug("Karte auswerfen ergab: %X",Ergebnis);
 #endif
 	return (QFrankLesegeraet::Rueckgabecodes) Ergebnis;
 }
