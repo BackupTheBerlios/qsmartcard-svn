@@ -82,7 +82,7 @@ class QFrankCT_API_Leser: public QFrankLesegeraet
 			pCT_data							MeinCT_data;
 			pCT_close							MeinCT_close;
 			QFrankLesegeraet::Leserklasse		Lesersicherheit;
-#ifdef MEINDEBUG
+#ifndef QT_NO_DEBUG
 			QString								FeldNachHex(QByteArray feld);
 #endif
 };

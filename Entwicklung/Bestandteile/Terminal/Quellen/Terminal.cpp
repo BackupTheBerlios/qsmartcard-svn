@@ -70,19 +70,19 @@ bool QFrankTerminal::ArgumentLeer(QString &argument)
 void QFrankTerminal::PlugInsLaden(QDir pfad)
 {
 	
-#ifdef MEINDEBUG
+#ifndef QT_NO_DEBUG
 	qDebug()<<"Lade Plugins aus:"<<pfad.absolutePath();
 #endif
 	foreach (QString Datei, pfad.entryList(QDir::Files))
 	{
-#ifdef MEINDEBUG
+#ifndef QT_NO_DEBUG
 		qDebug()<<"prüfe Datei:"<<Datei;
 #endif
 		QPluginLoader PlugInLader(pfad.absoluteFilePath(Datei));
 		QObject *PlugIn = PlugInLader.instance();
 		if (PlugIn)
 		{
-#ifdef MEINDEBUG
+#ifndef QT_NO_DEBUG
 			qDebug()<<Datei<<"geladen";
 #endif
 			/*
@@ -92,7 +92,7 @@ void QFrankTerminal::PlugInsLaden(QDir pfad)
 			QFrankKarteninterface *Karte=qobject_cast<QFrankKarteninterface *>(PlugIn);
 			if(Karte)
 			{
-#ifdef MEINDEBUG
+#ifndef QT_NO_DEBUG
 				qDebug()<<Datei<<"ist ein Kartenplugin";
 #endif
 				//Jedes Bibliothek könnte mehrere Plug-Ins bereitstellen
@@ -105,7 +105,7 @@ void QFrankTerminal::PlugInsLaden(QDir pfad)
 			QFrankLesegeraetinterface *Leser=qobject_cast<QFrankLesegeraetinterface *>(PlugIn);
 			if(Leser)
 			{
-#ifdef MEINDEBUG
+#ifndef QT_NO_DEBUG
 				qDebug()<<Datei<<"ist ein Lesegerätplugin";
 #endif
 				foreach (QString Pluginname,Leser->Geraete())

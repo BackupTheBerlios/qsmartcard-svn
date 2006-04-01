@@ -18,6 +18,11 @@ PROJEKTTEIL   = Tester
 TEMPLATE      = app
 include (../../Vorgaben.pri)
 TARGET	      = tests
+win32{
+	contains(TEMPLATE, app) {
+		CONFIG += console
+}
+}
 INCLUDEPATH  += ../Terminal/Quellen\
 				../Karten/SmartCard\
 				../Lesegeraete/Lesegeraet			
