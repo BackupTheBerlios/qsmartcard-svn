@@ -25,7 +25,8 @@ QFrankCT_API_Leser::QFrankCT_API_Leser(QObject* eltern):QFrankLesegeraet(eltern)
 	Portnummer=1;
 	Terminalnummer=1;
 	VerbindungZumKartenleser=false;
-	ISO_VerifySecureOderISO_Verify=false;
+	ISO_VerifyOderISO_ChangeReferenceData=false;
+	ISO_VerifySecureOderISO_ChangeReferenceDataSecure=false;
 	Lesersicherheit=QFrankLesegeraet::KlasseUnbekannt;
 //Vordefiniert für Reiner SCT Leser
 #ifdef Q_WS_WIN
@@ -277,7 +278,7 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_UpdateBinary(QByteArray
 QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_Verify(QByteArray datenfeld)
 {
 	QString Funktionsname;
-	if(!ISO_VerifySecureOderISO_Verify)
+	if(!ISO_VerifyOderISO_ChangeReferenceData)
 	{
 		//false=ISO_Verify true=ISO_ChangeReferenceData
 		Funktionsname="ISO_Verify";
@@ -336,24 +337,94 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_Verify(QByteArray daten
 
 QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_ChangeReferenceData(QByteArray datenfeld)
 {
-	ISO_VerifySecureOderISO_Verify=true;
+	ISO_VerifyOderISO_ChangeReferenceData=true;
 	QFrankLesegeraet::Rueckgabecodes Ergebnis=ISO_Verify(datenfeld);
-	ISO_VerifySecureOderISO_Verify=false;
+	ISO_VerifyOderISO_ChangeReferenceData=false;
 	return Ergebnis;		
 }
 
 QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_VerifySecure(QByteArray datenfeld)
 {
-	if(!VerbindungTesten("ISO_VerifySecure"))
+	QString Funktionsname;
+	if(!ISO_VerifySecureOderISO_ChangeReferenceDataSecure)
+	{
+		//false=SO_VerifySecure true=ISO_ChangeReferenceDataSecure
+		Funktionsname="ISO_VerifySecure";
+		Befehl[1]=0x18;
+	}
+	else
+	{
+		Funktionsname="ISO_ChangeReferenceDataSecure";
+		Befehl[1]=0x19;
+	}
+	
+	if(!VerbindungTesten(Funktionsname))
 		return QFrankLesegeraet::LeserNichtInitialisiert;
+	if(!ISO_VerifySecureOderISO_ChangeReferenceDataSecure)
+	{
+		//mindestes ein Klasse 2 Leser(VerifySecure)
+		if(!(Lesersicherheit>QFrankLesegeraet::Klasse1 && Lesersicherheit<=QFrankLesegeraet::Klasse4))
+		{
+#ifndef QT_NO_DEBUG
+			qDebug()<<"ISO_VerifySecure sichere Pineingabe nur mit Geräten der Klasse 2 oder höher möglich";		
+#endif
+		return QFrankLesegeraet::ParameterFalsch;
+		}
+	}
+	else
+	{
+		//mindestes ein Klasse 3 Leser(Update..Sec..)
+		if(!(Lesersicherheit>QFrankLesegeraet::Klasse2 && Lesersicherheit<=QFrankLesegeraet::Klasse4))
+		{
+#ifndef QT_NO_DEBUG
+			qDebug()<<"ISO_ChangeReferenceDataSecure sicherer Pinwechsel nur mit Geräten der Klasse 3 oder höher möglich";		
+#endif
+		return QFrankLesegeraet::ParameterFalsch;
+		}
+	}
+	
+	
+	//hat das Datenfeld mehr als 256 Stellen??
+	if (datenfeld.size()>256 || datenfeld.at(0)!=0x52)
+	{
+#ifndef QT_NO_DEBUG
+		qDebug()<< Funktionsname<<"Format des Datenfeldes ist falsch.";
+		qDebug()<<FeldNachHex(QByteArray((char*)Befehl,LaengeDesBefehl));
+#endif
+		return QFrankLesegeraet::ParameterFalsch;
+	}
+	Befehl[0]=0x20;
+	Befehl[2]=0x01; //Karte1
+	Befehl[3]=0x00; //Pinpad
+	Befehl[4]=datenfeld.size();
+	LaengeDesBefehl=datenfeld.size()+5;
+	LaengeDerAntwort=sizeof(Antwort);
+	Zieladresse=0; // 0=Slot1  1=Termimal 2=Slot2
+	Quelladresse=2;
+	memcpy(Befehl+5,datenfeld.data(),datenfeld.size());//Kopieren des QByteArray in's Befehlsfeld
+#ifndef QT_NO_DEBUG
+	qDebug()<<Funktionsname<<"Datenfeld:"<<FeldNachHex(QByteArray((char*)Befehl,LaengeDesBefehl));
+#endif
+	if(!DatenSenden(Terminalnummer,&Zieladresse,&Quelladresse,LaengeDesBefehl,Befehl,&LaengeDerAntwort,Antwort))
+	{
+		CT_API_schliessen();
+		return QFrankLesegeraet::LeserNichtInitialisiert;
+	}
+	//Auswertung
+	uint Ergebnis=(Antwort[LaengeDerAntwort-2] <<8) | Antwort[LaengeDerAntwort-1];
+#ifndef QT_NO_DEBUG
+	qDebug("%s ergab: %X",Funktionsname.toAscii().data(),Ergebnis);
+#endif
 	return QFrankLesegeraet::ParameterFalsch;
 }
 
 QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_ChangeReferenceDataSecure(QByteArray datenfeld)
 {
-	if(!VerbindungTesten("ISO_ChangeReferenceDataSecure"))
-		return QFrankLesegeraet::LeserNichtInitialisiert;
-	return QFrankLesegeraet::ParameterFalsch;
+	ISO_VerifySecureOderISO_ChangeReferenceDataSecure=true;
+	QFrankLesegeraet::Rueckgabecodes Ergebnis=ISO_VerifySecure(datenfeld);
+	ISO_VerifySecureOderISO_ChangeReferenceDataSecure=false;
+	
+	return Ergebnis;
 }
 
 QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::KarteEntfernen()
@@ -445,7 +516,7 @@ QFrankLesegeraet::Leserklasse QFrankCT_API_Leser::Sicherheitsklasse()
 										qDebug()<<"Lesser Klasse unbekannt";
 										break;
 		default:
-										qFatal("Variable Lesersicherheit hat einen unbekannte Wert!!");
+										qFatal("Variable Lesersicherheit hat einen unbekanten Wert!!");
 										break;
 	}
 #endif

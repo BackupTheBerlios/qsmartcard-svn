@@ -21,6 +21,8 @@
 #include <QtCore>
 #include <Terminal.h>
 
+#include <cstdio>
+
 int main(int argc, char *argv[])
 {
 	QCoreApplication Programm(argc,argv);
@@ -29,7 +31,10 @@ int main(int argc, char *argv[])
 	qDebug()<<"Es wurden folgende Geräte Plug-In's gefunden:\r\n"<<Terminal->ListeDerLeser().join("\r\n");
 	qDebug()<<"Es wurden folgende SmartCard Plug-In's gefunden:\r\n"<<Terminal->ListeDerKarten().join("\r\n");
 	
-	
+	qDebug()<<"WICHTIG KEINE KARTE IN DAS LESEGERÄT EINLEGEN AUCH NICHT WENN DAS GERÄT SIE AUFFORDERT!!";
+	qDebug()<<"Eingabe drücken, zum fortfahren";
+	std::getchar();
+
 	//Was kann die Karte alles??
 	foreach(QString Karte,Terminal->ListeDerKarten())
 	{
@@ -178,6 +183,29 @@ int main(int argc, char *argv[])
 	qDebug()<<QString("0x%1").arg(Terminal->LeserHohlen("CT-API-Leser")->ISO_Verify(Testfeld),0,16);
 	
 	qDebug()<<QString("0x%1").arg(Terminal->LeserHohlen("CT-API-Leser")->ISO_ChangeReferenceData(Testfeld),0,16);
+
+	Testfeld.resize(8);
+	Testfeld[0]=0x52;
+	Testfeld[1]=0x06;//Länge des ganzens
+	Testfeld[2]=0x00; //Pin beligig lang und bcd
+	Testfeld[3]=0x06; //Pin ab Postion 6 einfügen 5 wird Lc
+	Testfeld[4]=0x00;
+	Testfeld[5]=0x20;
+	Testfeld[6]=0x00;
+	Testfeld[7]=0x00;
+	qDebug()<<QString("0x%1").arg(Terminal->LeserHohlen("CT-API-Leser")->ISO_VerifySecure(Testfeld),0,16);
+
+	Testfeld.resize(9);
+	Testfeld[0]=0x52;
+	Testfeld[1]=0x07;//Länge des ganzens
+	Testfeld[2]=0x00; //Pin alt beligig lang und bcd
+	Testfeld[3]=0x06; //Ab Position 6  wird Lc
+	Testfeld[4]=0x00; //neue Pin bliebig lang
+	Testfeld[5]=0x00;
+	Testfeld[6]=0x20;
+	Testfeld[7]=0x00;
+	Testfeld[8]=0x00;
+	qDebug()<<QString("0x%1").arg(Terminal->LeserHohlen("CT-API-Leser")->ISO_ChangeReferenceDataSecure(Testfeld),0,16);
 	qDebug()<<QString("0x%1").arg(Terminal->LeserHohlen("CT-API-Leser")->KarteEntfernen(),0,16);
 	delete Terminal;
 	return 0;

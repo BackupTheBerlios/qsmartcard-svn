@@ -25,9 +25,9 @@
 #include <Lesegeraet.h>
 #include <SmartCard.h>
 
-//der MS Compiler braucht Hilfe beim exportieren
-#if defined(_WIN32) && !defined(__GNUC__)
-	#ifdef DLL_BAUEN
+//Unter Windows  braucht man Hilfe beim Exportieren
+#ifdef Q_WS_WIN 
+#ifdef DLL_BAUEN
 		#define DLL_EXPORT __declspec(dllexport)
 	#else
 		#define DLL_EXPORT __declspec(dllimport)
