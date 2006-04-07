@@ -18,7 +18,7 @@ PROJEKTTEIL   = Dummykarte
 TEMPLATE      = lib
 CONFIG		 += plugin
 include (../../../Vorgaben.pri)
-VERSION       = 0.0.0.1
+VERSION       = 0.1.0.0
 TARGET	      = Dummykarte
 QMAKE_TARGET_DESCRIPTION = Dummykarte zum Testen
 DEFINES	     += DLL_BAUEN

@@ -18,7 +18,7 @@ PROJEKTTEIL   = Terminal
 TEMPLATE      = lib
 CONFIG       += dll
 include (../../Vorgaben.pri)
-VERSION       = 0.0.0.1
+VERSION       = 0.1.0.0
 TARGET	      = terminal
 DEFINES	     += DLL_BAUEN
 INCLUDEPATH	 += ../Karten/SmartCard\

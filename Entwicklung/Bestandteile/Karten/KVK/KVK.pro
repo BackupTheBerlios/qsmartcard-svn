@@ -18,7 +18,7 @@ PROJEKTTEIL   = Krankenversicherungskarte
 TEMPLATE      = lib
 CONFIG       += plugin
 include (../../../Vorgaben.pri)
-VERSION       = 0.0.0.1
+VERSION       = 0.1.0.0
 TARGET	      = KVK
 QMAKE_TARGET_DESCRIPTION = Modul für die Krankenversicherungskarte
 DEFINES	     += DLL_BAUEN

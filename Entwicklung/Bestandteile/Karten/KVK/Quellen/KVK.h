@@ -30,7 +30,7 @@ class QFrankKVK: public QFrankSmartCard
 {
 	Q_OBJECT
 	Q_PROPERTY(QString QFrankKVKKrankenkassenname READ Krankenkassenname)
-	Q_PROPERTY(ulong QFrankKVKKrankenkassennummer READ Krankenkassennummer)
+	Q_PROPERTY(qulonglong QFrankKVKKrankenkassennummer READ Krankenkassennummer)
 	Q_PROPERTY(uint QFrankKVKWOP READ WOP)
 	Q_PROPERTY(qulonglong QFrankKVKVersichertennummer READ Versichertennummer)
 	Q_PROPERTY(uint QFrankKVKVersichertenstatus READ Versichertenstatus)
@@ -46,6 +46,7 @@ class QFrankKVK: public QFrankSmartCard
 	Q_PROPERTY(QString QFrankKVKOrt READ Ort)
 	Q_PROPERTY(QDate QFrankKVKGueltigBis READ GueltigBis)
 	Q_PROPERTY(bool QFrankKVKKVKLeser READ KVKLeser WRITE KVKLeserSetzen)
+	Q_PROPERTY(bool QFrankKVKAuslesen READ KarteAuslesen)
 
 	public:
 			QFrankKVK(QObject* eltern);
@@ -65,12 +66,36 @@ class QFrankKVK: public QFrankSmartCard
 			QString				PLZ();
 			QString				Ort();
 			QDate				GueltigBis();
+			bool				KarteAuslesen();
 			bool				KVKLeser();
 			void				KVKLeserSetzen(bool kvk);
 			ulong				Version();
 			void				welchenLeser(QFrankLesegeraet *diesen);
 
 	private:
+			enum				TAG
+								{
+									TAG_Datenanfang=0x60,
+									TAG_Kassenname=0x80,
+									TAG_Kassennummer=0x81,
+									TAG_Versichertennummer=0x82,
+									TAG_Versichertenstatus=0x83,
+									TAG_Titel=0x84,
+									TAG_Vorname=0x85,
+									TAG_Namenszusatz=0x86,
+									TAG_Nachname=0x87,
+									TAG_Geburtsdatum=0x88,
+									TAG_Strasse=0x89,
+									TAG_Land=0x8a,
+									TAG_PLZ=0x8b,
+									TAG_Ort=0x8c,
+									TAG_GueltigBis=0x8d,
+									TAG_WOP=0x8f,
+									TAG_Statusergaenzung=0x90									
+								};
+			Q_DECLARE_FLAGS(TAGS, TAG)
+			QChar				Ersetzen(char was);
+			QString				FeldNachQString(QByteArray feld);
 			void				VariabelnInitialisieren();
 			QString				KrankenkassennameWert;
 			ulong				KrankenkassennummerWert;
@@ -88,7 +113,13 @@ class QFrankKVK: public QFrankSmartCard
 			QString				PLZWert;
 			QString				OrtWert;
 			QDate				GueltigBisWert;
+			bool				PruefsummeOK(QByteArray daten);
 			bool				KVKLeserWert;
+			bool				IstEsEineKVK(QByteArray &daten);
+			bool 				TagFinden(QFrankKVK::TAGS welches,QByteArray &daten,bool optional=false);
 			QFrankLesegeraet	*Leser;
+#ifndef QT_NO_DEBUG
+			QString				FeldNachHex(QByteArray feld); 
+#endif		
 };
 #endif

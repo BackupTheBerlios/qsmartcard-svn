@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 	QFrankTerminal *Terminal=new QFrankTerminal(&Programm);
 	qDebug()<<"Es wurden folgende Geräte Plug-In's gefunden:\r\n"<<Terminal->ListeDerLeser().join("\r\n");
 	qDebug()<<"Es wurden folgende SmartCard Plug-In's gefunden:\r\n"<<Terminal->ListeDerKarten().join("\r\n");
-	
+	/*
 	qDebug()<<"WICHTIG KEINE KARTE IN DAS LESEGERÄT EINLEGEN AUCH NICHT WENN DAS GERÄT SIE AUFFORDERT!!";
 	qDebug()<<"Eingabe drücken, zum fortfahren";
 	std::getchar();
@@ -207,6 +207,40 @@ int main(int argc, char *argv[])
 	Testfeld[8]=0x00;
 	qDebug()<<QString("0x%1").arg(Terminal->LeserHohlen("CT-API-Leser")->ISO_ChangeReferenceDataSecure(Testfeld),0,16);
 	qDebug()<<QString("0x%1").arg(Terminal->LeserHohlen("CT-API-Leser")->KarteEntfernen(),0,16);
+
+	//Test für KVK 
+	qDebug()<<"An dieser Stelle kann jetzte sicher eine KVK Karte eingelegt werden. Um diese auszulesen";
+	qDebug()<<"Eingabe drücken, zum fortfahren";
+	std::getchar();*/
+	
+	//((QObject*)Terminal->KarteHohlen("KVK Karte"))->setProperty("QFrankKVKKVKLeser",true);
+	Terminal->KarteHohlen("KVK Karte")->welchenLeser(Terminal->LeserHohlen("CT-API-Leser"));
+	if(((QObject*)Terminal->KarteHohlen("KVK Karte"))->property("QFrankKVKAuslesen").toBool())
+	{
+		qDebug()<<"Name der Kasse:" <<((QObject*)Terminal->KarteHohlen("KVK Karte"))->property("QFrankKVKKrankenkassenname").toString();
+		qDebug()<<"Nummer der Kasse:"<<((QObject*)Terminal->KarteHohlen("KVK Karte"))->property("QFrankKVKKrankenkassennummer").toULongLong();
+		qDebug()<<"Nummer des Versicherten:"<<((QObject*)Terminal->KarteHohlen("KVK Karte"))->property("QFrankKVKVersichertennummer").toULongLong();
+		qDebug()<<"Status des Versicherten:"<<((QObject*)Terminal->KarteHohlen("KVK Karte"))->property("QFrankKVKVersichertenstatus").toUInt();
+		qDebug()<<"Titel:" <<((QObject*)Terminal->KarteHohlen("KVK Karte"))->property("QFrankKVKTitel").toString();
+		qDebug()<<"Vorname:" <<((QObject*)Terminal->KarteHohlen("KVK Karte"))->property("QFrankKVKVorname").toString();
+		qDebug()<<"Namenszusatz:" <<((QObject*)Terminal->KarteHohlen("KVK Karte"))->property("QFrankKVKNamenszusatz").toString();
+		qDebug()<<"Nachname:" <<((QObject*)Terminal->KarteHohlen("KVK Karte"))->property("QFrankKVKNachname").toString();
+		qDebug()<<"Geburtsdatum:" <<((QObject*)Terminal->KarteHohlen("KVK Karte"))->property("QFrankKVKGeburtsdatum").toDate().toString("dd.MM.yyyy");
+		qDebug()<<"Straße:" <<((QObject*)Terminal->KarteHohlen("KVK Karte"))->property("QFrankKVKStrasse").toString();
+		qDebug()<<"Postleitzahl:" <<((QObject*)Terminal->KarteHohlen("KVK Karte"))->property("QFrankKVKPLZ").toString();
+		qDebug()<<"Ort:" <<((QObject*)Terminal->KarteHohlen("KVK Karte"))->property("QFrankKVKOrt").toString();
+		qDebug()<<"Land:" <<((QObject*)Terminal->KarteHohlen("KVK Karte"))->property("QFrankKVKLand").toString();
+		qDebug()<<"Karte Gültig bis:" <<((QObject*)Terminal->KarteHohlen("KVK Karte"))->property("QFrankKVKGueltigBis").toDate().toString("MM.yyyy");
+		qDebug()<<"WOP/VKNR:" <<((QObject*)Terminal->KarteHohlen("KVK Karte"))->property("QFrankKVKWOP").toUInt();
+		qDebug()<<"Statusergänzung:" <<((QObject*)Terminal->KarteHohlen("KVK Karte"))->property("QFrankKVKStatusergaenzung").toChar();
+
+	}
+	else
+	{
+		qDebug()<<"KVK konnte nicht ausgelesen werden:(";
+	}
+
+
 	delete Terminal;
 	return 0;
 	return Programm.exec();

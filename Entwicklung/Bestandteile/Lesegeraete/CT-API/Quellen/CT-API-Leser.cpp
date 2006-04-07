@@ -19,6 +19,12 @@
 
 #include "CT-API-Leser.h"
 
+/*!
+	\ingroup lesegeraete
+	\class QFrankCT_API_Leser
+	\brief Die QFrankCT_API_Leser Klasse stellt den Zugriff auf Lesegeräte per CT-API bereit
+	
+*/
 QFrankCT_API_Leser::QFrankCT_API_Leser(QObject* eltern):QFrankLesegeraet(eltern)
 {
 	setObjectName("QFrankCT_API_Leser");

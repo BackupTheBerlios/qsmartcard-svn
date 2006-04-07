@@ -25,6 +25,10 @@
 #include <Lesegeraet.h>
 #include <SmartCard.h>
 
+//XXYYZZ XX=Major YY=Minor ZZ=Patch
+#define QSmartCardVersion 0x000100
+
+
 //Unter Windows  braucht man Hilfe beim Exportieren
 #ifdef Q_WS_WIN 
 #ifdef DLL_BAUEN

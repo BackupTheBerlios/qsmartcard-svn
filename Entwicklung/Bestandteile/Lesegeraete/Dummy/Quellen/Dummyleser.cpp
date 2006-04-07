@@ -19,6 +19,13 @@
 
 #include "Dummyleser.h"
 
+
+/*!
+	\ingroup lesegeraete
+	\class QFrankDummyleser
+	\brief Die QFrankDummyleser Klasse stellt einen Dummyleser zum Testen von Kartenmodulen zur Verfügung
+	
+*/
 QFrankDummyleser::QFrankDummyleser(QObject* eltern):QFrankLesegeraet(eltern)
 {
 	setObjectName("QFrankDummyleser");

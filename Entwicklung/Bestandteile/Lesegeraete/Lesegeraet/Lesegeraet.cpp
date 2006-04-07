@@ -19,6 +19,9 @@
 
 #include "Lesegeraet.h"
 
+/*!
+	\defgroup lesegeraete Lesegeräte
+*/
 QFrankLesegeraet::QFrankLesegeraet(QObject* eltern): QObject(eltern)
 {
 	setObjectName("QFrankLesegeraet");

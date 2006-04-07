@@ -51,11 +51,11 @@ class QFrankLesegeraet: public QObject
 				VerificationUnsuccessfullFourteenLeft=0x63cd,
 				VerificationUnsuccessfullFifteenLeft=0x63ce,
 				VerificationUnsuccessfullSixteenLeft=0x63cf,
-				VerificationMethodBlocked=0x6983,
 				ResetNotSuccessful=0x6400,
 				CancelByCancelKey=0x6401,
 				MemoryFailure=0x6501,
 				CommandWithTimerNotSupported=0x6900,
+				VerificationMethodBlocked=0x6983,
 				FileNotFound=0x6a82,
 				CommandSuccessful=0x9000,
 				CommandSuccessfulAsynchron=0x9001,
@@ -87,6 +87,4 @@ class QFrankLesegeraet: public QObject
 			virtual QFrankLesegeraet::Rueckgabecodes	LeserInitialisieren()=0;
 
 };
-Q_DECLARE_OPERATORS_FOR_FLAGS(QFrankLesegeraet::Rueckgabecodes)
-Q_DECLARE_OPERATORS_FOR_FLAGS(QFrankLesegeraet::Leserklasse)
 #endif

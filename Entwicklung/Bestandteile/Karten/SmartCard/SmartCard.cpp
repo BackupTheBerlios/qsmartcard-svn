@@ -19,6 +19,9 @@
 
 #include "SmartCard.h"
 
+/*!
+	\defgroup karten Karten
+*/
 QFrankSmartCard::QFrankSmartCard(QObject* eltern): QObject(eltern)
 {
 	setObjectName("QFrankSmartCard");
