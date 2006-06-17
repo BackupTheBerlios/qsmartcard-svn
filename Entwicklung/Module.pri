@@ -21,4 +21,5 @@
  Karten		 += KVK
  Lesegeraete += Dummyleser
  Lesegeraete += CT-API
+ Lesegeraete += PCSC
  
