@@ -212,7 +212,7 @@ int main(int argc, char *argv[])
 	qDebug()<<"An dieser Stelle kann jetzte sicher eine KVK Karte eingelegt werden. Um diese auszulesen";
 	qDebug()<<"Eingabe drücken, zum fortfahren";
 	std::getchar();*/
-	
+	/*
 	//((QObject*)Terminal->KarteHohlen("KVK Karte"))->setProperty("QFrankKVKKVKLeser",true);
 	Terminal->KarteHohlen("KVK Karte")->welchenLeser(Terminal->LeserHohlen("CT-API-Leser"));
 	if(((QObject*)Terminal->KarteHohlen("KVK Karte"))->property("QFrankKVKAuslesen").toBool())
@@ -239,9 +239,10 @@ int main(int argc, char *argv[])
 	{
 		qDebug()<<"KVK konnte nicht ausgelesen werden:(";
 	}
+	*/
 
-
+	//test für GSM Karten
+	
 	delete Terminal;
 	return 0;
-	return Programm.exec();
 }

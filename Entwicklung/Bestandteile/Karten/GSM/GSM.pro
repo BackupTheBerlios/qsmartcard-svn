@@ -1,4 +1,4 @@
-# Copyright (C) 2005-2006 Frank BÃ¼ttner frank-buettner@gmx.net
+# Copyright (C) 2006 Frank Büttner frank-buettner@gmx.net
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -14,10 +14,20 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-PROJEKTTEIL = Karten
-TEMPLATE    = subdirs
-include (../../Vorgaben.pri)
-include (../../Module.pri)
-contains(Karten, Dummykarte)	: SUBDIRS += Dummy
-contains(Karten, KVK)		: SUBDIRS += KVK
-contains(Karten, GSM)		: SUBDIRS += GSM
+PROJEKTTEIL	 = GSM Karte
+TEMPLATE	 = lib
+CONFIG		+= plugin
+include (../../../Vorgaben.pri)
+VERSION		 = 0.1.0.0
+TARGET		 = GSMKarte
+QMAKE_TARGET_DESCRIPTION = Modul für die GSM Karten
+DEFINES	     	+= DLL_BAUEN
+INCLUDEPATH	+= ../SmartCard\
+		   ../../Lesegeraete/Lesegeraet
+HEADERS		 = Quellen/GSM.h\
+		   ../SmartCard/SmartCard.h\
+		   ../SmartCard/SmartCardPlugin.h				
+SOURCES		 = Quellen/GSM.cpp\
+		   Quellen/GSMPlugin.cpp\
+		   ../SmartCard/SmartCard.cpp\
+		   ../SmartCard/SmartCardPlugin.cpp
