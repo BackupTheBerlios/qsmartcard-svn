@@ -29,16 +29,26 @@
 class QFrankGSMKarte: public QFrankSmartCard
 {
 	Q_OBJECT
+	Q_PROPERTY(bool QFrankGSMKarteAktivieren READ KarteAktivieren)
+	Q_PROPERTY(QString QFrankGSMKarteFehlertext READ Fehlertext)
+	Q_PROPERTY(QString QFrankGSMKarteSeriennummer READ Seriennummer)
 
 	public:
 			QFrankGSMKarte(QObject* eltern);
 			ulong			Version();
 			void			welchenLeser(QFrankLesegeraet *diesen);
+			bool			KarteAktivieren();
+			const QString		Fehlertext() const;
+			const QString		Seriennummer() const;
 
 	private:	
 			QFrankLesegeraet*	K_Leser;
+			QString			K_Fehlertext;
+			QString			K_Seriennummer;
 			bool			K_PIN1gesetzt;
 			bool			K_PIN2gesetzt;
+			bool			K_KarteAkiviert;
+			bool			SeriennummerErmitteln();
 #ifndef QT_NO_DEBUG
 			QString			FeldNachHex(const QByteArray &feld) const; 
 #endif		

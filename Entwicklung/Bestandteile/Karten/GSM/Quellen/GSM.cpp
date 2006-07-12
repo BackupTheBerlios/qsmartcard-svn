@@ -25,6 +25,51 @@ QFrankGSMKarte::QFrankGSMKarte(QObject* eltern):QFrankSmartCard(eltern)
 	setObjectName("QFrankGSMKarte");
 	K_PIN1gesetzt=false;
 	K_PIN2gesetzt=false;
+	K_KarteAkiviert=false;
+	K_Leser=0;
+	K_Seriennummer="";
+}
+
+bool QFrankGSMKarte::KarteAktivieren()
+{
+	if(K_Leser==0)
+	{
+		K_Fehlertext=tr("Keine Verbindung zum Kartenleser");
+#ifndef QT_NO_DEBUG
+		qDebug()<<"QFrankGSMKarte: keine Verbindung zum Leser";
+#endif
+		return false;
+	}
+	QByteArray ATR;
+	if(K_Leser->KarteAnfordern(ATR)!=QFrankLesegeraet::CommandSuccessfulAsynchron)
+	{
+#ifndef QT_NO_DEBUG
+		qDebug()<<"QFrankGSMKarte: keine/falsche Karte im Leser";
+		qDebug()<<FeldNachHex(ATR);
+#endif
+		K_Fehlertext=trUtf8("Keine oder ungültige Karte eingelegt");
+	return false;
+	}
+	/* haben wir eine SIM Karte???
+	   Jede Karte hat eine Seriennummer(10 Bytes)	   
+	*/
+	if (!SeriennummerErmitteln())
+		return false;
+	else
+	{
+		K_KarteAkiviert=true;
+		return true;
+	}
+}
+
+bool QFrankGSMKarte::SeriennummerErmitteln()
+{
+	
+}
+
+const QString QFrankGSMKarte::Fehlertext() const
+{
+	return K_Fehlertext;
 }
 
 ulong QFrankGSMKarte::Version()
@@ -32,9 +77,23 @@ ulong QFrankGSMKarte::Version()
 	return GSMKarteVersion;
 }
 
+const QString QFrankGSMKarte::Seriennummer() const
+{
+	return K_Seriennummer;
+}
+
 void QFrankGSMKarte::welchenLeser(QFrankLesegeraet *diesen)
 {
 	K_Leser=diesen;
+	if(diesen->LeserInitialisieren()!=QFrankLesegeraet::CommandSuccessful)
+	{
+#ifndef QT_NO_DEBUG
+		qDebug()<<"QFrankGSMKarte: Leser initialisieren gescheitert.";
+#endif
+		K_Leser=0;
+		return;
+	}	
+
 }
 
 QString	QFrankGSMKarte::FeldNachHex(const QByteArray &feld) const
