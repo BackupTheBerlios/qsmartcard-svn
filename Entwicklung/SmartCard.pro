@@ -24,6 +24,8 @@ else {
         PFAD = $$system(pwd)
 	system(echo $$PFAD >/tmp/x.x)
 }
+//TRANSLATIONS = qmstartcard_de.ts
+
 SUBDIRS	+= Bestandteile/Karten\
 		   Bestandteile/Terminal\
 		   Bestandteile/Lesegeraete\		  

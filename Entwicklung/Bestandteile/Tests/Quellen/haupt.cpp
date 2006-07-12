@@ -30,6 +30,8 @@ int main(int argc, char *argv[])
 	QFrankTerminal *Terminal=new QFrankTerminal(&Programm);
 	qDebug()<<"Es wurden folgende Geräte Plug-In's gefunden:\r\n"<<Terminal->ListeDerLeser().join("\r\n");
 	qDebug()<<"Es wurden folgende SmartCard Plug-In's gefunden:\r\n"<<Terminal->ListeDerKarten().join("\r\n");
+	
+	
 	/*
 	qDebug()<<"WICHTIG KEINE KARTE IN DAS LESEGERÄT EINLEGEN AUCH NICHT WENN DAS GERÄT SIE AUFFORDERT!!";
 	qDebug()<<"Eingabe drücken, zum fortfahren";
@@ -214,6 +216,9 @@ int main(int argc, char *argv[])
 	std::getchar();*/
 	/*
 	//((QObject*)Terminal->KarteHohlen("KVK Karte"))->setProperty("QFrankKVKKVKLeser",true);
+		
+
+	/*
 	Terminal->KarteHohlen("KVK Karte")->welchenLeser(Terminal->LeserHohlen("CT-API-Leser"));
 	if(((QObject*)Terminal->KarteHohlen("KVK Karte"))->property("QFrankKVKAuslesen").toBool())
 	{
@@ -241,8 +246,12 @@ int main(int argc, char *argv[])
 	}
 	*/
 
+
+	//test PC/SC
+	//Terminal->LeserHohlen("PCSC-Leser")->LeserInitialisieren();
+	
 	//test für GSM Karten
-	Terminal->LeserHohlen("CT-API-Leser")->setProperty("QFrankCT_API_LeserTreiberdatei","/usr/lib/ctapi/libctapi-cyberjack.so");
+	//Terminal->LeserHohlen("CT-API-Leser")->setProperty("QFrankCT_API_LeserTreiberdatei","/usr/lib/ctapi/libctapi-cyberjack.so");
 	Terminal->KarteHohlen("GSM Karte")->welchenLeser(Terminal->LeserHohlen("CT-API-Leser"));
 	//richtige Karte im Leser??
 	if(!((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteAktivieren").toBool())

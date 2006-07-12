@@ -19,6 +19,7 @@
 
 #include "PCSC-Leser.h"
 
+
 /*!
 	\ingroup lesegeraete
 	\class QFrankPCSC_Leser
@@ -29,10 +30,24 @@ QFrankPCSC_Leser::QFrankPCSC_Leser(QObject* eltern):QFrankLesegeraet(eltern)
 {
 	setObjectName("QFrankPCSC_Leser");
 	Lesersicherheit=QFrankLesegeraet::KlasseUnbekannt;
+	ConnectToReader=false;
 //Warnung bei DEBUG
 #ifndef QT_NO_DEBUG
 	qWarning("WARNUNG Debugversion wird benutzt.\r\nEs könnten sicherheitsrelevante Daten ausgegeben werden!!!!!");
 #endif
+	//Initialisiere Kontext
+	PCSC_Kontext=0;
+	PCSC_System=SCardEstablishContext(SCARD_SCOPE_SYSTEM,NULL,NULL,&PCSC_Kontext);
+	if (PCSC_System!=SCARD_S_SUCCESS)
+#ifndef QT_NO_DEBUG
+	{
+		qDebug()<<tr("unable to connect to PC/SC system\r\n Returncode: %1").arg(PCSC_System);
+	}
+	else
+		qDebug()<<tr("connect to the PC/SC system");
+#else
+		return;
+#endif	
 }
 
 ulong QFrankPCSC_Leser::Version()
@@ -42,14 +57,47 @@ ulong QFrankPCSC_Leser::Version()
 
 QFrankPCSC_Leser::~QFrankPCSC_Leser()
 {
-	
+	//disconnect from the PC/SC system
+	PCSC_System=SCardReleaseContext(PCSC_Kontext);
+#ifndef QT_NO_DEBUG
+	if(PCSC_System!=SCARD_S_SUCCESS)
+		qDebug()<<tr("error while disconnect from PC/SC system return code: %1").arg(PCSC_System);
+	else
+		qDebug()<<tr("diconnect from PC/SC system");
+#endif
 }
 
 QFrankLesegeraet::Rueckgabecodes QFrankPCSC_Leser::LeserInitialisieren()
 {
+	//check for working PC/SC system
+	if (PCSC_Kontext==0)
+		return QFrankLesegeraet::LeserNichtInitialisiert;
 #ifndef QT_NO_DEBUG
-	qDebug()<<"Versuche den 1. PC/SC Leser zu finden";
+	qDebug()<<tr("try to connect to the first PC/SC reader");
 #endif
+	char *memoryForTheList;
+	ulong sizeOfDevicelist;
+	//size of the list
+	SCardListReaders( PCSC_Kontext, NULL, NULL, &sizeOfDevicelist);
+	memoryForTheList=(char*)malloc(sizeOfDevicelist*sizeof(char));
+	//get the list
+	if(SCardListReaders(PCSC_Kontext,NULL,memoryForTheList,&sizeOfDevicelist)!=SCARD_S_SUCCESS)
+	{
+#ifndef QT_NO_DEBUG
+		qDebug()<<tr("No reader found");
+#endif
+		free(memoryForTheList);
+		ConnectToReader=false;
+		return QFrankLesegeraet::ParameterFalsch;
+	}
+	QString Devices=QString(memoryForTheList);
+	free(memoryForTheList);
+#ifndef QT_NO_DEBUG
+	qDebug()<<tr("This readers was found:\r\n%1").arg(Devices);
+	qDebug()<<tr("first reader is: %1").arg(Devices);
+#endif
+	
+	ConnectToReader
 	return QFrankLesegeraet::ParameterFalsch;
 }
 

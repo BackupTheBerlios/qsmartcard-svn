@@ -22,6 +22,7 @@
 
 #include <QtCore>
 #include <Lesegeraet.h>
+#include <winscard.h>
 
 //XXYYZZ XX=Major YY=Minor ZZ=Patch
 #define PCSC_Version 0x000100
@@ -47,6 +48,9 @@ class QFrankPCSC_Leser: public QFrankLesegeraet
 			ulong								Version();	
 	private:
 			QFrankLesegeraet::Leserklasse		Lesersicherheit;
+			SCARDCONTEXT						PCSC_Kontext;
+			long								PCSC_System;
+			bool								ConnectToReader;
 #ifndef QT_NO_DEBUG
 			QString								FeldNachHex(QByteArray feld);
 #endif			
