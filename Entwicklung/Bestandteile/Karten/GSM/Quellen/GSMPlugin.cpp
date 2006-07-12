@@ -50,4 +50,4 @@ QStringList QFrankGSMKartePlugin::Karten() const
 }
 
 Q_EXPORT_STATIC_PLUGIN(QFrankGSMKartePlugin)
-Q_EXPORT_PLUGIN2(GSMKartePlugin, QFrankGSMKartePlugin)
+Q_EXPORT_PLUGIN2(gsmkarteplugin, QFrankGSMKartePlugin)

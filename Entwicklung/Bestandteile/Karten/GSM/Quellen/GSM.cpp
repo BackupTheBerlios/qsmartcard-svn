@@ -32,6 +32,11 @@ ulong QFrankGSMKarte::Version()
 	return GSMKarteVersion;
 }
 
+void QFrankGSMKarte::welchenLeser(QFrankLesegeraet *diesen)
+{
+	K_Leser=diesen;
+}
+
 QString	QFrankGSMKarte::FeldNachHex(const QByteArray &feld) const
 {
 	QString tmp="";
