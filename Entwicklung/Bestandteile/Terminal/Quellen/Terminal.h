@@ -26,7 +26,7 @@
 #include <SmartCard.h>
 
 //XXYYZZ XX=Major YY=Minor ZZ=Patch
-#define QSmartCardVersion 0x000100
+#define QSmartCardVersion 0x000101
 
 
 //Unter Windows  braucht man Hilfe beim Exportieren
