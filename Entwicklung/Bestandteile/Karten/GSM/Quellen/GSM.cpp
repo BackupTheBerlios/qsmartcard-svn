@@ -20,6 +20,11 @@
 #include "GSM.h"
 #include <Lesegeraet.h>
 
+//Zum übersetzten wird min. Version 0.2.0 des Lesermodells benötigt.
+#if LesegeraetAPI_Version < 0x000200
+#error Es wird min. Version 0.2.0 des Lesermodells benötigt.
+#endif
+
 QFrankGSMKarte::QFrankGSMKarte(QObject* eltern):QFrankSmartCard(eltern)
 {
 	setObjectName("QFrankGSMKarte");
@@ -64,7 +69,33 @@ bool QFrankGSMKarte::KarteAktivieren()
 
 bool QFrankGSMKarte::SeriennummerErmitteln()
 {
-	
+	/*  EF für die Seriennummer der Karte ist: 2fe2 unter dem MF
+		Befehl: Select file 2fe2
+		Kode: 0xA0-A4-00-00-02-2f-e2
+	*/
+	K_Kartenbefehl.resize(7);
+	K_Kartenbefehl[0]=0xA0;
+	K_Kartenbefehl[1]=0xA4;
+	K_Kartenbefehl[2]=0x00;
+	K_Kartenbefehl[3]=0x00;
+	K_Kartenbefehl[4]=0x02;
+	K_Kartenbefehl[5]=0x2F;
+	K_Kartenbefehl[6]=0xE2;
+	K_Antwortkode=K_Leser->UniversalIO(K_Kartenbefehl,K_Kartenantwort);
+	/*  Wenn es geklappt hat dann bekommen wird eine 0x9FXX
+		wobei XX die Länge der abzuhohlen Rückeantwort des Befehls ist.
+	*/
+	if (K_Antwortkode<0x9f00 || K_Antwortkode>0x9fff)
+	{
+		K_Fehlertext=tr("Es wurde vermutlich keine GSM Karte eingelegt.");
+#ifndef QT_NO_DEBUG
+		qDebug()<<QString("QFrankGSMKarte: vermutlich keine GSM Karte Rückgabe Code: %1").arg(K_Antwortkode,0,16);
+#endif
+		return false;
+	}
+	K_AntwortLaenge=K_Antwortkode<<16;
+	qDebug("%X",K_AntwortLaenge);
+	return false;
 }
 
 const QString QFrankGSMKarte::Fehlertext() const

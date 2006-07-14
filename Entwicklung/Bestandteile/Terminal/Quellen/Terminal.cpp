@@ -32,6 +32,18 @@ QFrankTerminal::QFrankTerminal(QObject *eltern,QString pluginVerzeichnis):QObjec
 
 QFrankTerminal::~QFrankTerminal()
 {
+	//Zu erste die Karten dann die Leser löschen mit sich die Karten trennen können
+	QFrankLesegeraet *Leser;
+	Q_FOREACH(Leser,TabelleLeser)
+	{
+		Leser->KarteEntfernen();
+		delete Leser;
+	}
+	QFrankSmartCard *Karte;
+	Q_FOREACH(Karte,TabelleKarten)
+	{
+		delete Karte;
+	}
 }
 
 QStringList QFrankTerminal::ListeDerKarten()

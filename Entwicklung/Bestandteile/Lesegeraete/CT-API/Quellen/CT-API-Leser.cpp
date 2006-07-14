@@ -199,6 +199,38 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_SelectFile(QByteArray d
 	return (QFrankLesegeraet::Rueckgabecodes) Ergebnis;
 }
 
+QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::UniversalIO(const QByteArray &daten, QByteArray &antwort)
+{
+	if(!VerbindungTesten("UniversalIO"))
+		return QFrankLesegeraet::LeserNichtInitialisiert;
+	//alles wird blind an den Leser übergeben
+#ifndef QT_NO_DEBUG
+	qDebug()<<"UniversalIO Senden:"<<FeldNachHex(daten);
+#endif
+	Zieladresse=0; // 0=Slot1  1=Termimal 2=Slot2
+	Quelladresse=2;
+	LaengeDerAntwort=sizeof(Antwort);
+	LaengeDesBefehl=daten.size();
+	//Kopieren des QByteArray in's Befehlsfeld
+	memcpy(Befehl,daten.data(),daten.size());
+
+	if(!DatenSenden(Terminalnummer,&Zieladresse,&Quelladresse,LaengeDesBefehl,Befehl,&LaengeDerAntwort,Antwort))
+	{
+		CT_API_schliessen();
+		return QFrankLesegeraet::LeserNichtInitialisiert;
+	}
+	//Auswertung
+	uint Ergebnis=(Antwort[LaengeDerAntwort-2] <<8) | Antwort[LaengeDerAntwort-1];
+	antwort.resize(LaengeDerAntwort);
+	memcpy(antwort.data(),Antwort,LaengeDerAntwort);//In das Rückgabearray kopieren
+
+#ifndef QT_NO_DEBUG
+	qDebug("UniversalIO Rückgabecode: %X",Ergebnis);
+	qDebug()<<"UniversalIO Empfangen"<<FeldNachHex(antwort);
+#endif
+	return (QFrankLesegeraet::Rueckgabecodes) Ergebnis;
+}
+
 QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_ReadBinary(QByteArray datenfeld,QByteArray &zielfeld)
 {
 	if(!VerbindungTesten("ISO_ReadBinary"))
