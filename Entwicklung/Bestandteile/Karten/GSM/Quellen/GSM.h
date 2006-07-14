@@ -41,7 +41,9 @@ class QFrankGSMKarte: public QFrankSmartCard
 			const QString		Fehlertext() const;
 			const QString		Seriennummer() const;
 
-	private:	
+	private:
+			enum				ArtDerAntwort{MF_DF=0x00,EF=0x01};
+			Q_DECLARE_FLAGS(Antwort,ArtDerAntwort)
 			QFrankLesegeraet*	K_Leser;
 			QString				K_Fehlertext;
 			QString				K_Seriennummer;
@@ -52,9 +54,11 @@ class QFrankGSMKarte: public QFrankSmartCard
 			bool				K_PIN1gesetzt;
 			bool				K_PIN2gesetzt;
 			bool				K_KarteAkiviert;
-			bool				SeriennummerErmitteln();
+			bool				K_VerbindungZurKarte();
+			bool				K_SeriennummerErmitteln();
+			void				K_KartenantwortHohlen(QFrankGSMKarte::Antwort antwort);
 #ifndef QT_NO_DEBUG
-			QString				FeldNachHex(const QByteArray &feld) const; 
+			QString				K_FeldNachHex(const QByteArray &feld) const; 
 #endif		
 };
 #endif
