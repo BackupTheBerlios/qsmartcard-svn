@@ -18,6 +18,8 @@
  */
 
 #include "GSM.h"
+#include <EFAntwort.h>
+#include <MF_DFAntwort.h>
 #include <Lesegeraet.h>
 
 //Zum übersetzten wird min. Version 0.2.0 des Lesermodells benötigt.
@@ -33,6 +35,8 @@ QFrankGSMKarte::QFrankGSMKarte(QObject* eltern):QFrankSmartCard(eltern)
 	K_KarteAkiviert=false;
 	K_Leser=0;
 	K_Seriennummer="";
+	K_MF_DFAntwort=new QFrankGSMKarteMF_DFAntwort(this);
+	K_EFAntwort=new QFrankGSMKarteEFAntwort(this);
 }
 
 bool QFrankGSMKarte::KarteAktivieren()

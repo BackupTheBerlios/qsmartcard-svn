@@ -21,13 +21,22 @@ include (../../../Vorgaben.pri)
 VERSION		 = 0.1.0.0
 TARGET		 = GSMKarte
 QMAKE_TARGET_DESCRIPTION = Modul für die GSM Karten
-DEFINES	     	+= DLL_BAUEN
-INCLUDEPATH	+= ../SmartCard\
-		   ../../Lesegeraete/Lesegeraet
-HEADERS		 = Quellen/GSM.h\
-		   ../SmartCard/SmartCard.h\
-		   ../SmartCard/SmartCardPlugin.h				
-SOURCES		 = Quellen/GSM.cpp\
-		   Quellen/GSMPlugin.cpp\
-		   ../SmartCard/SmartCard.cpp\
-		   ../SmartCard/SmartCardPlugin.cpp
+DEFINES	   	+=	DLL_BAUEN
+INCLUDEPATH	+=	../SmartCard\
+				../../Lesegeraete/Lesegeraet\
+				Quellen/Datentenobjekte
+				
+HEADERS		 =	Quellen/Datentenobjekte/Antwortbasis.h\
+				Quellen/Datentenobjekte/EFAntwort.h\
+				Quellen/Datentenobjekte/MF_DFAntwort.h\
+				Quellen/GSM.h\
+				../SmartCard/SmartCard.h\
+				../SmartCard/SmartCardPlugin.h
+								
+SOURCES		=	Quellen/Datentenobjekte/Antwortbasis.cpp\
+				Quellen/Datentenobjekte/EFAntwort.cpp\
+				Quellen/Datentenobjekte/MF_DFAntwort.cpp\
+				Quellen/GSM.cpp\
+				Quellen/GSMPlugin.cpp\
+				../SmartCard/SmartCard.cpp\
+				../SmartCard/SmartCardPlugin.cpp

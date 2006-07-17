@@ -26,6 +26,9 @@
 #include <QtCore>
 #include <SmartCard.h>
 
+class QFrankGSMKarteMF_DFAntwort;
+class QFrankGSMKarteEFAntwort;
+
 class QFrankGSMKarte: public QFrankSmartCard
 {
 	Q_OBJECT
@@ -35,30 +38,32 @@ class QFrankGSMKarte: public QFrankSmartCard
 
 	public:
 			QFrankGSMKarte(QObject* eltern);
-			ulong				Version();
-			void				welchenLeser(QFrankLesegeraet *diesen);
-			bool				KarteAktivieren();
-			const QString		Fehlertext() const;
-			const QString		Seriennummer() const;
+			ulong						Version();
+			void						welchenLeser(QFrankLesegeraet *diesen);
+			bool						KarteAktivieren();
+			const QString				Fehlertext() const;
+			const QString				Seriennummer() const;
 
 	private:
-			enum				ArtDerAntwort{MF_DF=0x00,EF=0x01};
+			enum						ArtDerAntwort{MF_DF=0x00,EF=0x01};
 			Q_DECLARE_FLAGS(Antwort,ArtDerAntwort)
-			QFrankLesegeraet*	K_Leser;
-			QString				K_Fehlertext;
-			QString				K_Seriennummer;
-			QByteArray			K_Kartenbefehl;
-			QByteArray			K_Kartenantwort;
-			uchar				K_AntwortLaenge;
-			uint				K_Antwortkode;
-			bool				K_PIN1gesetzt;
-			bool				K_PIN2gesetzt;
-			bool				K_KarteAkiviert;
-			bool				K_VerbindungZurKarte();
-			bool				K_SeriennummerErmitteln();
-			void				K_KartenantwortHohlen(QFrankGSMKarte::Antwort antwort);
+			QFrankLesegeraet*			K_Leser;
+			QFrankGSMKarteMF_DFAntwort*	K_MF_DFAntwort;	
+			QFrankGSMKarteEFAntwort*	K_EFAntwort;
+			QString						K_Fehlertext;
+			QString						K_Seriennummer;
+			QByteArray					K_Kartenbefehl;
+			QByteArray					K_Kartenantwort;
+			uchar						K_AntwortLaenge;
+			uint						K_Antwortkode;
+			bool						K_PIN1gesetzt;
+			bool						K_PIN2gesetzt;
+			bool						K_KarteAkiviert;
+			bool						K_VerbindungZurKarte();
+			bool						K_SeriennummerErmitteln();
+			void						K_KartenantwortHohlen(QFrankGSMKarte::Antwort antwort);
 #ifndef QT_NO_DEBUG
-			QString				K_FeldNachHex(const QByteArray &feld) const; 
+			QString						K_FeldNachHex(const QByteArray &feld) const; 
 #endif		
 };
 #endif
