@@ -24,7 +24,11 @@
 #include <Lesegeraet.h>
 
 //XXYYZZ XX=Major YY=Minor ZZ=Patch
-#define DummyleserVersion 0x000100
+#define DummyleserVersion 0x000200
+//Zum übersetzten wird min. Version 0.2.0 des Lesermodells benötigt.
+#if LesegeraetAPI_Version < 0x000200
+#error Es wird min. Version 0.2.0 des Lesermodells benötigt.
+#endif
 
 class QFrankDummyleser: public QFrankLesegeraet
 {
@@ -32,6 +36,8 @@ class QFrankDummyleser: public QFrankLesegeraet
 	Q_PROPERTY(bool QFrankDummyleserISO_SelectFileFehler READ ISO_SelectFileFehler WRITE ISO_SelectFileFehlerSetzen)
 	Q_PROPERTY(QByteArray QFrankDummyleserISO_ReadBinaryDaten READ ISO_ReadBinaryDaten WRITE ISO_ReadBinaryDatenSetzen)
 	Q_PROPERTY(ulong QFrankDummyleserISO_ReadBinaryStatuscode READ ISO_ReadBinaryStatuscode WRITE ISO_ReadBinaryStatuscodeSetzen)
+	Q_PROPERTY(QByteArray QFrankDummyleserUniversalIODaten READ ISO_ReadBinaryDaten WRITE ISO_ReadBinaryDatenSetzen)
+	Q_PROPERTY(ulong QFrankDummyleserUniversalIOStatuscode READ ISO_ReadBinaryStatuscode WRITE ISO_ReadBinaryStatuscodeSetzen)
 	Q_PROPERTY(ulong QFrankDummyleserSicherheitsklasse READ Sicherheitsklasse WRITE SicherheitsklasseSetzen)
 	Q_PROPERTY(ulong QFrankDummyleserISO_UpdateBinaryStatuscode READ ISO_UpdateBinaryStatuscode WRITE ISO_UpdateBinaryStatuscodeSetzen)
 	Q_PROPERTY(ulong QFrankDummyleserISO_VerifyStatuscode READ ISO_VerifyStatuscode WRITE ISO_VerifyStatuscodeSetzen)
@@ -80,6 +86,7 @@ class QFrankDummyleser: public QFrankLesegeraet
 			
 			ulong								KarteAnfordernStatuscode();
 			void								KarteAnfordernStatuscodeSetzen(ulong status);
+			QFrankLesegeraet::Rueckgabecodes	UniversalIO(const QByteArray &daten, QByteArray &antwort);
 			QFrankLesegeraet::Rueckgabecodes	KarteAnfordern(QByteArray &ATR);
 
 			QFrankLesegeraet::Rueckgabecodes	KarteEntfernen();
@@ -91,17 +98,17 @@ class QFrankDummyleser: public QFrankLesegeraet
 			
 	private:
 			bool								FehlerSF;
-			QString								FeldNachHex(QByteArray feld);
-			QString								BCDNachDez(QByteArray feld);
+			QString					FeldNachHex(const QByteArray &feld) const;
+			QString					BCDNachDez(QByteArray feld);
 			QFrankLesegeraet::Rueckgabecodes	RueckgabecodeReadBinary;
 			QFrankLesegeraet::Rueckgabecodes	RueckgabecodeUpdateBinary;
 			QFrankLesegeraet::Rueckgabecodes	RueckgabecodeVerify;
 			QFrankLesegeraet::Rueckgabecodes	RueckgabecodeChangeReferenceData;
 			QFrankLesegeraet::Rueckgabecodes	RueckgabecodeKarteAnfordern;
 			QFrankLesegeraet::Leserklasse		SicherheitsklasseWert;
-			QByteArray							Datenfeld;
-			QByteArray							PinSicher;
-			QByteArray							PinSicherNeu;
+			QByteArray				Datenfeld;
+			QByteArray				PinSicher;
+			QByteArray				PinSicherNeu;
 			
 };
 #endif

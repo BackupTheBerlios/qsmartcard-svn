@@ -595,6 +595,13 @@ bool QFrankCT_API_Leser::VerbindungTesten(QString programmteil)
 
 void QFrankCT_API_Leser::CT_API_schliessen()
 {
+	if(!VerbindungZumKartenleser)
+	{
+#ifndef QT_NO_DEBUG
+		qDebug()<<"CT-Close nicht möglich, da keine Verbindung zum Leser.";
+#endif
+		return;
+	}
 	char Rueckgabecode=MeinCT_close(Terminalnummer);
 #ifndef QT_NO_DEBUG
 	if(Rueckgabecode!=0)

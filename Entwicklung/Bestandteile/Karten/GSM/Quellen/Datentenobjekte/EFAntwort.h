@@ -28,6 +28,41 @@ class QFrankGSMKarteEFAntwort: public QFrankGSMKarteAntwortbasis
 
 	public:
 				QFrankGSMKarteEFAntwort(QObject* eltern);
-};
+				enum							Legitimation{Jeder=0x00,PIN1=0x01,PIN2=0x02,RFU=0x03,Admin01=0x04,Admin02=0x05,
+							     				Admin03=0x06,Admin04=0x07,Admin05=0x08,Admin06=0x09,Admin07=0x0a,
+							     				Admin08=0x0b,Admin09=0x0c,Admin10=0x0d,Admin11=0x0e,Nie=0x0f};
+				enum							Struktur{Transparent=0x00,FesteLaenge=0x01,Zyklisch=0x03};
+				Q_DECLARE_FLAGS(Zugriffsberechtigung,Legitimation)
+				Q_DECLARE_FLAGS(InternerDateiaufbau,Struktur)
+				const bool&						ErhoehenFuerZueklischEFErlaubt() const;
+				const QFrankGSMKarteEFAntwort::Zugriffsberechtigung&	BerechtigungLesenSuchen() const;
+				const QFrankGSMKarteEFAntwort::Zugriffsberechtigung&	BerechtigungAktualisieren() const;
+				const QFrankGSMKarteEFAntwort::Zugriffsberechtigung&	BerechtigungErhoehen() const;
+				const QFrankGSMKarteEFAntwort::Zugriffsberechtigung&	BerechtigungUngueltigErklaeren() const;
+				const QFrankGSMKarteEFAntwort::Zugriffsberechtigung&	BerechtigungRehabilitieren() const;
+				const bool&						DateiGueltig() const;
+				const QFrankGSMKarteEFAntwort::InternerDateiaufbau&	Dateiaufbau() const;
+				const uchar&						Datensatzlaenge() const;
+				void 							ErhoehenFuerZueklischEFErlaubtSetzen(const bool &erlaubt);
+				void							BerechtigungLesenSuchenSetzen(const QFrankGSMKarteEFAntwort::Zugriffsberechtigung &suchen); 
+				void							BerechtigungAktualisierenSetzen(const QFrankGSMKarteEFAntwort::Zugriffsberechtigung &aktualisieren);
+				void							BerechtigungErhoehenSetzen(const QFrankGSMKarteEFAntwort::Zugriffsberechtigung &erhoehen);
+				void							BerechtigungUngueltigErklaerenSetzen(const QFrankGSMKarteEFAntwort::Zugriffsberechtigung &ungueltig);
+				void							BerechtigungRehabilitierenSetzen(const QFrankGSMKarteEFAntwort::Zugriffsberechtigung &reha);
+				void							DateiGueltigSetzen(const bool &gueltig);
+				void							DateiaufbauSetzen(const QFrankGSMKarteEFAntwort::InternerDateiaufbau &aufbau);
+				void							DatensatzlaengeSetzen(const uchar &laenge);
+
+	private:
+				bool							K_ErhoehenFuerZueklischEFErlaubt;
+				QFrankGSMKarteEFAntwort::Zugriffsberechtigung		K_BerechtigungLesenSuchen;
+				QFrankGSMKarteEFAntwort::Zugriffsberechtigung		K_BerechtigungAktualisieren;
+				QFrankGSMKarteEFAntwort::Zugriffsberechtigung		K_BerechtigungErhoehen;
+				QFrankGSMKarteEFAntwort::Zugriffsberechtigung		K_BerechtigungUngueltigErklaeren;
+				QFrankGSMKarteEFAntwort::Zugriffsberechtigung		K_BerechtigungRehabilitieren;
+				bool							K_DateiGueltig;
+				QFrankGSMKarteEFAntwort::InternerDateiaufbau		K_Dateiaufbau;
+				uchar							K_Datensatzlaenge;
+};				
 
 #endif

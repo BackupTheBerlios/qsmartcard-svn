@@ -143,3 +143,4 @@ void QFrankGSMKarteMF_DFAntwort::SuperPIN2verbleibeneEingabeversucheSetzen(const
 {
 	K_SuperPIN2verbleibeneEingabeversuche=anzahl;
 }
+

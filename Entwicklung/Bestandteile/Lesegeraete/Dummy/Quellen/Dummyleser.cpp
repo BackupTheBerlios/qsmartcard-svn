@@ -55,7 +55,7 @@ QFrankLesegeraet::Rueckgabecodes QFrankDummyleser::LeserInitialisieren()
 	return QFrankLesegeraet::CommandSuccessful;
 }
 
-QString QFrankDummyleser::FeldNachHex(QByteArray feld)
+QString QFrankDummyleser::FeldNachHex(const QByteArray &feld) const
 {
 	QString tmp="";
 	uchar low,high;
@@ -457,6 +457,23 @@ QFrankLesegeraet::Rueckgabecodes QFrankDummyleser::ISO_ChangeReferenceDataSecure
 	}
 	qDebug()<<"Change Reference Data Secure Ende";
 	return QFrankLesegeraet::CommandSuccessful;
+}
+
+QFrankLesegeraet::Rueckgabecodes QFrankDummyleser::UniversalIO(const QByteArray &daten, QByteArray &antwort)
+{
+	qDebug()<<"Universal IO Anfang";
+	//alles wird blind an den Leser übergeben!!!
+	qDebug()<<"Das wird an den Leser geschickt:"<<FeldNachHex(daten);
+	antwort=Datenfeld;
+	qDebug()<<"Das wurde vom Leser zurück gegeben:"<<FeldNachHex(Datenfeld);
+	if(RueckgabecodeReadBinary!=QFrankLesegeraet::CommandSuccessful)
+	{
+		qDebug()<<"Universal IO Fehler/alternativer Rückgabecode wird simmuliert\r\nUniversal IO Ende";
+		return RueckgabecodeReadBinary;
+	}
+	qDebug()<<"Universal IO Ende";
+	return QFrankLesegeraet::CommandSuccessful;
+
 }
 
 ulong QFrankDummyleser::KarteAnfordernStatuscode()
