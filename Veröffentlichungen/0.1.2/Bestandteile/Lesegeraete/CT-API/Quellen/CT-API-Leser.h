@@ -24,7 +24,11 @@
 #include <Lesegeraet.h>
 
 //XXYYZZ XX=Major YY=Minor ZZ=Patch
-#define CT_API_Version 0x000100
+#define CT_API_Version 0x000201
+//Zum übersetzten wird min. Version 0.2.0 des Lesermodells benötigt.
+#if LesegeraetAPI_Version < 0x000200
+#error Es wird min. Version 0.2.0 des Lesermodells benötigt.
+#endif
 
 class QFrankCT_API_Leser: public QFrankLesegeraet
 {
@@ -42,6 +46,7 @@ class QFrankCT_API_Leser: public QFrankLesegeraet
 			QFrankLesegeraet::Rueckgabecodes	ISO_ChangeReferenceData(QByteArray datenfeld);
 			QFrankLesegeraet::Rueckgabecodes	ISO_VerifySecure(QByteArray datenfeld);
 			QFrankLesegeraet::Rueckgabecodes	ISO_ChangeReferenceDataSecure(QByteArray datenfeld);
+			QFrankLesegeraet::Rueckgabecodes	UniversalIO(const QByteArray &daten, QByteArray &antwort);
 			QFrankLesegeraet::Rueckgabecodes	KarteAnfordern(QByteArray &ATR);
 			QFrankLesegeraet::Rueckgabecodes	KarteEntfernen();
 			QFrankLesegeraet::Leserklasse		Sicherheitsklasse();
