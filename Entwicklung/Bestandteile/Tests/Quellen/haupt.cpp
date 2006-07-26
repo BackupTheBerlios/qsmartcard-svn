@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
 	//Terminal->LeserHohlen("PCSC-Leser")->LeserInitialisieren();
 	
 	//test für GSM Karten
-	//Terminal->LeserHohlen("CT-API-Leser")->setProperty("QFrankCT_API_LeserTreiberdatei","/usr/lib/ctapi/libctapi-cyberjack.so");
+	Terminal->LeserHohlen("CT-API-Leser")->setProperty("QFrankCT_API_LeserTreiberdatei","/usr/lib/ctapi/libctapi-cyberjack.so");
 	Terminal->KarteHohlen("GSM Karte")->welchenLeser(Terminal->LeserHohlen("CT-API-Leser"));
 	//richtige Karte im Leser??
 	if(!((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteAktivieren").toBool())

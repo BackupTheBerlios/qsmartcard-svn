@@ -22,6 +22,18 @@
 QFrankGSMKarteMF_DFAntwort::QFrankGSMKarteMF_DFAntwort(QObject* eltern):QFrankGSMKarteAntwortbasis(eltern)
 {
 	K_PIN1Aktiviert=false;
+	K_AnzahlDerUnterverzeichnisse=0;
+	K_AnzahlDerDateien=0;
+	K_AnzahlDerPINs=0;
+	K_PIN1gesetzt=false;
+	K_PIN1verbleibeneEingabeversuche=0;
+	K_SuperPIN1gesetzt=false;
+	K_SuperPIN1verbleibeneEingabeversuche=0;
+	K_PIN2gesetzt=false;
+	K_PIN2verbleibeneEingabeversuche=0;
+	K_SuperPIN2gesetzt=false;
+	K_SuperPIN2verbleibeneEingabeversuche=0;
+	K_FreierSpeicher=0;
 }
 
 const bool& QFrankGSMKarteMF_DFAntwort::PIN1Aktiviert() const
@@ -142,5 +154,15 @@ const uchar& QFrankGSMKarteMF_DFAntwort::SuperPIN2verbleibeneEingabeversuche()co
 void QFrankGSMKarteMF_DFAntwort::SuperPIN2verbleibeneEingabeversucheSetzen(const uchar &anzahl)
 {
 	K_SuperPIN2verbleibeneEingabeversuche=anzahl;
+}
+
+const uint& QFrankGSMKarteMF_DFAntwort::FreierSpeicher()const
+{
+	return K_FreierSpeicher;
+}
+
+void QFrankGSMKarteMF_DFAntwort::FreierSpeicherSetzen(const uint &frei)
+{
+	K_FreierSpeicher=frei;
 }
 

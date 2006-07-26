@@ -30,6 +30,7 @@ QFrankGSMKarteEFAntwort::QFrankGSMKarteEFAntwort(QObject* eltern):QFrankGSMKarte
 	K_DateiGueltig=false;
 	K_Dateiaufbau=QFrankGSMKarteEFAntwort::Transparent;
 	K_Datensatzlaenge=0;
+	K_Dateigroesse=0;
 }
 
 const bool& QFrankGSMKarteEFAntwort::ErhoehenFuerZueklischEFErlaubt() const
@@ -119,3 +120,14 @@ void QFrankGSMKarteEFAntwort::DatensatzlaengeSetzen(const uchar &laenge)
 {
 	K_Datensatzlaenge=laenge;
 }
+
+const uint& QFrankGSMKarteEFAntwort::Dateigroesse() const
+{
+	return K_Dateigroesse;
+}
+
+void QFrankGSMKarteEFAntwort::DateigroesseSetzen(const uint &groesse)
+{
+	K_Dateigroesse=groesse;
+}
+

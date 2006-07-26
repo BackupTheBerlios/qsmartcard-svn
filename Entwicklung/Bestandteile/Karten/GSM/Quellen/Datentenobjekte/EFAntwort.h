@@ -43,6 +43,7 @@ class QFrankGSMKarteEFAntwort: public QFrankGSMKarteAntwortbasis
 				const bool&						DateiGueltig() const;
 				const QFrankGSMKarteEFAntwort::InternerDateiaufbau&	Dateiaufbau() const;
 				const uchar&						Datensatzlaenge() const;
+				const uint&						Dateigroesse() const;
 				void 							ErhoehenFuerZueklischEFErlaubtSetzen(const bool &erlaubt);
 				void							BerechtigungLesenSuchenSetzen(const QFrankGSMKarteEFAntwort::Zugriffsberechtigung &suchen); 
 				void							BerechtigungAktualisierenSetzen(const QFrankGSMKarteEFAntwort::Zugriffsberechtigung &aktualisieren);
@@ -52,6 +53,7 @@ class QFrankGSMKarteEFAntwort: public QFrankGSMKarteAntwortbasis
 				void							DateiGueltigSetzen(const bool &gueltig);
 				void							DateiaufbauSetzen(const QFrankGSMKarteEFAntwort::InternerDateiaufbau &aufbau);
 				void							DatensatzlaengeSetzen(const uchar &laenge);
+				void							DateigroesseSetzen(const uint &groesse);
 
 	private:
 				bool							K_ErhoehenFuerZueklischEFErlaubt;
@@ -63,6 +65,7 @@ class QFrankGSMKarteEFAntwort: public QFrankGSMKarteAntwortbasis
 				bool							K_DateiGueltig;
 				QFrankGSMKarteEFAntwort::InternerDateiaufbau		K_Dateiaufbau;
 				uchar							K_Datensatzlaenge;
+				uint							K_Dateigroesse;
 };				
 
 #endif

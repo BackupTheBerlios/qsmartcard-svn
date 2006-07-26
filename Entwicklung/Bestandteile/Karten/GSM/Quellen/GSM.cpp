@@ -155,68 +155,80 @@ void QFrankGSMKarte::K_KartenantwortHohlen(QFrankGSMKarte::Antwort antwort)
 		return;
 	}
 	//Auswertung
+	uint Puffer;
 	switch (antwort)
 	{
 		case QFrankGSMKarte::MF_DF:
 #ifndef QT_NO_DEBUG
-										qDebug()<<"QFrankGSMKarte Kartenantwort hohlen: werte MF/DF aus";
+						qDebug()<<"QFrankGSMKarte Kartenantwort hohlen: werte MF/DF aus";
 #endif
-										/*  Struktur:
-											Byte 1-2 RFU
-											Byte 3-4 freier Speicher für EF/DF unter dem DF/MF
-											Byte 5-6 Datei ID
-											Byte 7 Dateitype 0x00=RFU,0x01=MF,0x02=DF,0x04=EF
-											Byte 8-12 RFU
-											Byte 13 Länge des folgenden Datenfeldes
-											Byte 14-34 GSM spezifisch
-											GSM Struktur:
-											Byte 14 Datei Beschreibung. interissant nur Bit 8
-													ist es 0=PIN1 aktiviert 1=PIN1 deaktiviert
-											Byte 15 Anzahl der Unterverzeichnisse unter diesem
-											Byte 16 Anzahl der Dateien unter diesem
-											Byte 17 Anzahl der PIN's, super PIN's und Admin Codes
-											Byte 18 RFU
-											Byte 19 PIN1 Status Bit 8=0 PIN nicht gesetzt
-																	8=1 PIN gesetzt
-																Bit 7-5 RFU
-																Bit 4-3 Anzahl der verbleibenen Versuche der Pineingabe 0=gesperrt
-											Byte 20 Super PIN1 Status siehe Byte 19
-											Byte 21 PIN2 Status siehe Byte 19
-											Byte 22 Super PIN2 Status siehe Byte 19
-											Byte 23 RFU
-											Byte 24-34 Reserviert für admin(wenn vorhanden)
-											Byte 35> RFU
-										*/
-										break;
+						/*  Struktur:
+							Byte 1-2 RFU
+							Byte 3-4 freier Speicher für EF/DF unter dem DF/MF
+							Byte 5-6 Datei ID
+							Byte 7 Dateitype 0x00=RFU,0x01=MF,0x02=DF,0x04=EF
+							Byte 8-12 RFU
+							Byte 13 Länge des folgenden Datenfeldes
+							Byte 14-34 GSM spezifisch
+							GSM Struktur:
+							Byte 14 Datei Beschreibung. interissant nur Bit 8
+								ist es 0=PIN1 aktiviert 1=PIN1 deaktiviert
+							Byte 15 Anzahl der Unterverzeichnisse unter diesem
+							Byte 16 Anzahl der Dateien unter diesem
+							Byte 17 Anzahl der PIN's, super PIN's und Admin Codes
+							Byte 18 RFU
+							Byte 19 PIN1 Status Bit 8=0 PIN nicht gesetzt
+								8=1 PIN gesetzt
+								Bit 7-5 RFU
+								Bit 4-3 Anzahl der verbleibenen Versuche der Pineingabe 0=gesperrt
+							Byte 20 Super PIN1 Status siehe Byte 19
+							Byte 21 PIN2 Status siehe Byte 19
+							Byte 22 Super PIN2 Status siehe Byte 19
+							Byte 23 RFU
+							Byte 24-34 Reserviert für admin(wenn vorhanden)
+							Byte 35> RFU
+						*/
+						break;
 		case QFrankGSMKarte::EF:
 #ifndef QT_NO_DEBUG
-										qDebug()<<"QFrankGSMKarte Kartenantwort hohlen: werte EF aus";
+						qDebug()<<"QFrankGSMKarte Kartenantwort hohlen: werte EF aus";
 #endif
-										/*  Struktur:
-											Byte 1-2 RFU
-											Byte 3-4 Dateigröße bei transparenten Bodygröße
-													 sonst Anzahl der Einträge mal Länge eines einzelnen
-											Byte 5-6 Datei ID
-											Byte 7 Dateitype siehe Byte 7 MF/DF
-											Byte 8 RFU für transparente und Dateien fixer Länge.
-												   Für zyklische Dateien alle Bits ausser Bit 7 RFU
-												   Bit 7= INCREASE Befehl zulässig
-											Byte 9-11 Zugriffsmöglichkeiten:
-													  Wertigkeit der Einträge: 0=immer,1=PIN1(wenn gesetzt),2=PIN2(wenn gesetzt)
-																			   3=RFU, 4-14=admin,15=nie
-													   Byte 9 Bit 8-5 Kommando Read,Seek
-															  Bit 4-1 Kommando Update
-													   Byte 10 Bit 8-5 Kommando INCREASE
-															   Bit 4-1 RFU
-													   Byte 11 Bit 8-5 Kommando Rehabilitate
-															   Bit 4-1 Kommando Invalidate
-										   Byte 12 Dateistatus Bit 8-2 RFU 1=0 üngültig 1=1 gültig
-										   Byte 13 Länge der folgenden Daten
-										   Byte 14 Struktur der Datei 00=transparent,01=feste Länge,03=zyklisch
-										   Byte 15 Länge eines Eintrages bei transparenten Dateien=00 sonst länge eines Datensatzes.
-										   Byte 16> RFU
-										*/
-										break;
+						/*  Struktur:
+							Byte 1-2 RFU
+							Byte 3-4 Dateigröße bei transparenten Bodygröße
+								sonst Anzahl der Einträge mal Länge eines einzelnen Datensatzes
+							Byte 5-6 Datei ID
+							Byte 7 Dateitype siehe Byte 7 MF/DF
+							Byte 8 RFU für transparente und Dateien fixer Länge.
+								Für zyklische Dateien alle Bits ausser Bit 7 RFU
+								Bit 7= INCREASE Befehl zulässig
+							Byte 9-11 Zugriffsmöglichkeiten:
+								Wertigkeit der Einträge: 0=immer,1=PIN1(wenn gesetzt),2=PIN2(wenn gesetzt)
+								3=RFU, 4-14=admin,15=nie
+							Byte 9 Bit 8-5 Kommando Read,Seek
+								Bit 4-1 Kommando Update
+							Byte 10 Bit 8-5 Kommando INCREASE
+								Bit 4-1 RFU
+							Byte 11 Bit 8-5 Kommando Rehabilitate
+								 Bit 4-1 Kommando Invalidate
+							Byte 12 Dateistatus Bit 8-2 RFU 1=0 üngültig 1=1 gültig
+							Byte 13 Länge der folgenden Daten
+							Byte 14 Struktur der Datei 00=transparent,01=feste Länge,03=zyklisch
+							Byte 15 Länge eines Eintrages bei transparenten Dateien=00 sonst länge eines Datensatzes.
+							Byte 16> RFU
+						*/
+						Puffer=((uint)K_Kartenantwort.at(2)) <<8 |((uchar)K_Kartenantwort.at(3));
+						qDebug()<<QString("text %1").arg(Puffer,0,16);
+						K_EFAntwort->DateigroesseSetzen(Puffer);	
+						Puffer=((uint)K_Kartenantwort.at(4)) <<8 |((uchar)K_Kartenantwort.at(5));
+						K_EFAntwort->DateiIDSetzen(Puffer);
+						XX Hier gehts weiter
+#ifndef QT_NO_DEBUG
+						qDebug()<<"QFrankGSMKarte Kartenantwort EF:";
+						qDebug()<<QString("\tDateigröße: 0x%1").arg(K_EFAntwort->Dateigroesse(),0,16);
+						qDebug()<<QString("\tDatei ID: 0x%1").arg(K_EFAntwort->DateiID(),0,16);
+#endif
+						break;
 	}
 }
 

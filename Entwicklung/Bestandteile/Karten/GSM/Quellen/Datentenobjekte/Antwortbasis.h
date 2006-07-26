@@ -30,7 +30,6 @@ class QFrankGSMKarteAntwortbasis:public QObject
 				QFrankGSMKarteAntwortbasis(QObject* eltern);
 				enum											Dateityp{RFU=0x00,MF=0x01,DF=0x02,EF=0x04};
 				Q_DECLARE_FLAGS(Dateitypen,Dateityp)
-				const uint&										FreierSpeicher()const ; 
 				const uint&										DateiID() const;
 				const QFrankGSMKarteAntwortbasis::Dateitypen&	Dateiart() const;
 				void											FreierSpeicherSetzen(const uint &frei);
@@ -38,9 +37,8 @@ class QFrankGSMKarteAntwortbasis:public QObject
 				void											DateiartSetzen(const QFrankGSMKarteAntwortbasis::Dateitypen &art);
 
 	protected:
-				uint											K_FreierSpeicher;
 				uint											K_DateiID;
-				QFrankGSMKarteAntwortbasis::Dateitypen			K_Dateiart;	
+				QFrankGSMKarteAntwortbasis::Dateitypen							K_Dateiart;	
 };
 
 #endif

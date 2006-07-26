@@ -21,14 +21,8 @@
 
 QFrankGSMKarteAntwortbasis::QFrankGSMKarteAntwortbasis(QObject* eltern):QObject(eltern)
 {
-	K_FreierSpeicher=0;
 	K_DateiID=0;
 	K_Dateiart=QFrankGSMKarteAntwortbasis::MF;
-}
-
-const uint& QFrankGSMKarteAntwortbasis::FreierSpeicher() const
-{
-	return K_FreierSpeicher;
 }
 
 const uint& QFrankGSMKarteAntwortbasis::DateiID() const
@@ -39,11 +33,6 @@ const uint& QFrankGSMKarteAntwortbasis::DateiID() const
 const QFrankGSMKarteAntwortbasis::Dateitypen& QFrankGSMKarteAntwortbasis::Dateiart() const
 {
 	return K_Dateiart;
-}
-
-void QFrankGSMKarteAntwortbasis::FreierSpeicherSetzen(const uint &frei)
-{
-	K_FreierSpeicher=frei;
 }
 
 void QFrankGSMKarteAntwortbasis::DateiIDSetzen(const uint &id)

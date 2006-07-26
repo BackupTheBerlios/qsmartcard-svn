@@ -29,17 +29,18 @@ class QFrankGSMKarteMF_DFAntwort:public QFrankGSMKarteAntwortbasis
 	public:
 				QFrankGSMKarteMF_DFAntwort(QObject* eltern);
 				const bool&		PIN1Aktiviert() const;
-				const uchar&	AnzahlDerUnterverzeichnisse() const;
-				const uchar&	AnzahlDerDateien()const;
-				const uchar&	AnzahlDerPINs()const;
+				const uchar&		AnzahlDerUnterverzeichnisse() const;
+				const uchar&		AnzahlDerDateien()const;
+				const uchar&		AnzahlDerPINs()const;
 				const bool&		PIN1gesetzt()const;
-				const uchar&	PIN1verbleibeneEingabeversuche()const;
+				const uchar&		PIN1verbleibeneEingabeversuche()const;
 				const bool&		SuperPIN1gesetzt()const;
-				const uchar&	SuperPIN1verbleibeneEingabeversuche()const;
+				const uchar&		SuperPIN1verbleibeneEingabeversuche()const;
 				const bool&		PIN2gesetzt()const;
-				const uchar&	PIN2verbleibeneEingabeversuche()const;
+				const uchar&		PIN2verbleibeneEingabeversuche()const;
 				const bool&		SuperPIN2gesetzt()const;
-				const uchar&	SuperPIN2verbleibeneEingabeversuche()const;
+				const uchar&		SuperPIN2verbleibeneEingabeversuche()const;
+				const uint&		FreierSpeicher()const;
 				void			PIN1AktiviertSetzen(const bool &pin1aktiv);
 				void			AnzahlDerUnterverzeichnisseSetzen(const uchar &verzeichnisse);
 				void			AnzahlDerDateienSetzen(const uchar &dateien);
@@ -52,6 +53,7 @@ class QFrankGSMKarteMF_DFAntwort:public QFrankGSMKarteAntwortbasis
 				void			PIN2verbleibeneEingabeversucheSetzen(const uchar &anzahl);
 				void			SuperPIN2gesetztSetzen(const bool &pin);
 				void			SuperPIN2verbleibeneEingabeversucheSetzen(const uchar &anzahl);
+				void			FreierSpeicherSetzen(const uint &frei);
 
 	private:
 				bool			K_PIN1Aktiviert;
@@ -66,6 +68,7 @@ class QFrankGSMKarteMF_DFAntwort:public QFrankGSMKarteAntwortbasis
 				uchar			K_PIN2verbleibeneEingabeversuche;
 				bool			K_SuperPIN2gesetzt;
 				uchar			K_SuperPIN2verbleibeneEingabeversuche;
+				uint			K_FreierSpeicher;
 };
 
 #endif
