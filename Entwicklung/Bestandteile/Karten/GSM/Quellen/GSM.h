@@ -64,6 +64,7 @@ class QFrankGSMKarte: public QFrankSmartCard
 			void				K_KartenantwortHohlen(QFrankGSMKarte::Antwort antwort);
 #ifndef QT_NO_DEBUG
 			QString				K_FeldNachHex(const QByteArray &feld) const;
+			QString				K_Zugrifftext(const uchar &kodierung)const;
 #endif
 };
 #endif

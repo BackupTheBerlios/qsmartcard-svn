@@ -22,7 +22,7 @@
 QFrankGSMKarteAntwortbasis::QFrankGSMKarteAntwortbasis(QObject* eltern):QObject(eltern)
 {
 	K_DateiID=0;
-	K_Dateiart=QFrankGSMKarteAntwortbasis::MF;
+	K_Dateiart=QFrankGSMKarteAntwortbasis::RFU;
 }
 
 const uint& QFrankGSMKarteAntwortbasis::DateiID() const

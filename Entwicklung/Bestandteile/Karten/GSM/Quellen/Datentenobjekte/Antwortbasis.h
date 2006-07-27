@@ -28,17 +28,17 @@ class QFrankGSMKarteAntwortbasis:public QObject
 	
 	public:
 				QFrankGSMKarteAntwortbasis(QObject* eltern);
-				enum											Dateityp{RFU=0x00,MF=0x01,DF=0x02,EF=0x04};
+				enum						Dateityp{RFU=0x00,MF=0x01,DF=0x02,EF=0x04};
 				Q_DECLARE_FLAGS(Dateitypen,Dateityp)
-				const uint&										DateiID() const;
+				const uint&					DateiID() const;
 				const QFrankGSMKarteAntwortbasis::Dateitypen&	Dateiart() const;
-				void											FreierSpeicherSetzen(const uint &frei);
-				void											DateiIDSetzen(const uint &id);
-				void											DateiartSetzen(const QFrankGSMKarteAntwortbasis::Dateitypen &art);
+				void						FreierSpeicherSetzen(const uint &frei);
+				void						DateiIDSetzen(const uint &id);
+				void						DateiartSetzen(const QFrankGSMKarteAntwortbasis::Dateitypen &art);
 
 	protected:
-				uint											K_DateiID;
-				QFrankGSMKarteAntwortbasis::Dateitypen							K_Dateiart;	
+				uint						K_DateiID;
+				QFrankGSMKarteAntwortbasis::Dateitypen		K_Dateiart;	
 };
 
 #endif

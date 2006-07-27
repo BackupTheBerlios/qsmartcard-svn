@@ -218,15 +218,102 @@ void QFrankGSMKarte::K_KartenantwortHohlen(QFrankGSMKarte::Antwort antwort)
 							Byte 16> RFU
 						*/
 						Puffer=((uint)K_Kartenantwort.at(2)) <<8 |((uchar)K_Kartenantwort.at(3));
-						qDebug()<<QString("text %1").arg(Puffer,0,16);
 						K_EFAntwort->DateigroesseSetzen(Puffer);	
 						Puffer=((uint)K_Kartenantwort.at(4)) <<8 |((uchar)K_Kartenantwort.at(5));
 						K_EFAntwort->DateiIDSetzen(Puffer);
-						XX Hier gehts weiter
+						//Art der Datei
+						switch (K_Kartenantwort.at(6))
+						{
+							case QFrankGSMKarteAntwortbasis::EF:
+												K_EFAntwort->DateiartSetzen(QFrankGSMKarteAntwortbasis::EF);
+												break;
+							default:
+#ifndef QT_NO_DEBUG
+												qFatal("QFrankGSMKarte Kartenantwort EF: unerwarteter Dateitype 0x%X",
+													(uchar)K_Kartenantwort.at(6));
+#endif
+												break;
+						}
+						//Dateistruktur
+						switch(K_Kartenantwort.at(13))
+						{
+							case QFrankGSMKarteEFAntwort::Transparent:
+													K_EFAntwort->DateiaufbauSetzen(QFrankGSMKarteEFAntwort::Transparent);
+													break;
+							case QFrankGSMKarteEFAntwort::FesteLaenge:
+													K_EFAntwort->DateiaufbauSetzen(QFrankGSMKarteEFAntwort::FesteLaenge);
+													break;
+							case QFrankGSMKarteEFAntwort::Zyklisch:
+													K_EFAntwort->DateiaufbauSetzen(QFrankGSMKarteEFAntwort::Zyklisch);
+													break;
+							default:
+#ifndef QT_NO_DEBUG
+													qFatal("QFrankGSMKarte Kartenantwort EF: unerwartete Dateistruktur 0x%X",
+													(uchar)K_Kartenantwort.at(13));
+
+#endif
+													break;
+						}
+						//nur wichtig wenn es eine zueklischen Datei ist
+						if(K_EFAntwort->Dateiaufbau()==QFrankGSMKarteEFAntwort::Zyklisch)
+						{
+							if (K_Kartenantwort.at(7)==0x40)
+								K_EFAntwort->ErhoehenFuerZueklischEFErlaubtSetzen(true);
+							else
+								K_EFAntwort->ErhoehenFuerZueklischEFErlaubtSetzen(false);
+						}
+						//Wer darf was mit der Datei
+						uchar werDarfWasLinks=(uchar)K_Kartenantwort.at(8) >>4;//linkter Teil
+						uchar werDarfWasRechts=(uchar)K_Kartenantwort.at(8) & 0x0f;//rechter Teil
+						K_EFAntwort->BerechtigungLesenSuchenSetzen((QFrankGSMKarteEFAntwort::Zugriffsberechtigung)werDarfWasLinks);
+						K_EFAntwort->BerechtigungAktualisierenSetzen((QFrankGSMKarteEFAntwort::Zugriffsberechtigung)werDarfWasRechts);
+						werDarfWasLinks=(uchar)K_Kartenantwort.at(9) >>4;
+						K_EFAntwort->BerechtigungErhoehenSetzen((QFrankGSMKarteEFAntwort::Zugriffsberechtigung)werDarfWasLinks);
+						werDarfWasLinks=(uchar)K_Kartenantwort.at(10) >>4;
+						werDarfWasRechts=(uchar)K_Kartenantwort.at(10) & 0x0f;
+						K_EFAntwort->BerechtigungRehabilitierenSetzen((QFrankGSMKarteEFAntwort::Zugriffsberechtigung)werDarfWasLinks);
+						K_EFAntwort->BerechtigungUngueltigErklaerenSetzen((QFrankGSMKarteEFAntwort::Zugriffsberechtigung)werDarfWasRechts);
+						//Dateistatus
+						K_EFAntwort->DateiGueltigSetzen((bool)(((uchar)K_Kartenantwort.at(11)) &0x01));
+						//Datensatzlänge
+						K_EFAntwort->DatensatzlaengeSetzen((uchar)K_Kartenantwort.at(14));
 #ifndef QT_NO_DEBUG
 						qDebug()<<"QFrankGSMKarte Kartenantwort EF:";
 						qDebug()<<QString("\tDateigröße: 0x%1").arg(K_EFAntwort->Dateigroesse(),0,16);
 						qDebug()<<QString("\tDatei ID: 0x%1").arg(K_EFAntwort->DateiID(),0,16);
+						switch (K_EFAntwort->Dateiart())
+						{
+							case QFrankGSMKarteAntwortbasis::EF:
+												qDebug()<<"\tDateitype: EF";
+												break;
+						}
+						switch(K_EFAntwort->Dateiaufbau())
+						{
+							case QFrankGSMKarteEFAntwort::Transparent:
+													qDebug()<<"\tDateiaufbau: Transparent";
+													break;
+							case QFrankGSMKarteEFAntwort::FesteLaenge:
+													qDebug()<<"\tDateiaufbau: Datensatz fester Länge";
+													break;
+							case QFrankGSMKarteEFAntwort::Zyklisch:
+													qDebug()<<"\tDateiaufbau: zyklische Datensätze";
+													if(K_EFAntwort->ErhoehenFuerZueklischEFErlaubt())
+														qDebug()<<"\t\teröhen erlaubt";
+													else
+														qDebug()<<"\t\terhöhen verboten";
+													break;
+						}
+						qDebug()<<"\tDateiberechtigung";
+						qDebug()<<"\t\tLesen/Suchen:"<<K_Zugrifftext(K_EFAntwort->BerechtigungLesenSuchen());
+						qDebug()<<"\t\tAktualisieren:"<<K_Zugrifftext(K_EFAntwort->BerechtigungAktualisieren());
+						qDebug()<<"\t\tErhöhen:"<<K_Zugrifftext(K_EFAntwort->BerechtigungErhoehen());
+						qDebug()<<"\t\tRehabilitieren:"<<K_Zugrifftext(K_EFAntwort->BerechtigungRehabilitieren());
+						qDebug()<<"\t\tUngültig erklären:"<<K_Zugrifftext(K_EFAntwort->BerechtigungUngueltigErklaeren());
+						if(K_EFAntwort->DateiGueltig())
+							qDebug()<<"\tDatei gültig";
+						else
+							qDebug()<<"\tDatei ungültig";
+						qDebug()<<"\tDatensatzlänge in Bytes"<<K_EFAntwort->Datensatzlaenge();
 #endif
 						break;
 	}
@@ -261,6 +348,7 @@ void QFrankGSMKarte::welchenLeser(QFrankLesegeraet *diesen)
 
 }
 
+#ifndef QT_NO_DEBUG
 QString	QFrankGSMKarte::K_FeldNachHex(const QByteArray &feld) const
 {
 	QString tmp="";
@@ -280,4 +368,61 @@ QString	QFrankGSMKarte::K_FeldNachHex(const QByteArray &feld) const
 	}
 	return tmp.left(tmp.size()-1);
 }
+
+QString	QFrankGSMKarte::K_Zugrifftext(const uchar &kodierung) const
+{
+	switch(kodierung)
+	{
+		case QFrankGSMKarteEFAntwort::Immer:
+							return "immer";
+							break;
+		case QFrankGSMKarteEFAntwort::PIN1:
+							return "PIN1";
+							break;
+		case QFrankGSMKarteEFAntwort::PIN2:
+							return "PIN2";
+							break;
+		case QFrankGSMKarteEFAntwort::RFU:
+							return "reserviert";
+							break;
+		case QFrankGSMKarteEFAntwort::Admin01:
+							return "Admin01";
+							break;
+		case QFrankGSMKarteEFAntwort::Admin02:
+							return "Admin02";
+							break;
+		case QFrankGSMKarteEFAntwort::Admin03:
+							return "Admin03";
+							break;
+		case QFrankGSMKarteEFAntwort::Admin04:
+							return "Admin04";
+							break;
+		case QFrankGSMKarteEFAntwort::Admin05:
+							return "Admin05";
+							break;
+		case QFrankGSMKarteEFAntwort::Admin06:
+							return "Admin06";
+							break;
+		case QFrankGSMKarteEFAntwort::Admin07:
+							return "Admin07";
+							break;
+		case QFrankGSMKarteEFAntwort::Admin08:
+							return "Admin0";
+							break;
+		case QFrankGSMKarteEFAntwort::Admin09:
+							return "Admin09";
+							break;
+		case QFrankGSMKarteEFAntwort::Admin10:
+							return "Admin10";
+							break;
+		case QFrankGSMKarteEFAntwort::Admin11:
+							return "Admin11";
+							break;
+		case QFrankGSMKarteEFAntwort::Nie:
+							return "Nie";
+							break;
+	}
+	return QString();
+}
+#endif
 
