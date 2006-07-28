@@ -32,7 +32,6 @@ class QFrankGSMKarteAntwortbasis:public QObject
 				Q_DECLARE_FLAGS(Dateitypen,Dateityp)
 				const uint&					DateiID() const;
 				const QFrankGSMKarteAntwortbasis::Dateitypen&	Dateiart() const;
-				void						FreierSpeicherSetzen(const uint &frei);
 				void						DateiIDSetzen(const uint &id);
 				void						DateiartSetzen(const QFrankGSMKarteAntwortbasis::Dateitypen &art);
 

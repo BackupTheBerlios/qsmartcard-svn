@@ -62,6 +62,8 @@ class QFrankGSMKarte: public QFrankSmartCard
 			bool				K_VerbindungZurKarte();
 			bool				K_SeriennummerErmitteln();
 			void				K_KartenantwortHohlen(QFrankGSMKarte::Antwort antwort);
+			void				K_EFAntwortBearbeiten();
+			void				K_MF_DFAntwortBearbeiten();
 #ifndef QT_NO_DEBUG
 			QString				K_FeldNachHex(const QByteArray &feld) const;
 			QString				K_Zugrifftext(const uchar &kodierung)const;
