@@ -35,6 +35,7 @@ class QFrankGSMKarte: public QFrankSmartCard
 	Q_PROPERTY(bool QFrankGSMKarteAktivieren READ KarteAktivieren)
 	Q_PROPERTY(QString QFrankGSMKarteFehlertext READ Fehlertext)
 	Q_PROPERTY(QString QFrankGSMKarteSeriennummer READ Seriennummer)
+	Q_PROPERTY(QString QFrankGSMKarteAnbieter READ Anbieter)
 
 	public:
 			QFrankGSMKarte(QObject* eltern);
@@ -43,6 +44,7 @@ class QFrankGSMKarte: public QFrankSmartCard
 			bool						KarteAktivieren();
 			const QString				Fehlertext() const;
 			const QString				Seriennummer() const;
+			const QString				Anbieter();
 
 	private:
 			enum						ArtDerAntwort{MF_DF=0x00,EF=0x01};
@@ -61,6 +63,7 @@ class QFrankGSMKarte: public QFrankSmartCard
 			bool						K_KarteAkiviert;
 			bool						K_VerbindungZurKarte();
 			bool						K_SeriennummerErmitteln();
+			bool						K_SelectFile(const uint &was);
 			void						K_GetResponse(QFrankGSMKarte::Antwort antwort,const uchar &antwortLaenge);
 			void						K_EFAntwortBearbeiten();
 			void						K_MF_DFAntwortBearbeiten();

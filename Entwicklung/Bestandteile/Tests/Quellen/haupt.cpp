@@ -261,6 +261,7 @@ int main(int argc, char *argv[])
 	else
 	{
 		qDebug()<<"Seriennummer:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteSeriennummer").toString();
+		qDebug()<<"Mobilfunkanbieter:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteAnbieter").toString();
 	}
 	delete Terminal;
 	return 0;

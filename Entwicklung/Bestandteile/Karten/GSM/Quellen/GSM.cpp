@@ -74,31 +74,9 @@ bool QFrankGSMKarte::KarteAktivieren()
 
 bool QFrankGSMKarte::K_SeriennummerErmitteln()
 {
-	/*  EF für die Seriennummer der Karte ist: 2fe2 unter dem MF
-		Befehl: Select file 2fe2
-		Kode: 0xA0-A4-00-00-02-2f-e2
-	*/
-	K_Kartenbefehl.resize(7);
-	K_Kartenbefehl[0]=0xA0;
-	K_Kartenbefehl[1]=0xA4;
-	K_Kartenbefehl[2]=0x00;
-	K_Kartenbefehl[3]=0x00;
-	K_Kartenbefehl[4]=0x02;
-	K_Kartenbefehl[5]=0x2F;
-	K_Kartenbefehl[6]=0xE2;
-	K_Antwortkode=K_Leser->UniversalIO(K_Kartenbefehl,K_Kartenantwort);
-	/*  Wenn es geklappt hat dann bekommen wird eine 0x9FXX
-		wobei XX die Länge der abzuhohlen Rückeantwort des Befehls ist.
-	*/
-	if (K_Antwortkode<0x9f00 || K_Antwortkode>0x9fff)
-	{
-		K_Fehlertext=tr("Es wurde vermutlich keine GSM Karte eingelegt.");
-#ifndef QT_NO_DEBUG
-		qDebug()<<QString("QFrankGSMKarte Seriennummer ermitteln: vermutlich keine GSM Karte Rückgabe Code: %1").arg(K_Antwortkode,0,16);
-#endif
-		K_Leser->KarteEntfernen();
+	//  EF für die Seriennummer der Karte ist: 2fe2 unter dem MF
+	if (!K_SelectFile(0x2fe2))
 		return false;
-	}
 	K_GetResponse(QFrankGSMKarte::EF,(uchar)(K_Antwortkode&0x00ff) );
 	//Datei Lesen
 	if (!K_ReadBinary((uchar)K_EFAntwort->Dateigroesse()))
@@ -116,8 +94,90 @@ bool QFrankGSMKarte::K_SeriennummerErmitteln()
 	return true;
 }
 
+const QString QFrankGSMKarte::Anbieter()
+{
+	//EF für den Mobilfunkanbieter ist 0x6f46 in dem Verzeichnis GSM 0x7f20
+#ifndef QT_NO_DEBUG
+	qDebug()<<"QFrankGSMKarte Anbieter";
+#endif
+	if (!K_VerbindungZurKarte())
+		return "";
+	//Ins Verzeichnis GSM wechseln
+	if (!K_SelectFile(0x7f20))
+		return "";
+	//Status des Verzeichnis:
+	K_GetResponse(QFrankGSMKarte::MF_DF,(uchar)(K_Antwortkode&0x00ff));
+	//Datei mit den Eigentlichen Infos auswählen
+	if (!K_SelectFile(0x6f46))
+		return "";
+	//Status der Datei
+	K_GetResponse(QFrankGSMKarte::EF,(uchar)(K_Antwortkode&0x00ff));
+	//Datei auslesen
+	if (!K_ReadBinary((uchar)K_EFAntwort->Dateigroesse()))
+		return "";
+	//1. Byte unwichtig 2-Ende oder FF enthält den Text
+	QString tmp="";
+	for (uchar Stelle=1;Stelle<(uchar)K_EFAntwort->Dateigroesse();Stelle++)
+	{
+		if((uchar)K_Kartenantwort.at(Stelle)!=0xff)
+			tmp.append(K_Kartenantwort.at(Stelle));
+	}
+#ifndef QT_NO_DEBUG
+	qDebug()<<"QFrankGSMKarte Anbieter:"<<tmp;
+#endif
+	return tmp;
+}
+
+bool QFrankGSMKarte::K_SelectFile(const uint &was)
+{
+	/*Select file
+		Klasse=0xA0
+		INS=0xA4
+		P1=0x00
+		P2=0x00
+		Länge Daten=0x02
+	*/
+#ifndef QT_NO_DEBUG
+	qDebug()<<QString("QFrankGSMKarte Select File 0x%1").arg(was,0,16);
+#endif
+if (!K_VerbindungZurKarte())
+		return false;
+	K_Kartenbefehl.resize(7);
+	K_Kartenbefehl[0]=0xA0;
+	K_Kartenbefehl[1]=0xA4;
+	K_Kartenbefehl[2]=0x00;
+	K_Kartenbefehl[3]=0x00;
+	K_Kartenbefehl[4]=0x02;
+	K_Kartenbefehl[5]=(uchar) ((was >>8)&0xff);
+	K_Kartenbefehl[6]=(uchar) (was & 0xff);
+	K_Antwortkode=K_Leser->UniversalIO(K_Kartenbefehl,K_Kartenantwort);
+	/*  Wenn es geklappt hat dann bekommen wird eine 0x9FXX
+		wobei XX die Länge der abzuhohlen Rückeantwort des Befehls ist.
+	*/
+	if (K_Antwortkode<0x9f00 || K_Antwortkode>0x9fff)
+	{
+		K_Fehlertext=trUtf8("Datei/Verzeichnis öffnen gescheitert.");
+#ifndef QT_NO_DEBUG
+		qDebug()<<QString("QFrankGSMKarte Select File: gescheitert Rückgabe Code 0x%1").arg(K_Antwortkode,0,16);
+#endif
+		K_Leser->KarteEntfernen();
+		return false;
+	}
+#ifndef QT_NO_DEBUG
+	qDebug()<<QString("QFrankGSMKarte Select File: OK Rückgabe Code 0x%1").arg(K_Antwortkode,0,16);
+#endif
+	return true;
+}
+
 bool QFrankGSMKarte::K_ReadBinary(const uchar &anzahl,const uint &offset)
 {
+	/*Read Binary
+		Klasse=0xA0
+		INS=0xBo
+		P1=Offset high
+		P2=Offset Low
+		Länge Daten= anznzahö
+	*/
 #ifndef QT_NO_DEBUG
 	qDebug()<<"QFrankGSMKarte ReadBinary";
 #endif
