@@ -38,35 +38,35 @@ class QFrankGSMKarte: public QFrankSmartCard
 
 	public:
 			QFrankGSMKarte(QObject* eltern);
-			ulong				Version();
-			void				welchenLeser(QFrankLesegeraet *diesen);
-			bool				KarteAktivieren();
-			const QString			Fehlertext() const;
-			const QString			Seriennummer() const;
+			ulong						Version();
+			void						welchenLeser(QFrankLesegeraet *diesen);
+			bool						KarteAktivieren();
+			const QString				Fehlertext() const;
+			const QString				Seriennummer() const;
 
 	private:
-			enum				ArtDerAntwort{MF_DF=0x00,EF=0x01};
+			enum						ArtDerAntwort{MF_DF=0x00,EF=0x01};
 			Q_DECLARE_FLAGS(Antwort,ArtDerAntwort)
-			QFrankLesegeraet*		K_Leser;
+			QFrankLesegeraet*			K_Leser;
 			QFrankGSMKarteMF_DFAntwort*	K_MF_DFAntwort;
 			QFrankGSMKarteEFAntwort*	K_EFAntwort;
-			QString				K_Fehlertext;
-			QString				K_Seriennummer;
-			QByteArray			K_Kartenbefehl;
-			QByteArray			K_Kartenantwort;
-			uchar				K_AntwortLaenge;
-			uint				K_Antwortkode;
-			bool				K_PIN1gesetzt;
-			bool				K_PIN2gesetzt;
-			bool				K_KarteAkiviert;
-			bool				K_VerbindungZurKarte();
-			bool				K_SeriennummerErmitteln();
-			void				K_KartenantwortHohlen(QFrankGSMKarte::Antwort antwort);
-			void				K_EFAntwortBearbeiten();
-			void				K_MF_DFAntwortBearbeiten();
+			QString						K_Fehlertext;
+			QString						K_Seriennummer;
+			QByteArray					K_Kartenbefehl;
+			QByteArray					K_Kartenantwort;
+			uint						K_Antwortkode;
+			bool						K_ReadBinary(const uchar &anzahl,const uint &offset=0);
+			bool						K_PIN1gesetzt;
+			bool						K_PIN2gesetzt;
+			bool						K_KarteAkiviert;
+			bool						K_VerbindungZurKarte();
+			bool						K_SeriennummerErmitteln();
+			void						K_GetResponse(QFrankGSMKarte::Antwort antwort,const uchar &antwortLaenge);
+			void						K_EFAntwortBearbeiten();
+			void						K_MF_DFAntwortBearbeiten();
 #ifndef QT_NO_DEBUG
-			QString				K_FeldNachHex(const QByteArray &feld) const;
-			QString				K_Zugrifftext(const uchar &kodierung)const;
+			QString						K_FeldNachHex(const QByteArray &feld) const;
+			QString						K_Zugrifftext(const uchar &kodierung)const;
 #endif
 };
 #endif

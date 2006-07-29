@@ -99,10 +99,51 @@ bool QFrankGSMKarte::K_SeriennummerErmitteln()
 		K_Leser->KarteEntfernen();
 		return false;
 	}
-	K_Antwortkode=K_Antwortkode&0x00ff;
-	K_AntwortLaenge=(uchar)K_Antwortkode;
-	K_KartenantwortHohlen(QFrankGSMKarte::EF);
-	return false;
+	K_GetResponse(QFrankGSMKarte::EF,(uchar)(K_Antwortkode&0x00ff) );
+	//Datei Lesen
+	if (!K_ReadBinary((uchar)K_EFAntwort->Dateigroesse()))
+		return false;
+	//Auswerten
+	K_Seriennummer="";
+	for (uchar Stelle=0;Stelle<(uchar)K_EFAntwort->Dateigroesse();Stelle++)
+	{
+		K_Seriennummer=K_Seriennummer+QString("%1").arg(((uchar)K_Kartenantwort.at(Stelle)) & 0x0f);
+		K_Seriennummer=K_Seriennummer+QString("%1").arg((((uchar)K_Kartenantwort.at(Stelle)) & 0xf0)>>4);
+	}
+#ifndef QT_NO_DEBUG
+	qDebug()<<QString("QFrankGSMKarte Seriennummer ermitteln Ergebnis: %1").arg(K_Seriennummer);
+#endif
+	return true;
+}
+
+bool QFrankGSMKarte::K_ReadBinary(const uchar &anzahl,const uint &offset)
+{
+#ifndef QT_NO_DEBUG
+	qDebug()<<"QFrankGSMKarte ReadBinary";
+#endif
+	if (!K_VerbindungZurKarte())
+		return false;
+	K_Kartenbefehl.resize(5);
+	K_Kartenbefehl[0]=0xA0;
+	K_Kartenbefehl[1]=0xB0;
+	K_Kartenbefehl[2]=(uchar)(offset & 0xff00);
+	K_Kartenbefehl[3]=(uchar)(offset & 0x00ff);
+	K_Kartenbefehl[4]=anzahl;
+	K_Antwortkode=K_Leser->UniversalIO(K_Kartenbefehl,K_Kartenantwort);
+	//wenn es gut ging dann 0x9000
+	if(K_Antwortkode!=QFrankLesegeraet::CommandSuccessful)
+	{
+		K_Fehlertext=tr("Es konnte von der GSM Karte nicht gelesen werden.");
+#ifndef QT_NO_DEBUG
+		qDebug()<<QString("QFrankGSMKarte ReadBinary: Lesefehler Rückgabe Code: %1").arg(K_Antwortkode,0,16);
+#endif
+		K_Leser->KarteEntfernen();
+		return false;
+	}
+#ifndef QT_NO_DEBUG
+	qDebug()<<"QFrankGSMKarte ReadBinary Daten:"<<K_FeldNachHex(K_Kartenantwort);
+#endif
+	return true;
 }
 
 bool QFrankGSMKarte::K_VerbindungZurKarte()
@@ -127,7 +168,7 @@ bool QFrankGSMKarte::K_VerbindungZurKarte()
 	return true;
 }
 
-void QFrankGSMKarte::K_KartenantwortHohlen(QFrankGSMKarte::Antwort antwort)
+void QFrankGSMKarte::K_GetResponse(QFrankGSMKarte::Antwort antwort,const uchar &antwortLaenge)
 {
 	if(!K_VerbindungZurKarte())
 		return;
@@ -140,7 +181,7 @@ void QFrankGSMKarte::K_KartenantwortHohlen(QFrankGSMKarte::Antwort antwort)
 	K_Kartenbefehl[1]=0xC0;
 	K_Kartenbefehl[2]=0x00;
 	K_Kartenbefehl[3]=0x00;
-	K_Kartenbefehl[4]=K_AntwortLaenge;
+	K_Kartenbefehl[4]=antwortLaenge;
 	K_Antwortkode=K_Leser->UniversalIO(K_Kartenbefehl,K_Kartenantwort);
 	//9000 alles OK
 	if (K_Antwortkode!=QFrankLesegeraet::CommandSuccessful)

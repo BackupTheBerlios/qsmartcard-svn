@@ -251,11 +251,17 @@ int main(int argc, char *argv[])
 	//Terminal->LeserHohlen("PCSC-Leser")->LeserInitialisieren();
 	
 	//test für GSM Karten
+#ifndef Q_WS_WIN
 	Terminal->LeserHohlen("CT-API-Leser")->setProperty("QFrankCT_API_LeserTreiberdatei","/usr/lib/ctapi/libctapi-cyberjack.so");
+#endif
 	Terminal->KarteHohlen("GSM Karte")->welchenLeser(Terminal->LeserHohlen("CT-API-Leser"));
 	//richtige Karte im Leser??
 	if(!((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteAktivieren").toBool())
 		qDebug()<<Terminal->KarteHohlen("GSM Karte")->property("QFrankGSMKarteFehlertext").toString();
+	else
+	{
+		qDebug()<<"Seriennummer:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteSeriennummer").toString();
+	}
 	delete Terminal;
 	return 0;
 }
