@@ -260,8 +260,26 @@ int main(int argc, char *argv[])
 		qDebug()<<Terminal->KarteHohlen("GSM Karte")->property("QFrankGSMKarteFehlertext").toString();
 	else
 	{
-		qDebug()<<"Seriennummer:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteSeriennummer").toString();
-		qDebug()<<"Mobilfunkanbieter:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteAnbieter").toString();
+		//Pin1 aktivieren bei Lesern >1 Eingabe über Leser sonst per Programm
+		if(Terminal->LeserHohlen("CT-API-Leser")->Sicherheitsklasse()>QFrankLesegeraet::Klasse1)
+		{
+			((QObject*)Terminal->KarteHohlen("GSM Karte"))->setProperty("QFrankGSMKartePin1Eingabe",true);
+			qDebug()<<"Bitte PIN1 eingeben.";
+			if(((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKartePin1Eingabe").toBool())
+			{
+				qDebug()<<"Seriennummer:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteSeriennummer").toString();
+				qDebug()<<"Mobilfunkanbieter:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteAnbieter").toString();
+				qDebug()<<"Kurzwahlnummern:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteKurzwahlnummern").toString();
+			}
+			else
+			{
+				qDebug()<<Terminal->KarteHohlen("GSM Karte")->property("QFrankGSMKarteFehlertext").toString();
+			}
+		}
+		else
+		{
+			qDebug()<<"Leser Klasse <2 werden nicht ünterstützt";
+		}		
 	}
 	delete Terminal;
 	return 0;

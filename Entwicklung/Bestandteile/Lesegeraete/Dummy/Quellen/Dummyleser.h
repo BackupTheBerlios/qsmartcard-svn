@@ -93,6 +93,9 @@ class QFrankDummyleser: public QFrankLesegeraet
 
 			QFrankLesegeraet::Leserklasse		Sicherheitsklasse();
 			void								SicherheitsklasseSetzen(ulong klasse);
+
+			QFrankLesegeraet::Rueckgabecodes	SicherePineingabe(const QByteArray &kartenbefehl=0){return QFrankLesegeraet::ParameterFalsch;}
+
 			QFrankLesegeraet::Rueckgabecodes	LeserInitialisieren();
 			ulong								Version();
 			

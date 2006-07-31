@@ -36,15 +36,20 @@ class QFrankGSMKarte: public QFrankSmartCard
 	Q_PROPERTY(QString QFrankGSMKarteFehlertext READ Fehlertext)
 	Q_PROPERTY(QString QFrankGSMKarteSeriennummer READ Seriennummer)
 	Q_PROPERTY(QString QFrankGSMKarteAnbieter READ Anbieter)
+	Q_PROPERTY(QString QFrankGSMKarteKurzwahlnummern READ Kurzwahlnummern)
+	Q_PROPERTY(bool QFrankGSMKartePin1Eingabe READ Pin1Eingabe WRITE PinSichereEingabe)
 
 	public:
 			QFrankGSMKarte(QObject* eltern);
 			ulong						Version();
 			void						welchenLeser(QFrankLesegeraet *diesen);
+			void						PinSichereEingabe(const bool &eingabeArt);
 			bool						KarteAktivieren();
+			const bool					Pin1Eingabe();
 			const QString				Fehlertext() const;
 			const QString				Seriennummer() const;
 			const QString				Anbieter();
+			const QString				Kurzwahlnummern();
 
 	private:
 			enum						ArtDerAntwort{MF_DF=0x00,EF=0x01};
@@ -57,9 +62,12 @@ class QFrankGSMKarte: public QFrankSmartCard
 			QByteArray					K_Kartenbefehl;
 			QByteArray					K_Kartenantwort;
 			uint						K_Antwortkode;
+			bool						K_SichereEingabeNutzen;
 			bool						K_ReadBinary(const uchar &anzahl,const uint &offset=0);
+			bool						K_PIN1korrektEingegeben;
 			bool						K_PIN1gesetzt;
 			bool						K_PIN2gesetzt;
+			const bool					K_PinEingabe(const uchar &Pinnummer);
 			bool						K_KarteAkiviert;
 			bool						K_VerbindungZurKarte();
 			bool						K_SeriennummerErmitteln();

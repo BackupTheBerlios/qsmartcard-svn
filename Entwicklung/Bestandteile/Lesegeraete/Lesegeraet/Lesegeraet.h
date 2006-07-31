@@ -21,7 +21,7 @@
 #define QFRANKLESEGERAET_H
 
 //XXYYZZ XX=Major YY=Minor ZZ=Patch
-#define LesegeraetAPI_Version 0x000200
+#define LesegeraetAPI_Version 0x000300
 
 #include <QtCore>
 
@@ -84,6 +84,7 @@ class QFrankLesegeraet: public QObject
 			virtual	QFrankLesegeraet::Rueckgabecodes	ISO_VerifySecure(QByteArray datenfeld)=0;
 			virtual	QFrankLesegeraet::Rueckgabecodes	ISO_ChangeReferenceDataSecure(QByteArray datenfeld)=0;
 			virtual QFrankLesegeraet::Rueckgabecodes	UniversalIO(const QByteArray &daten, QByteArray &antwort)=0;
+			virtual	QFrankLesegeraet::Rueckgabecodes	SicherePineingabe(const QByteArray &kartenbefehl=0)=0;
 			virtual QFrankLesegeraet::Leserklasse		Sicherheitsklasse()=0;
 			virtual QFrankLesegeraet::Rueckgabecodes	LeserInitialisieren()=0;
 

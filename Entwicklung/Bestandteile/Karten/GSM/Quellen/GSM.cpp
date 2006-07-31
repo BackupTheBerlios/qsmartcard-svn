@@ -29,10 +29,16 @@
 
 QFrankGSMKarte::QFrankGSMKarte(QObject* eltern):QFrankSmartCard(eltern)
 {
+	//Warnung bei DEBUG
+#ifndef QT_NO_DEBUG
+	qWarning("WARNUNG Debugversion wird benutzt.\r\nEs könnten sicherheitsrelevante Daten ausgegeben werden!!!!!");
+#endif
 	setObjectName("QFrankGSMKarte");
 	K_PIN1gesetzt=false;
 	K_PIN2gesetzt=false;
 	K_KarteAkiviert=false;
+	K_PIN1korrektEingegeben=false;
+	K_SichereEingabeNutzen=true;
 	K_Leser=0;
 	K_Seriennummer="";
 	K_MF_DFAntwort=new QFrankGSMKarteMF_DFAntwort(this);
@@ -47,6 +53,15 @@ bool QFrankGSMKarte::KarteAktivieren()
 #ifndef QT_NO_DEBUG
 		qDebug()<<"QFrankGSMKarte: keine Verbindung zum Leser";
 #endif
+		return false;
+	}
+	//Testen ob der Leser API =>0.3.0 ist.
+	if(K_Leser->Version()<0x000300)
+	{
+#ifndef QT_NO_DEBUG
+		qDebug("QFrankGSMKarte: Lesemodul zu alt statt 0x000300 0x%X",K_Leser->Version());
+#endif
+		K_Fehlertext=trUtf8("Kartenlesermodul ist zu alt. Es wird min. Version 0.3.0 benötigt");
 		return false;
 	}
 	QByteArray ATR;
@@ -92,6 +107,193 @@ bool QFrankGSMKarte::K_SeriennummerErmitteln()
 	qDebug()<<QString("QFrankGSMKarte Seriennummer ermitteln Ergebnis: %1").arg(K_Seriennummer);
 #endif
 	return true;
+}
+
+const bool QFrankGSMKarte::K_PinEingabe(const uchar &Pinnummer)
+{
+	if (!K_VerbindungZurKarte())
+		return false;
+	/*
+		Verify CHV
+		Klasse=0xA0
+		INS=0x20
+		P1=0x00
+		P2=Nummer der PIN
+		Länge Daten=0x08
+		Daten=PIN immer 8 Bytes lang. Der Rest wird mit FF gefüllt
+		Kodierung ASCII Bit 8=0
+	*/
+
+	//sichere oder unsichere Eingabe
+	if(K_SichereEingabeNutzen)
+	{
+#ifndef QT_NO_DEBUG
+		qDebug()<<"QFrankGSMKarte Pin sichere Eingabe";
+#endif
+		K_Kartenbefehl.resize(17);
+		K_Kartenbefehl[0]=0x52;//TAG 
+		K_Kartenbefehl[1]=0x0f;//Länge des Tags
+		K_Kartenbefehl[2]=0x01;//Länge der Pin unbekannt Format ASCII bit8=0
+		K_Kartenbefehl[3]=0x06;//Wo soll die PIN beginnen
+		K_Kartenbefehl[4]=0xa0;//Klasse
+		K_Kartenbefehl[5]=0x20;//Kartenbefehl
+		K_Kartenbefehl[6]=0x00;
+		K_Kartenbefehl[7]=Pinnummer;//Pin Nummer
+		K_Kartenbefehl[8]=0x08;
+		//Pin ab hier einfügen
+		K_Kartenbefehl[9]=0x0ff;
+		K_Kartenbefehl[10]=0x0ff;
+		K_Kartenbefehl[11]=0x0ff;
+		K_Kartenbefehl[12]=0x0ff;
+		K_Kartenbefehl[13]=0x0ff;
+		K_Kartenbefehl[14]=0x0ff;
+		K_Kartenbefehl[15]=0x0ff;
+		K_Kartenbefehl[16]=0x0ff;
+		K_Antwortkode=K_Leser->SicherePineingabe(K_Kartenbefehl);
+	}
+	else
+	{
+#ifndef QT_NO_DEBUG
+		qDebug()<<"QFrankGSMKarte Pin unsichere Eingabe";
+#endif
+		//test mit hardcode
+		K_Kartenbefehl.resize(13);
+		K_Kartenbefehl[0]=0xA0;
+		K_Kartenbefehl[1]=0x20;
+		K_Kartenbefehl[2]=0x00;
+		K_Kartenbefehl[3]=0x01; //01=PIN1
+		K_Kartenbefehl[4]=0x08;
+		//8 Byte PIN
+		K_Kartenbefehl[5]=0x38; //38 richtig
+		K_Kartenbefehl[6]=0x31;
+		K_Kartenbefehl[7]=0x36;
+		K_Kartenbefehl[8]=0x38;
+		K_Kartenbefehl[9]=0x0ff;
+		K_Kartenbefehl[10]=0x0ff;
+		K_Kartenbefehl[11]=0x0ff;
+		K_Kartenbefehl[12]=0x0ff;
+		K_Antwortkode=K_Leser->UniversalIO(K_Kartenbefehl,K_Kartenantwort);
+	}
+	/*
+	Auswertung
+	Rückgabe Codes:
+			0x9000 PinX akzeptiert
+			0x9840 falscher PinX->PinX jetzt gesperrt
+	*/
+	switch (K_Antwortkode)
+	{
+		case QFrankLesegeraet::CommandSuccessful:
+#ifndef QT_NO_DEBUG
+													qDebug()<<"QFrankGSMKarte Pin Eingabe: Pin akzeptiert";
+#endif
+													return true;
+													break;
+		case 0x9840:
+#ifndef QT_NO_DEBUG
+													qDebug()<<"QFrankGSMKarte Pin Eingabe: Pin gesperrt";
+#endif
+													K_Fehlertext=tr("PIN%1 gesperrt.").arg(Pinnummer);
+													return false;
+													break;
+		case QFrankLesegeraet::CancelByCancelKey:
+#ifndef QT_NO_DEBUG
+													qDebug()<<"QFrankGSMKarte Pin Eingabe: abbruch gedrückt";
+#endif
+													K_Fehlertext=trUtf8("Abbruch gedrückt.");
+													return false;
+													break;
+		case 0x9804:
+#ifndef QT_NO_DEBUG
+													qDebug()<<"QFrankGSMKarte Pin Eingabe: Pin falsch";
+#endif
+													//Kartenstus hohlen dazu wird das MF 0x3F00 gewählt
+													if(!K_SelectFile(0x3f00))
+													{
+														K_Fehlertext=tr("Fehler beim Erkennen der verbleibenen Versuche");
+														return false;
+													}
+													//Status des MF
+													K_GetResponse(QFrankGSMKarte::MF_DF,(uchar)(K_Antwortkode&0x00ff));
+													switch(Pinnummer)
+													{
+														case 1:
+																	K_Fehlertext=tr("PIN%1 falsch noch %2 Versuche.").arg(Pinnummer)
+																													.arg(K_MF_DFAntwort->
+																														PIN1verbleibeneEingabeversuche());
+																	break;
+														case 2:
+																	K_Fehlertext=tr("PIN%1 falsch noch %2 Versuche.").arg(Pinnummer)
+																													.arg(K_MF_DFAntwort->
+																														PIN2verbleibeneEingabeversuche());
+																	break;
+														default:
+																	K_Fehlertext=tr("PIN falsch Anzahl der verbleibenen Versuche unbekannt");
+																	break;
+													}
+													
+													return false;
+													break;
+		default:
+#ifndef QT_NO_DEBUG
+													qFatal("QFrankGSMKarte Pin Eingabe: Rückgabecode 0x%X nicht behandelt.",K_Antwortkode);
+#endif
+													K_Fehlertext=trUtf8("Fehler bei der PIN%1 Prüfung.").arg(Pinnummer);
+													return false;
+	}	
+	return false;
+}
+
+const bool QFrankGSMKarte::Pin1Eingabe()
+{
+	if(K_PinEingabe(1))
+		K_PIN1korrektEingegeben=true;
+	else
+		K_PIN1korrektEingegeben=false;
+	return K_PIN1korrektEingegeben;
+}
+
+void QFrankGSMKarte::PinSichereEingabe(const bool &eingabeArt)
+{
+	K_SichereEingabeNutzen=eingabeArt;
+}
+
+const QString QFrankGSMKarte::Kurzwahlnummern()
+{
+	//Diese stehen in der Datei 0x6f3a um Verzeichnis Telekom 0x7f10 unter dem MF
+#ifndef QT_NO_DEBUG
+	qDebug()<<"QFrankGSMKarte Kurzwahlnummern";
+#endif
+	uchar AnzahlDerSpeicherplaetze;
+	uchar LaengeEinesDatensatzes;
+	if (!K_VerbindungZurKarte())
+		return "";
+	//In das Verzeichnis Telekom wechseln
+	if (!K_SelectFile(0x7f10))
+		return "";
+	//Status des Verzeichnis:
+	K_GetResponse(QFrankGSMKarte::MF_DF,(uchar)(K_Antwortkode&0x00ff));
+	//Datei mit den Eigentlichen Infos auswählen
+	if (!K_SelectFile(0x6f3a))
+		return "";
+	//Status der Datei
+	K_GetResponse(QFrankGSMKarte::EF,(uchar)(K_Antwortkode&0x00ff));
+	LaengeEinesDatensatzes=K_EFAntwort->Datensatzlaenge();
+	AnzahlDerSpeicherplaetze=K_EFAntwort->Dateigroesse()/LaengeEinesDatensatzes;
+#ifndef QT_NO_DEBUG
+	qDebug()<<"QFrankGSMKarte Kurzwahlnummern: Datensatzgröße"<<LaengeEinesDatensatzes;
+	qDebug()<<"QFrankGSMKarte Kurzwahlnummern: Datensaetze"<<AnzahlDerSpeicherplaetze;
+#endif	
+	//Zum Auslesen muss PIN1 eingegeben worden sein.
+	if (!K_PIN1korrektEingegeben)
+	{
+#ifndef QT_NO_DEBUG
+		qDebug()<<"QFrankGSMKarte Kurzwahlnummern: Pin1 nicht freigeschaltet";
+#endif
+		K_Fehlertext=trUtf8("Korrekter PIN1 wurde nicht übergeben.");
+		return "";
+	}
+
+	return "lila kluh";
 }
 
 const QString QFrankGSMKarte::Anbieter()

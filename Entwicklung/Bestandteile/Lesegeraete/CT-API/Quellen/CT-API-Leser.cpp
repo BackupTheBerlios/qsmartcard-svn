@@ -167,6 +167,53 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::LeserInitialisieren()
 	return QFrankLesegeraet::CommandSuccessful;
 }
 
+QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::SicherePineingabe(const QByteArray &kartenbefehl)
+{
+	if(!VerbindungTesten("SicherePineingabe"))
+		return QFrankLesegeraet::LeserNichtInitialisiert;
+	//mindestes ein Klasse 2 Leser(SicherePineingabe)
+	if(!(Lesersicherheit>QFrankLesegeraet::Klasse1 && Lesersicherheit<=QFrankLesegeraet::Klasse4))
+	{
+#ifndef QT_NO_DEBUG
+		qDebug()<<"QFrankCT_API_Leser SicherePineingabe: nur mit Geräten der Klasse 2 oder höher möglich";		
+#endif
+	return QFrankLesegeraet::ParameterFalsch;
+	}
+	//Datfeld darf nicht größer als 255 Bytes sein
+	if(kartenbefehl.size()>255)
+	{
+#ifndef QT_NO_DEBUG
+		qDebug()<<"QFrankCT_API_Leser SicherePineingabe: Kartenbefehl zu lang";		
+#endif
+		return QFrankLesegeraet::ParameterFalsch;
+	}
+	Befehl[0]=0x20;
+	Befehl[1]=0x18;
+	Befehl[2]=0x01;//Karte im Slot 1
+	Befehl[3]=0x00;//0x00=Pin,0x01=biometische Daten
+	Befehl[4]=kartenbefehl.size();//Länge des Datenfeldes
+	LaengeDesBefehl=kartenbefehl.size()+5;
+	LaengeDerAntwort=sizeof(Antwort);
+	Zieladresse=1; // 0=Slot1  1=Termimal 2=Slot2
+	Quelladresse=2;
+	//Kartenbefehl kopieren
+	memcpy(Befehl+5,kartenbefehl.data(),kartenbefehl.size());
+#ifndef QT_NO_DEBUG
+	qDebug()<<"QFrankCT_API_Leser SicherePineingabe Kartenbefehl: "<<FeldNachHex(QByteArray((char*)Befehl,LaengeDesBefehl));
+#endif
+	if(!DatenSenden(Terminalnummer,&Zieladresse,&Quelladresse,LaengeDesBefehl,Befehl,&LaengeDerAntwort,Antwort))
+	{
+		CT_API_schliessen();
+		return QFrankLesegeraet::LeserNichtInitialisiert;
+	}
+	//Auswertung
+	uint Ergebnis=(Antwort[LaengeDerAntwort-2] <<8) | Antwort[LaengeDerAntwort-1];
+#ifndef QT_NO_DEBUG
+	qDebug("QFrankCT_API_Leser SicherePineingabe ergab: %X",Ergebnis);
+#endif
+	return (QFrankLesegeraet::Rueckgabecodes) Ergebnis;	
+}
+
 QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::ISO_SelectFile(QByteArray datenfeld)
 {
 	if(!VerbindungTesten("ISO_SelectFile"))
@@ -539,22 +586,22 @@ QFrankLesegeraet::Leserklasse QFrankCT_API_Leser::Sicherheitsklasse()
 	switch(Lesersicherheit)
 	{
 		case QFrankLesegeraet::Klasse1:
-										qDebug()<<"Lesser Klasse 1";
+										qDebug()<<"QFrankCT_API_Leser: Leser Klasse 1";
 										break;
 		case QFrankLesegeraet::Klasse2:
-										qDebug()<<"Lesser Klasse 2";
+										qDebug()<<"QFrankCT_API_Leser: Leser Klasse 2";
 										break;
 		case QFrankLesegeraet::Klasse3:
-										qDebug()<<"Lesser Klasse 3";
+										qDebug()<<"QFrankCT_API_Leser: Leser Klasse 3";
 										break;
 		case QFrankLesegeraet::Klasse4:
-										qDebug()<<"Lesser Klasse 4";
+										qDebug()<<"QFrankCT_API_Leser: Leser Klasse 4";
 										break;
 		case QFrankLesegeraet::KlasseUnbekannt:
-										qDebug()<<"Lesser Klasse unbekannt";
+										qDebug()<<"QFrankCT_API_Leser: Leser Klasse unbekannt";
 										break;
 		default:
-										qFatal("Variable Lesersicherheit hat einen unbekanten Wert!!");
+										qFatal("QFrankCT_API_Leser: Variable Lesersicherheit hat einen unbekanten Wert!!");
 										break;
 	}
 #endif

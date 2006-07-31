@@ -24,10 +24,10 @@
 #include <Lesegeraet.h>
 
 //XXYYZZ XX=Major YY=Minor ZZ=Patch
-#define CT_API_Version 0x000201
-//Zum übersetzten wird min. Version 0.2.0 des Lesermodells benötigt.
-#if LesegeraetAPI_Version < 0x000200
-#error Es wird min. Version 0.2.0 des Lesermodells benötigt.
+#define CT_API_Version 0x000300
+//Zum übersetzten wird min. Version 0.3.0 des Lesermodells benötigt.
+#if LesegeraetAPI_Version < 0x000300
+#error Es wird min. Version 0.3.0 des Lesermodells benötigt.
 #endif
 
 class QFrankCT_API_Leser: public QFrankLesegeraet
@@ -51,6 +51,7 @@ class QFrankCT_API_Leser: public QFrankLesegeraet
 			QFrankLesegeraet::Rueckgabecodes	KarteEntfernen();
 			QFrankLesegeraet::Leserklasse		Sicherheitsklasse();
 			QFrankLesegeraet::Rueckgabecodes	LeserInitialisieren();
+			QFrankLesegeraet::Rueckgabecodes	SicherePineingabe(const QByteArray &kartenbefehl);
 			ulong								Version();
 			
 

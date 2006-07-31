@@ -1,0 +1,18 @@
+0.2.0
+- Leser API auf Version 0.3.0 erhöht, damit können Leser Module jetzte eine Universal Methode zur
+  sicheren Pin Eingabe nutzen.
+- CT-API Leser: Rechtschreibfehler in der Debugausgabe behoben.
+- Neues Kartenmodul für GSM Karten eingefügt.
+
+0.1.2
+- CT-API Leser: Bugfix close() wird jetzt nur ausgeführt, wenn eine Verbindung zum Leser besteht.
+  Gab sonst Segmentation fault:(.
+- GPL Lizenz Datei angefügt.
+- Liste der Änderungen angefügt.
+
+0.1.1
+- Das Terminalmodul wirft bei allen Kartenlesern beim beenden die Karte aus.
+- Die Karten- und Leserobjekte werden vom Heap beim beenden entfernt.
+
+0.1
+1. Veröffentlichung
