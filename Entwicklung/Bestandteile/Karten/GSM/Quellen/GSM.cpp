@@ -109,6 +109,14 @@ bool QFrankGSMKarte::K_SeriennummerErmitteln()
 	return true;
 }
 
+void QFrankGSMKarte::PinUebertragen(const QByteArray &pinfeld)
+{
+	K_Pinspeicher=pinfeld;
+#ifndef QT_NO_DEBUG
+	qDebug()<<QString("QFrankGSMKarte Pin übertragen: %1").arg(K_FeldNachHex(K_Pinspeicher));
+#endif
+}
+
 const bool QFrankGSMKarte::K_PinEingabe(const uchar &Pinnummer)
 {
 	if (!K_VerbindungZurKarte())
@@ -161,17 +169,41 @@ const bool QFrankGSMKarte::K_PinEingabe(const uchar &Pinnummer)
 		K_Kartenbefehl[0]=0xA0;
 		K_Kartenbefehl[1]=0x20;
 		K_Kartenbefehl[2]=0x00;
-		K_Kartenbefehl[3]=0x01; //01=PIN1
+		K_Kartenbefehl[3]=Pinnummer;
 		K_Kartenbefehl[4]=0x08;
 		//8 Byte PIN
-		K_Kartenbefehl[5]=0x38; //38 richtig
-		K_Kartenbefehl[6]=0x31;
-		K_Kartenbefehl[7]=0x36;
-		K_Kartenbefehl[8]=0x38;
-		K_Kartenbefehl[9]=0x0ff;
-		K_Kartenbefehl[10]=0x0ff;
-		K_Kartenbefehl[11]=0x0ff;
-		K_Kartenbefehl[12]=0x0ff;
+		if (K_Pinspeicher.size()>8 || K_Pinspeicher.size()<4)
+		{
+#ifndef QT_NO_DEBUG
+			qDebug()<<"QFrankGSMKarte Pin unsichere Eingabe: Pin zu lang/kurz";
+#endif
+			K_Fehlertext=trUtf8("Die Pin darf nicht länger als 8 und nicht kürzer als 4 Stellen sein.");
+			K_Pinspeicher.clear();
+			return false;
+		}
+		//Pin prüfen und ins Feld
+		for (uint Stelle=0;Stelle<8;Stelle++)
+		{
+			//Ende erreicht?
+			if(K_Pinspeicher.size()<Stelle+1)
+				K_Kartenbefehl[Stelle+5]=0xff;			
+			else
+			{
+				//teste auf gültiges Zeichen 0x30-0x39
+				if(K_Pinspeicher.at(Stelle)<0x30 | K_Pinspeicher.at(Stelle)>0x39)
+				{
+#ifndef QT_NO_DEBUG
+					qDebug()<<"QFrankGSMKarte Pin unsichere Eingabe: ungültiges Zeichen in der Pin";
+#endif
+					K_Fehlertext=tr("Die Pin darf nur aus den Zahlen 0-9 bestehen.");
+					K_Pinspeicher.clear();
+					return false;
+				}
+				K_Kartenbefehl[Stelle+5]=K_Pinspeicher.at(Stelle);
+			}
+			
+		}
+		K_Pinspeicher.clear();
 		K_Antwortkode=K_Leser->UniversalIO(K_Kartenbefehl,K_Kartenantwort);
 	}
 	/*

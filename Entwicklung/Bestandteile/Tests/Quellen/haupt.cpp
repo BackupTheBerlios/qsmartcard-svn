@@ -264,22 +264,27 @@ int main(int argc, char *argv[])
 		if(Terminal->LeserHohlen("CT-API-Leser")->Sicherheitsklasse()>QFrankLesegeraet::Klasse1)
 		{
 			((QObject*)Terminal->KarteHohlen("GSM Karte"))->setProperty("QFrankGSMKartePin1Eingabe",true);
-			qDebug()<<"Bitte PIN1 eingeben.";
-			if(((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKartePin1Eingabe").toBool())
-			{
-				qDebug()<<"Seriennummer:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteSeriennummer").toString();
-				qDebug()<<"Mobilfunkanbieter:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteAnbieter").toString();
-				qDebug()<<"Kurzwahlnummern:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteKurzwahlnummern").toString();
-			}
-			else
-			{
-				qDebug()<<Terminal->KarteHohlen("GSM Karte")->property("QFrankGSMKarteFehlertext").toString();
-			}
+			qDebug()<<"Bitte PIN1 an dem Leser eingeben.";
+						
 		}
 		else
 		{
-			qDebug()<<"Leser Klasse <2 werden nicht ünterstützt";
-		}		
+			((QObject*)Terminal->KarteHohlen("GSM Karte"))->setProperty("QFrankGSMKartePin1Eingabe",false);
+			qDebug()<<"Bitte PIN1 eingeben und die Eingabetaste drücken.";
+			 QByteArray Pin;
+			 QTextStream Eingabe(stdin);
+			Eingabe >> Pin;
+			((QObject*)Terminal->KarteHohlen("GSM Karte"))->setProperty("QFrankGSMKartePinUebermitteln",Pin);
+			
+		}	
+		if(!((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKartePin1Eingabe").toBool())
+				qDebug()<<Terminal->KarteHohlen("GSM Karte")->property("QFrankGSMKarteFehlertext").toString();
+		else
+		{
+			qDebug()<<"Seriennummer:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteSeriennummer").toString();
+			qDebug()<<"Mobilfunkanbieter:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteAnbieter").toString();
+			qDebug()<<"Kurzwahlnummern:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteKurzwahlnummern").toString();
+		}
 	}
 	delete Terminal;
 	return 0;
