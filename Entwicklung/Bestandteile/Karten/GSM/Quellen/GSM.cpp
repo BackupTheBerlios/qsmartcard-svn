@@ -291,12 +291,23 @@ void QFrankGSMKarte::PinSichereEingabe(const bool &eingabeArt)
 
 const QString QFrankGSMKarte::Kurzwahlnummern()
 {
-	//Diese stehen in der Datei 0x6f3a um Verzeichnis Telekom 0x7f10 unter dem MF
+	/* Diese stehen in der Datei 0x6f3a um Verzeichnis Telekom 0x7f10 unter dem MF
+		XML Aufbau:
+		<kurzwahlnummern>
+			<Speicherplätze gesamt="xx" benutzt="xx"/>
+			<eintrag>
+				<beschreibung>Max Mustermann</beschreibung>
+				<rufnummer>491234545<rufnummer>
+				<nummerparameter ton="0x1" npi="0x1"/>
+			</eintrag>
+		</kurzwahlnummern>
+	*/
 #ifndef QT_NO_DEBUG
 	qDebug()<<"QFrankGSMKarte Kurzwahlnummern";
 #endif
 	uchar AnzahlDerSpeicherplaetze;
 	uchar LaengeEinesDatensatzes;
+	uchar Textlaenge;
 	if (!K_VerbindungZurKarte())
 		return "";
 	//In das Verzeichnis Telekom wechseln
@@ -310,6 +321,7 @@ const QString QFrankGSMKarte::Kurzwahlnummern()
 	//Status der Datei
 	K_GetResponse(QFrankGSMKarte::EF,(uchar)(K_Antwortkode&0x00ff));
 	LaengeEinesDatensatzes=K_EFAntwort->Datensatzlaenge();
+	Textlaenge=LaengeEinesDatensatzes-0x0e;//Jeder daten min. 14 Bytes
 	AnzahlDerSpeicherplaetze=K_EFAntwort->Dateigroesse()/LaengeEinesDatensatzes;
 #ifndef QT_NO_DEBUG
 	qDebug()<<"QFrankGSMKarte Kurzwahlnummern: Datensatzgröße"<<LaengeEinesDatensatzes;
@@ -324,8 +336,75 @@ const QString QFrankGSMKarte::Kurzwahlnummern()
 		K_Fehlertext=trUtf8("Korrekter PIN1 wurde nicht übergeben.");
 		return "";
 	}
-
+	/*Auslesen der Nummern
+		Aufbau des Datensatzes:
+			Byte 1 - X Text wenn x=0 Dann kein Text
+			Byte X+1 Bytes für die TON/NPI und Telefonnummer
+			Byte X+2 Bit 8 =1 7-5 TON 4-1 NPI
+					TON: 0x00=unbekannt
+						 0x01=internationale Nummer angabe ohne Präfix(z.b +)
+						 0x02=nationale Nummer
+						 0x03=Netzwerk spezifische Nummer
+						 0x04=Kurz Kode
+						 0x05-7 reserviert
+					NPI: 0x00=unbekannt
+						 0x01=Telefon
+						 0x03=Daten
+						 0x04=Telex
+						 0x08=National
+						 0x09=Private
+						 0x0b= reservier für CTS
+						 rest reserviert
+			Byte X+3 - X +12 Telefonnumer
+			Byte X+13 Datensatznummer in der CCP Datei 0xff=kein Eintrag 
+			Byte X+14 Datensatznummer in der EXT1 Datei 0xff=kein Eintrag
+			EXT1 Datei kann zum Speichern von längeren Nummern oder mehr Wahlparametern genutzt werden.
+	*/
+	//for (uint Datensatz=1;Datensatz<=AnzahlDerSpeicherplaetze;Datensatz++)
+	for (uint Datensatz=1;Datensatz<=10;Datensatz++)
+	{
+		XML erzeugen
+		K_ReadRecord(Datensatz,QFrankGSMKarte::Absolut,LaengeEinesDatensatzes);
+	}
 	return "lila kluh";
+}
+
+bool QFrankGSMKarte::K_ReadRecord(const uchar &datsatznummer,const QFrankGSMKarte::DatensatzLesemodus &modus,const uchar &datensatzlaenge)
+{
+	/* Read Record
+		Klasse=0xA0
+		INS=0xB2
+		P1=Datensatznummer
+		P2=Modus
+		P3=Datensatzlänge
+	*/
+#ifndef QT_NO_DEBUG
+	qDebug()<<QString("QFrankGSMKarte Read Record Nummer: %1 Modus: %2 Länge: %3").arg(datsatznummer).arg(modus).arg(datensatzlaenge);
+#endif
+	if (!K_VerbindungZurKarte())
+		return false;
+	K_Kartenbefehl.resize(5);
+	K_Kartenbefehl[0]=0xA0;
+	K_Kartenbefehl[1]=0xb2;
+	K_Kartenbefehl[2]=datsatznummer;
+	K_Kartenbefehl[3]=(uchar)modus;
+	K_Kartenbefehl[4]=datensatzlaenge;
+	K_Antwortkode=K_Leser->UniversalIO(K_Kartenbefehl,K_Kartenantwort);
+	//Wenn alles gut ging 0x9000
+	if (K_Antwortkode!=QFrankLesegeraet::CommandSuccessful)
+	{
+		K_Fehlertext=tr("Datensatz lesen gescheitert.");
+#ifndef QT_NO_DEBUG
+		qDebug()<<QString("QFrankGSMKarte Read Record: gescheitert Rückgabe Code 0x%1").arg(K_Antwortkode,0,16);
+#endif
+		K_Leser->KarteEntfernen();
+		return false;
+	}
+#ifndef QT_NO_DEBUG
+	qDebug()<<QString("QFrankGSMKarte Read Record: OK Rückgabe Code 0x%1").arg(K_Antwortkode,0,16);
+	qDebug()<<"QFrankGSMKarte Read Record Daten:"<<K_FeldNachHex(K_Kartenantwort);
+#endif
+	return true;
 }
 
 const QString QFrankGSMKarte::Anbieter()

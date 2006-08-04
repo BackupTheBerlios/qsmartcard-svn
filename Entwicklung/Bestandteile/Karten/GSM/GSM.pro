@@ -16,6 +16,7 @@
 
 PROJEKTTEIL	 = GSM Karte
 TEMPLATE	 = lib
+QT			+= xml
 CONFIG		+= plugin
 include (../../../Vorgaben.pri)
 VERSION		 = 0.1.0.0

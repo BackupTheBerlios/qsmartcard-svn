@@ -56,7 +56,9 @@ class QFrankGSMKarte: public QFrankSmartCard
 
 	private:
 			enum						ArtDerAntwort{MF_DF=0x00,EF=0x01};
+			enum						ArtDesDatensatzLesemodus{Naechter=0x02,Voriger=0x03,Absolut=0x04};
 			Q_DECLARE_FLAGS(Antwort,ArtDerAntwort)
+			Q_DECLARE_FLAGS(DatensatzLesemodus,ArtDesDatensatzLesemodus)
 			QFrankLesegeraet*			K_Leser;
 			QFrankGSMKarteMF_DFAntwort*	K_MF_DFAntwort;
 			QFrankGSMKarteEFAntwort*	K_EFAntwort;
@@ -68,6 +70,7 @@ class QFrankGSMKarte: public QFrankSmartCard
 			uint						K_Antwortkode;
 			bool						K_SichereEingabeNutzen;
 			bool						K_ReadBinary(const uchar &anzahl,const uint &offset=0);
+			bool						K_ReadRecord(const uchar &datsatznummer,const QFrankGSMKarte::DatensatzLesemodus &modus,const uchar &datensatzlaenge);
 			bool						K_PIN1korrektEingegeben;
 			bool						K_PIN1gesetzt;
 			bool						K_PIN2gesetzt;
