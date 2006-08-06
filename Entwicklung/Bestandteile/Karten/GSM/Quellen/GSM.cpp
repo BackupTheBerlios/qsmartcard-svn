@@ -16,8 +16,9 @@
  *  Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *  
  */
-
+#include <QtXML>
 #include "GSM.h"
+#include "ZeichensatzWandlung.h"
 #include <EFAntwort.h>
 #include <MF_DFAntwort.h>
 #include <Lesegeraet.h>
@@ -43,6 +44,7 @@ QFrankGSMKarte::QFrankGSMKarte(QObject* eltern):QFrankSmartCard(eltern)
 	K_Seriennummer="";
 	K_MF_DFAntwort=new QFrankGSMKarteMF_DFAntwort(this);
 	K_EFAntwort=new QFrankGSMKarteEFAntwort(this);
+	K_Zeichenwandlung=new QFrankZeichensatzWandlung(this);
 }
 
 bool QFrankGSMKarte::KarteAktivieren()
@@ -293,14 +295,14 @@ const QString QFrankGSMKarte::Kurzwahlnummern()
 {
 	/* Diese stehen in der Datei 0x6f3a um Verzeichnis Telekom 0x7f10 unter dem MF
 		XML Aufbau:
-		<kurzwahlnummern>
+		<Kurzwahlnummern>
 			<Speicherplätze gesamt="xx" benutzt="xx"/>
-			<eintrag>
-				<beschreibung>Max Mustermann</beschreibung>
-				<rufnummer>491234545<rufnummer>
-				<nummerparameter ton="0x1" npi="0x1"/>
-			</eintrag>
-		</kurzwahlnummern>
+			<Eintrag>
+				<Beschreibung>Max Mustermann</Beschreibung>
+				<Rufnummer>491234545</Rufnummer>
+				<Nummerparameter ton="1" npi="1"/>
+			</Eintrag>
+		</Kurzwahlnummern>
 	*/
 #ifndef QT_NO_DEBUG
 	qDebug()<<"QFrankGSMKarte Kurzwahlnummern";
@@ -360,13 +362,60 @@ const QString QFrankGSMKarte::Kurzwahlnummern()
 			Byte X+14 Datensatznummer in der EXT1 Datei 0xff=kein Eintrag
 			EXT1 Datei kann zum Speichern von längeren Nummern oder mehr Wahlparametern genutzt werden.
 	*/
+	uchar BenutzteEintraege=0;
+	QDomDocument XML;
+	QDomProcessingInstruction Kopf = XML.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"utf-8\""); 
+	XML.appendChild(Kopf);
+	QDomElement Wurzel = XML.createElement("Kurzwahlnummern");
+	QDomElement Speicherplatz= XML.createElement("Speicherplätze");
+	Speicherplatz.setAttribute("gesamt",AnzahlDerSpeicherplaetze);
+	XML.appendChild(Wurzel);
+	Wurzel.appendChild(Speicherplatz);
 	//for (uint Datensatz=1;Datensatz<=AnzahlDerSpeicherplaetze;Datensatz++)
-	for (uint Datensatz=1;Datensatz<=10;Datensatz++)
-	{
-		XML erzeugen
+	for (uint Datensatz=1;Datensatz<=3;Datensatz++)
+	{		
 		K_ReadRecord(Datensatz,QFrankGSMKarte::Absolut,LaengeEinesDatensatzes);
+		/* Ist der Datensatz leer? Wenn nein dann bearbeiten.
+		   Wenn er leer ist, ist TON/NPI 0xff
+		*/
+		if ((uchar)K_Kartenantwort.at(Textlaenge+1)!=0xff)
+		{
+			QDomElement Eintrag=XML.createElement("Eintrag");
+			Wurzel.appendChild(Eintrag);
+			QDomElement Beschreibung=XML.createElement("Beschreibung");
+			QDomElement Rufnummer=XML.createElement("Rufnummer");
+			QDomElement Nummerparameter=XML.createElement("Nummerparameter");
+		
+			QDomText BeschreibungText=XML.createTextNode(K_Zeichenwandlung->SMSnachUTF8(K_Kartenantwort.left(Textlaenge)));
+			QDomText RufnummerText=XML.createTextNode("49900");
+			Nummerparameter.setAttribute("TON",2);
+			Nummerparameter.setAttribute("NPI",0);
+		
+			Eintrag.appendChild(Beschreibung);
+			Eintrag.appendChild(Rufnummer);
+			Eintrag.appendChild(Nummerparameter);
+			Beschreibung.appendChild(BeschreibungText);
+			Rufnummer.appendChild(RufnummerText);
+			BenutzteEintraege++;
+		}
 	}
-	return "lila kluh";
+	Speicherplatz.setAttribute("benutzt",BenutzteEintraege);
+	
+	QFile Datei("text.xml");
+	Datei.open(QIODevice::WriteOnly|QIODevice::Truncate);	
+	QTextStream Strom(&Datei);
+	Strom<<XML.toString();
+	Strom.flush();
+	Datei.close();
+
+	return XML.toString();
+}
+
+
+
+QString	const QFrankGSMKarte::K_TelefonbucheintragNummer(const uchar &position,const uchar &laenge) const
+{
+	return "";
 }
 
 bool QFrankGSMKarte::K_ReadRecord(const uchar &datsatznummer,const QFrankGSMKarte::DatensatzLesemodus &modus,const uchar &datensatzlaenge)
@@ -429,12 +478,7 @@ const QString QFrankGSMKarte::Anbieter()
 	if (!K_ReadBinary((uchar)K_EFAntwort->Dateigroesse()))
 		return "";
 	//1. Byte unwichtig 2-Ende oder FF enthält den Text
-	QString tmp="";
-	for (uchar Stelle=1;Stelle<(uchar)K_EFAntwort->Dateigroesse();Stelle++)
-	{
-		if((uchar)K_Kartenantwort.at(Stelle)!=0xff)
-			tmp.append(K_Kartenantwort.at(Stelle));
-	}
+	QString tmp=K_Zeichenwandlung->SMSnachUTF8(K_Kartenantwort.mid(1,K_EFAntwort->Dateigroesse()-1));
 #ifndef QT_NO_DEBUG
 	qDebug()<<"QFrankGSMKarte Anbieter:"<<tmp;
 #endif

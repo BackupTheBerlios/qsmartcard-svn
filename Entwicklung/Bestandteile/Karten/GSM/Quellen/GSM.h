@@ -28,6 +28,7 @@
 
 class QFrankGSMKarteMF_DFAntwort;
 class QFrankGSMKarteEFAntwort;
+class QFrankZeichensatzWandlung;
 
 class QFrankGSMKarte: public QFrankSmartCard
 {
@@ -64,6 +65,7 @@ class QFrankGSMKarte: public QFrankSmartCard
 			QFrankGSMKarteEFAntwort*	K_EFAntwort;
 			QString						K_Fehlertext;
 			QString						K_Seriennummer;
+			QString	const				K_TelefonbucheintragNummer(const uchar &position,const uchar &laenge) const;
 			QByteArray					K_Kartenbefehl;
 			QByteArray					K_Kartenantwort;
 			QByteArray					K_Pinspeicher;
@@ -82,6 +84,7 @@ class QFrankGSMKarte: public QFrankSmartCard
 			void						K_GetResponse(QFrankGSMKarte::Antwort antwort,const uchar &antwortLaenge);
 			void						K_EFAntwortBearbeiten();
 			void						K_MF_DFAntwortBearbeiten();
+			QFrankZeichensatzWandlung*	K_Zeichenwandlung;
 #ifndef QT_NO_DEBUG
 			QString						K_FeldNachHex(const QByteArray &feld) const;
 			QString						K_Zugrifftext(const uchar &kodierung)const;

@@ -30,6 +30,7 @@ INCLUDEPATH	+=	../SmartCard\
 HEADERS		 =	Quellen/Datentenobjekte/Antwortbasis.h\
 				Quellen/Datentenobjekte/EFAntwort.h\
 				Quellen/Datentenobjekte/MF_DFAntwort.h\
+				Quellen/ZeichensatzWandlung.h\
 				Quellen/GSM.h\
 				../SmartCard/SmartCard.h\
 				../SmartCard/SmartCardPlugin.h
@@ -37,6 +38,7 @@ HEADERS		 =	Quellen/Datentenobjekte/Antwortbasis.h\
 SOURCES		=	Quellen/Datentenobjekte/Antwortbasis.cpp\
 				Quellen/Datentenobjekte/EFAntwort.cpp\
 				Quellen/Datentenobjekte/MF_DFAntwort.cpp\
+				Quellen/ZeichensatzWandlung.cpp\
 				Quellen/GSM.cpp\
 				Quellen/GSMPlugin.cpp\
 				../SmartCard/SmartCard.cpp\
