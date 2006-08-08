@@ -284,6 +284,9 @@ int main(int argc, char *argv[])
 			qDebug()<<"Seriennummer:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteSeriennummer").toString();
 			qDebug()<<"Mobilfunkanbieter:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteAnbieter").toString();
 			qDebug()<<"Kurzwahlnummern:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteKurzwahlnummern").toString();
+			qDebug()<<"Festwahlnummern:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteFestwahlnummern").toString();
+			qDebug()<<"Eigene Rufnummern:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteMeineNummern").toString();
+			qDebug()<<"Zuletzt gewählte Rufnummern:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteZuletztGewaehlteNummern").toString();
 		}
 	}
 	delete Terminal;

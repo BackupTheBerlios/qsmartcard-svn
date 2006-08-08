@@ -16,7 +16,7 @@
  *  Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *  
  */
-#include <QtXML>
+#include <QtXml>
 #include "GSM.h"
 #include "ZeichensatzWandlung.h"
 #include <EFAntwort.h>
@@ -91,7 +91,12 @@ bool QFrankGSMKarte::KarteAktivieren()
 
 bool QFrankGSMKarte::K_SeriennummerErmitteln()
 {
-	//  EF für die Seriennummer der Karte ist: 2fe2 unter dem MF
+
+	//  EF für die Seriennummer der Karte ist: 2fe2 unter dem MF 0x3f00
+	if (!K_SelectFile(0x3f00))
+		return false;
+	K_GetResponse(QFrankGSMKarte::MF_DF,(uchar)(K_Antwortkode&0x00ff) );
+	//Datei lesen
 	if (!K_SelectFile(0x2fe2))
 		return false;
 	K_GetResponse(QFrankGSMKarte::EF,(uchar)(K_Antwortkode&0x00ff) );
@@ -222,6 +227,13 @@ const bool QFrankGSMKarte::K_PinEingabe(const uchar &Pinnummer)
 #endif
 													return true;
 													break;
+		case QFrankLesegeraet::ResetNotSuccessful:
+#ifndef QT_NO_DEBUG
+													qDebug()<<"QFrankGSMKarte Pin Eingabe: Zeit abgelaufen";
+#endif
+													K_Fehlertext=tr("Zeit zu Eingabe der PIN abgelaufen.");					
+													return false;
+													break;
 		case 0x9840:
 #ifndef QT_NO_DEBUG
 													qDebug()<<"QFrankGSMKarte Pin Eingabe: Pin gesperrt";
@@ -267,6 +279,12 @@ const bool QFrankGSMKarte::K_PinEingabe(const uchar &Pinnummer)
 													
 													return false;
 													break;
+		case 0x9808:
+#ifndef QT_NO_DEBUG
+													qDebug()<<"QFrankGSMKarte Pin Eingabe: Pin war unnötig";
+#endif
+													return true;
+													break;
 		default:
 #ifndef QT_NO_DEBUG
 													qFatal("QFrankGSMKarte Pin Eingabe: Rückgabecode 0x%X nicht behandelt.",K_Antwortkode);
@@ -291,21 +309,43 @@ void QFrankGSMKarte::PinSichereEingabe(const bool &eingabeArt)
 	K_SichereEingabeNutzen=eingabeArt;
 }
 
-const QString QFrankGSMKarte::Kurzwahlnummern()
+QString const QFrankGSMKarte::K_TelefonbuchAuslesen(const QFrankGSMKarte::WelchesTelefonbuch &telefonbuch)
 {
-	/* Diese stehen in der Datei 0x6f3a um Verzeichnis Telekom 0x7f10 unter dem MF
+	/*	Diese stehen in der Datei 0x6f3a(kurz), 0x6f3b(fest), 0x6f40(meine), 0x6f44(zuletzt gewählt) im Verzeichnis Telekom 0x7f10 unter dem MF
+		ArtDesTelefonbuch kann sein: Kurzwahnummern/Festwahlnummern/MeineNummern/ZuletztGeweaehlt
 		XML Aufbau:
-		<Kurzwahlnummern>
-			<Speicherplätze gesamt="xx" benutzt="xx"/>
+		<ArtDesTelefonbuch>
+			<Speicherplaetze gesamt="xx" benutzt="xx"/>
 			<Eintrag>
 				<Beschreibung>Max Mustermann</Beschreibung>
 				<Rufnummer>491234545</Rufnummer>
 				<Nummerparameter ton="1" npi="1"/>
 			</Eintrag>
-		</Kurzwahlnummern>
+		</ArtDesTelefonbuch>
 	*/
+	QString TelefonbuchText;
+	uint DateiID;
+	switch(telefonbuch)
+	{
+		case QFrankGSMKarte::Kurzwahl:
+											TelefonbuchText=tr("Kurzwahlnummern");
+											DateiID=0x6f3a;
+											break;
+		case QFrankGSMKarte::Festwahl:
+											TelefonbuchText=tr("Festwahlnummern");
+											DateiID=0x6f3b;
+											break;
+		case  QFrankGSMKarte::MeineNumern:
+											TelefonbuchText=tr("Meine Nummern");
+											DateiID=0x6f40;
+											break;
+		case QFrankGSMKarte::ZuletztGewaehlte:
+											TelefonbuchText=trUtf8("Zuletzt gewählte Nummern");
+											DateiID=0x6f44;
+											break;
+	}	
 #ifndef QT_NO_DEBUG
-	qDebug()<<"QFrankGSMKarte Kurzwahlnummern";
+	qDebug()<<"QFrankGSMKarte"<<TelefonbuchText;
 #endif
 	uchar AnzahlDerSpeicherplaetze;
 	uchar LaengeEinesDatensatzes;
@@ -317,8 +357,8 @@ const QString QFrankGSMKarte::Kurzwahlnummern()
 		return "";
 	//Status des Verzeichnis:
 	K_GetResponse(QFrankGSMKarte::MF_DF,(uchar)(K_Antwortkode&0x00ff));
-	//Datei mit den Eigentlichen Infos auswählen
-	if (!K_SelectFile(0x6f3a))
+	//Datei mit den eigentlichen Infos auswählen
+	if (!K_SelectFile(DateiID))
 		return "";
 	//Status der Datei
 	K_GetResponse(QFrankGSMKarte::EF,(uchar)(K_Antwortkode&0x00ff));
@@ -326,19 +366,19 @@ const QString QFrankGSMKarte::Kurzwahlnummern()
 	Textlaenge=LaengeEinesDatensatzes-0x0e;//Jeder daten min. 14 Bytes
 	AnzahlDerSpeicherplaetze=K_EFAntwort->Dateigroesse()/LaengeEinesDatensatzes;
 #ifndef QT_NO_DEBUG
-	qDebug()<<"QFrankGSMKarte Kurzwahlnummern: Datensatzgröße"<<LaengeEinesDatensatzes;
-	qDebug()<<"QFrankGSMKarte Kurzwahlnummern: Datensaetze"<<AnzahlDerSpeicherplaetze;
-#endif	
+	qDebug()<<"QFrankGSMKarte"<<TelefonbuchText<< ": Datensatzgröße"<<LaengeEinesDatensatzes;
+	qDebug()<<"QFrankGSMKarte"<<TelefonbuchText<<": Datensaetze"<<AnzahlDerSpeicherplaetze;
+#endif
 	//Zum Auslesen muss PIN1 eingegeben worden sein.
 	if (!K_PIN1korrektEingegeben)
 	{
 #ifndef QT_NO_DEBUG
-		qDebug()<<"QFrankGSMKarte Kurzwahlnummern: Pin1 nicht freigeschaltet";
+		qDebug()<<"QFrankGSMKarte"<< TelefonbuchText <<": Pin1 nicht freigeschaltet";
 #endif
 		K_Fehlertext=trUtf8("Korrekter PIN1 wurde nicht übergeben.");
 		return "";
 	}
-	/*Auslesen der Nummern
+	/*	Auslesen der Nummern
 		Aufbau des Datensatzes:
 			Byte 1 - X Text wenn x=0 Dann kein Text
 			Byte X+1 Bytes für die TON/NPI und Telefonnummer
@@ -359,20 +399,35 @@ const QString QFrankGSMKarte::Kurzwahlnummern()
 						 rest reserviert
 			Byte X+3 - X +12 Telefonnumer
 			Byte X+13 Datensatznummer in der CCP Datei 0xff=kein Eintrag 
-			Byte X+14 Datensatznummer in der EXT1 Datei 0xff=kein Eintrag
+			Byte X+14 Datensatznummer in der EXT1/2 Datei 0xff=kein Eintrag
 			EXT1 Datei kann zum Speichern von längeren Nummern oder mehr Wahlparametern genutzt werden.
 	*/
 	uchar BenutzteEintraege=0;
 	QDomDocument XML;
-	QDomProcessingInstruction Kopf = XML.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"utf-8\""); 
+	QDomElement Wurzel;
+	QDomProcessingInstruction Kopf = XML.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\""); 
 	XML.appendChild(Kopf);
-	QDomElement Wurzel = XML.createElement("Kurzwahlnummern");
-	QDomElement Speicherplatz= XML.createElement("Speicherplätze");
+	switch(telefonbuch)
+	{
+		case QFrankGSMKarte::Kurzwahl:
+											Wurzel = XML.createElement("Kurzwahlnummern");
+											break;
+		case QFrankGSMKarte::Festwahl:
+											Wurzel = XML.createElement("Festwahlnummern");
+											break;
+		case  QFrankGSMKarte::MeineNumern:
+											Wurzel = XML.createElement("MeineNummern");
+											break;
+		case QFrankGSMKarte::ZuletztGewaehlte:
+											Wurzel = XML.createElement("ZuletztGeweaehlt");
+											break;
+	}
+	QDomElement Speicherplatz= XML.createElement("Speicherplaetze");
 	Speicherplatz.setAttribute("gesamt",AnzahlDerSpeicherplaetze);
 	XML.appendChild(Wurzel);
 	Wurzel.appendChild(Speicherplatz);
-	//for (uint Datensatz=1;Datensatz<=AnzahlDerSpeicherplaetze;Datensatz++)
-	for (uint Datensatz=1;Datensatz<=3;Datensatz++)
+	for (uint Datensatz=1;Datensatz<=AnzahlDerSpeicherplaetze;Datensatz++)
+	//for (uint Datensatz=1;Datensatz<=3;Datensatz++)
 	{		
 		K_ReadRecord(Datensatz,QFrankGSMKarte::Absolut,LaengeEinesDatensatzes);
 		/* Ist der Datensatz leer? Wenn nein dann bearbeiten.
@@ -387,9 +442,19 @@ const QString QFrankGSMKarte::Kurzwahlnummern()
 			QDomElement Nummerparameter=XML.createElement("Nummerparameter");
 		
 			QDomText BeschreibungText=XML.createTextNode(K_Zeichenwandlung->SMSnachUTF8(K_Kartenantwort.left(Textlaenge)));
-			QDomText RufnummerText=XML.createTextNode("49900");
-			Nummerparameter.setAttribute("TON",2);
-			Nummerparameter.setAttribute("NPI",0);
+			//Nummer Länger als 20 stellen? wenn ja dann ist der Extensions1 ID !=0xff
+			QDomText RufnummerText;
+			if ((uchar)K_Kartenantwort.at(Textlaenge+13)!=0xff)
+			{
+#ifndef QT_NO_DEBUG
+				qWarning()<<"QFrankGSMKarte" << TelefonbuchText <<": Nummer >20 Stellen";
+#endif
+				RufnummerText=XML.createTextNode(K_TelefonnummerDecodieren(K_Kartenantwort.mid(Textlaenge+2,10))+"...");
+			}
+			else
+				RufnummerText=XML.createTextNode(K_TelefonnummerDecodieren(K_Kartenantwort.mid(Textlaenge+2,10)));
+			Nummerparameter.setAttribute("TON",(((uchar) K_Kartenantwort.at(Textlaenge+1))& 0x70) >>4 );
+			Nummerparameter.setAttribute("NPI",((uchar)K_Kartenantwort.at(Textlaenge+1))& 0x0f );
 		
 			Eintrag.appendChild(Beschreibung);
 			Eintrag.appendChild(Rufnummer);
@@ -401,21 +466,85 @@ const QString QFrankGSMKarte::Kurzwahlnummern()
 	}
 	Speicherplatz.setAttribute("benutzt",BenutzteEintraege);
 	
-	QFile Datei("text.xml");
-	Datei.open(QIODevice::WriteOnly|QIODevice::Truncate);	
+	//Nur zum Debuggen
+	QFile Datei(TelefonbuchText+".xml");
+	Datei.open(QIODevice::WriteOnly);	
 	QTextStream Strom(&Datei);
 	Strom<<XML.toString();
 	Strom.flush();
 	Datei.close();
-
+	
 	return XML.toString();
 }
 
+const QString QFrankGSMKarte::Kurzwahlnummern()
+{	
+	return K_TelefonbuchAuslesen(QFrankGSMKarte::Kurzwahl);
+}
 
-
-QString	const QFrankGSMKarte::K_TelefonbucheintragNummer(const uchar &position,const uchar &laenge) const
+const QString QFrankGSMKarte::MeineNummern()
 {
-	return "";
+	return K_TelefonbuchAuslesen(QFrankGSMKarte::MeineNumern);
+}
+
+const QString QFrankGSMKarte::Festwahlnummern()
+{
+	return K_TelefonbuchAuslesen(QFrankGSMKarte::Festwahl);
+}
+
+const QString QFrankGSMKarte::ZuletztGewaehlteNummern()
+{
+	return K_TelefonbuchAuslesen(QFrankGSMKarte::ZuletztGewaehlte);
+}
+
+QString const QFrankGSMKarte::K_TelefonnummerDecodieren(const QByteArray &nummernfeld) const
+{
+	/*	Die Telefonnummer kann max. 20 Stellen je Datenblock sei.
+		Kodierung: Bit 8-5 2. Stelle 4-1 1. Stelle. 0xff wenn nicht belegt.
+	*/
+	QString Telefonnummer="";
+	uchar Stelle1,Stelle2;
+	for (int Stelle=0;Stelle<20;Stelle++)
+	{
+		Stelle1=((uchar)nummernfeld.at(Stelle))&0x0f;
+		Stelle2=(((uchar)nummernfeld.at(Stelle))&0xf0)>>4;
+		//Ende erreicht??
+		if(Stelle1==0x0f && Stelle2==0x0f)
+			break;
+		if(Stelle1==0x0f)
+			break;
+		Telefonnummer.append(K_TelefonnummerZeichenDecodieren(Stelle1));
+		if(Stelle2==0x0f)
+			break;
+		Telefonnummer.append(K_TelefonnummerZeichenDecodieren(Stelle2));
+	}
+	return Telefonnummer;
+}
+
+QChar const QFrankGSMKarte::K_TelefonnummerZeichenDecodieren(const uchar &nummer)const
+{
+	switch(nummer)
+	{
+		case 0x0a:
+					return QChar(0x2a);//*
+					break;
+		case 0x0b:
+					return QChar(0x23);//#
+					break;
+		case 0x0c:
+					return QChar();//DTMF Control Seperator
+					break;
+		case 0x0d:
+					return QChar();//Steuerzeichen zum abfragen einer Ziffer
+					break;
+		case 0x0e:
+					return QChar();//Erhöhe die nächte Ziffer um 10
+					break;
+		default:
+					return QChar(nummer+0x30);
+					break;
+	}
+	return QChar();
 }
 
 bool QFrankGSMKarte::K_ReadRecord(const uchar &datsatznummer,const QFrankGSMKarte::DatensatzLesemodus &modus,const uchar &datensatzlaenge)

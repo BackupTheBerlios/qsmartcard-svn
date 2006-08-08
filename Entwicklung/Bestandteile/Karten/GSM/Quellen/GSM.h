@@ -38,6 +38,9 @@ class QFrankGSMKarte: public QFrankSmartCard
 	Q_PROPERTY(QString QFrankGSMKarteSeriennummer READ Seriennummer)
 	Q_PROPERTY(QString QFrankGSMKarteAnbieter READ Anbieter)
 	Q_PROPERTY(QString QFrankGSMKarteKurzwahlnummern READ Kurzwahlnummern)
+	Q_PROPERTY(QString QFrankGSMKarteFestwahlnummern READ Festwahlnummern)
+	Q_PROPERTY(QString QFrankGSMKarteMeineNummern READ MeineNummern)
+	Q_PROPERTY(QString QFrankGSMKarteZuletztGewaehlteNummern READ ZuletztGewaehlteNummern)
 	Q_PROPERTY(bool QFrankGSMKartePin1Eingabe READ Pin1Eingabe WRITE PinSichereEingabe)
 	Q_PROPERTY(QByteArray QFrankGSMKartePinUebermitteln READ PinUebertragenDummy WRITE PinUebertragen)
 
@@ -53,19 +56,26 @@ class QFrankGSMKarte: public QFrankSmartCard
 			const QString				Seriennummer() const;
 			const QString				Anbieter();
 			const QString				Kurzwahlnummern();
+			const QString				Festwahlnummern();
+			const QString				MeineNummern();
+			const QString				ZuletztGewaehlteNummern();
 			const QByteArray			PinUebertragenDummy()const {return QByteArray();}
 
 	private:
 			enum						ArtDerAntwort{MF_DF=0x00,EF=0x01};
 			enum						ArtDesDatensatzLesemodus{Naechter=0x02,Voriger=0x03,Absolut=0x04};
+			enum						ArtDesTelefonbuches{Kurzwahl=0x00,Festwahl=0x01,MeineNumern=0x02,ZuletztGewaehlte=0x03};
 			Q_DECLARE_FLAGS(Antwort,ArtDerAntwort)
 			Q_DECLARE_FLAGS(DatensatzLesemodus,ArtDesDatensatzLesemodus)
+			Q_DECLARE_FLAGS(WelchesTelefonbuch,ArtDesTelefonbuches)
 			QFrankLesegeraet*			K_Leser;
 			QFrankGSMKarteMF_DFAntwort*	K_MF_DFAntwort;
 			QFrankGSMKarteEFAntwort*	K_EFAntwort;
 			QString						K_Fehlertext;
 			QString						K_Seriennummer;
-			QString	const				K_TelefonbucheintragNummer(const uchar &position,const uchar &laenge) const;
+			QString const				K_TelefonbuchAuslesen(const QFrankGSMKarte::WelchesTelefonbuch &telefonbuch);
+			QString const				K_TelefonnummerDecodieren(const QByteArray &nummernfeld) const;
+			QChar const					K_TelefonnummerZeichenDecodieren(const uchar &nummer)const;
 			QByteArray					K_Kartenbefehl;
 			QByteArray					K_Kartenantwort;
 			QByteArray					K_Pinspeicher;
