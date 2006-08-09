@@ -1,5 +1,5 @@
 0.2.0
-- Leser API auf Version 0.3.0 erhöht, damit können Leser Module jetzte eine Universal Methode zur
+- Leser API auf Version 0.3.0 erhöht, damit können Leser Module jetzt eine Universal Methode zur
   sicheren Pin Eingabe nutzen.
 - CT-API Leser: Rechtschreibfehler in der Debugausgabe behoben.
 - Neues Kartenmodul für GSM Karten eingefügt.
