@@ -23,5 +23,5 @@ Karten		+= GSM
 
 Lesegeraete	+= Dummyleser
 Lesegeraete	+= CT-API
-#Lesegeraete	+= PCSC
+Lesegeraete	+= PCSC
  

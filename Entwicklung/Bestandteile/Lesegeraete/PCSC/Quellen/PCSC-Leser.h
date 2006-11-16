@@ -26,6 +26,10 @@
 
 //XXYYZZ XX=Major YY=Minor ZZ=Patch
 #define PCSC_Version 0x000100
+//Zum übersetzten wird min. Version 0.3.0 des Lesermodells benötigt.
+#if LesegeraetAPI_Version < 0x000300
+	#error Es wird min. Version 0.3.0 des Lesermodells benötigt.
+#endif
 
 class QFrankPCSC_Leser: public QFrankLesegeraet
 {
@@ -41,18 +45,20 @@ class QFrankPCSC_Leser: public QFrankLesegeraet
 			QFrankLesegeraet::Rueckgabecodes	ISO_ChangeReferenceData(QByteArray datenfeld);
 			QFrankLesegeraet::Rueckgabecodes	ISO_VerifySecure(QByteArray datenfeld);
 			QFrankLesegeraet::Rueckgabecodes	ISO_ChangeReferenceDataSecure(QByteArray datenfeld);
+			QFrankLesegeraet::Rueckgabecodes	UniversalIO(const QByteArray &daten, QByteArray &antwort);
 			QFrankLesegeraet::Rueckgabecodes	KarteAnfordern(QByteArray &ATR);
 			QFrankLesegeraet::Rueckgabecodes	KarteEntfernen();
 			QFrankLesegeraet::Leserklasse		Sicherheitsklasse();
 			QFrankLesegeraet::Rueckgabecodes	LeserInitialisieren();
+			QFrankLesegeraet::Rueckgabecodes	SicherePineingabe(const QByteArray &kartenbefehl);
 			ulong								Version();	
 	private:
-			QFrankLesegeraet::Leserklasse		Lesersicherheit;
-			SCARDCONTEXT						PCSC_Kontext;
-			long								PCSC_System;
-			bool								ConnectToReader;
+			QFrankLesegeraet::Leserklasse		K_Lesersicherheit;
+			SCARDCONTEXT						K_PCSC_Kontext;
+			long								K_PCSC_System;
+			bool								K_VerbindungZumLeser;
 #ifndef QT_NO_DEBUG
-			QString								FeldNachHex(QByteArray feld);
+			QString								K_FeldNachHex(QByteArray feld);
 #endif			
 };
 #endif

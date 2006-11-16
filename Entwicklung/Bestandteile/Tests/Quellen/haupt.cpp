@@ -248,9 +248,10 @@ int main(int argc, char *argv[])
 
 
 	//test PC/SC
-	//Terminal->LeserHohlen("PCSC-Leser")->LeserInitialisieren();
+	Terminal->LeserHohlen("PCSC-Leser")->LeserInitialisieren();
 	
 	//test für GSM Karten
+	/*
 #ifndef Q_WS_WIN
 	Terminal->LeserHohlen("CT-API-Leser")->setProperty("QFrankCT_API_LeserTreiberdatei","/usr/lib/ctapi/libctapi-cyberjack.so");
 #endif
@@ -288,7 +289,7 @@ int main(int argc, char *argv[])
 			qDebug()<<"Eigene Rufnummern:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteMeineNummern").toString();
 			qDebug()<<"Zuletzt gewählte Rufnummern:"<<((QObject*)Terminal->KarteHohlen("GSM Karte"))->property("QFrankGSMKarteZuletztGewaehlteNummern").toString();
 		}
-	}
+	}*/
 	delete Terminal;
 	return 0;
 }

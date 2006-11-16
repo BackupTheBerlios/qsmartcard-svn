@@ -23,8 +23,13 @@ TARGET	      = PCSC-Leser
 QMAKE_TARGET_DESCRIPTION = Zugriff auf Lesegeräte per PC/SC
 DEFINES	     += DLL_BAUEN
 INCLUDEPATH	 += ../Lesegeraet
-!win32:INCLUDEPATH += /usr/include/PCSC
-!win32:LIBS  +="-lpcsclite"
+unix{
+	INCLUDEPATH += /usr/include/PCSC
+	LIBS  +="-lpcsclite"
+}else{
+	LIBS +="-lWinscard"
+}
+
 HEADERS	      = Quellen/PCSC-Leser.h\
 				../Lesegeraet/Lesegeraet.h\
 				../Lesegeraet/LesegeraetPlugin.h

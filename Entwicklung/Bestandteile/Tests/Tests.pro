@@ -21,6 +21,7 @@ TARGET	      = tests
 win32{
 	contains(TEMPLATE, app) {
 		CONFIG += console
+#		CONFIG += embed_manifest_exe
 }
 }
 INCLUDEPATH  += ../Terminal/Quellen\

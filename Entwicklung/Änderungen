@@ -1,3 +1,7 @@
+0.2.1
+- Versionsnummer des CT-API/Dummy Leser Moduls korrekt gesetzt.
+- PC/SC Modul eingefügt
+
 0.2.0
 - Leser API auf Version 0.3.0 erhöht, damit können Leser Module jetzt eine Universal Methode zur
   sicheren Pin Eingabe nutzen.
