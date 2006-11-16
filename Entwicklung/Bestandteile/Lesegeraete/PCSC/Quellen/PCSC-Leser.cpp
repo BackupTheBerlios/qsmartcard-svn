@@ -75,24 +75,45 @@ QFrankLesegeraet::Rueckgabecodes QFrankPCSC_Leser::LeserInitialisieren()
 #ifndef QT_NO_DEBUG
 	qDebug("QFrankPCSC_Leser LeserInitialisieren: Verbinde mit PC/SC Leser");
 #endif
-	LPWSTR Geraeteliste=NULL;
-	DWORD  Parameter= SCARD_AUTOALLOCATE;
-	//Liste abhohlen
 
-	if(SCardListReaders(K_PCSC_Kontext,NULL,(LPWSTR)&Geraeteliste,&Parameter)!=SCARD_S_SUCCESS)
+//Liste abhohlen
+#ifdef Q_WS_WIN
+	//Windows
+	DWORD  Parameter= SCARD_AUTOALLOCATE;
+	LPWSTR Geraeteliste=NULL;
+		if(SCardListReaders(K_PCSC_Kontext,NULL,(LPWSTR)&Geraeteliste,&Parameter)!=SCARD_S_SUCCESS)
+#else
+	//Unix
+	LPSTR Geraeteliste;
+	//Länge der Liste Ermitteln
+	DWORD LaengeDerListe;
+	SCardListReaders( K_PCSC_Kontext, NULL, NULL, &LaengeDerListe);
+	Geraeteliste=(char*)malloc(sizeof(char)*LaengeDerListe);
+		if(SCardListReaders(K_PCSC_Kontext,NULL,Geraeteliste,&LaengeDerListe)!=SCARD_S_SUCCESS)
+#endif
 	{
 #ifndef QT_NO_DEBUG
 		qCritical("QFrankPCSC_Leser LeserInitialisieren: Kein PC/SC Leser gefunden");
 #endif	
 		K_VerbindungZumLeser=false;
+//Unter Unix müssen wir aufräumen
+#ifndef Q_WS_WIN
+		free(Geraeteliste);
+#endif
 		return QFrankLesegeraet::ParameterFalsch;
 	}
-
-
-
+#ifdef Q_WS_WIN
 	QString Geraete=QString::fromStdWString(Geraeteliste);
+#else
+	QString Geraete=QString(Geraeteliste);
+#endif
+//Unter Unix müssen wir aufräumen
+#ifndef Q_WS_WIN
+	free(Geraeteliste);
+#else
 	if(SCardFreeMemory(K_PCSC_Kontext,Geraeteliste)!=SCARD_S_SUCCESS)
-		qFatal("QFrankPCSC_Leser LeserInitialisieren: konnte den Speicher für die Geräteliste nicht freigeben.");
+		qFatal("QFrankPCSC_Leser LeserInitialisieren: konnte den Speicher für die Geräteliste nicht freigeben.");		
+#endif	
 #ifndef QT_NO_DEBUG
 	qDebug()<<QString("QFrankPCSC_Leser LeserInitialisieren: gefundene Leser: %1").arg(Geraete);
 #endif	
