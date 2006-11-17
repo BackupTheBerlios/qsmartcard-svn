@@ -55,7 +55,8 @@ class QFrankPCSC_Leser: public QFrankLesegeraet
 	private:
 			QFrankLesegeraet::Leserklasse		K_Lesersicherheit;
 			SCARDCONTEXT						K_PCSC_Kontext;
-			long								K_PCSC_System;
+			SCARDHANDLE							K_Kartenverbindung; 
+			LONG								K_RueckegabePCSC;
 			bool								K_VerbindungZumLeser;
 #ifndef QT_NO_DEBUG
 			QString								K_FeldNachHex(QByteArray feld);

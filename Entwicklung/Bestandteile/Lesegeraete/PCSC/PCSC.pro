@@ -21,13 +21,14 @@ include (../../../Vorgaben.pri)
 VERSION       = 0.1.0.0
 TARGET	      = PCSC-Leser
 QMAKE_TARGET_DESCRIPTION = Zugriff auf Lesegeräte per PC/SC
-DEFINES	     += DLL_BAUEN
 INCLUDEPATH	 += ../Lesegeraet
 unix{
 	INCLUDEPATH += /usr/include/PCSC
-	LIBS  +="-lpcsclite"
+	LIBS	 +="-lpcsclite"
 }else{
-	LIBS +="-lWinscard"
+	LIBS	 +="-lWinscard"
+	DEFINES	 -= "UNICODE"
+	DEFINES	 += DLL_BAUEN
 }
 
 HEADERS	      = Quellen/PCSC-Leser.h\

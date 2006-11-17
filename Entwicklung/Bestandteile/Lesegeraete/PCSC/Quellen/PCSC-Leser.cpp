@@ -33,15 +33,17 @@ QFrankPCSC_Leser::QFrankPCSC_Leser(QObject* eltern):QFrankLesegeraet(eltern)
 	K_VerbindungZumLeser=false;
 //Warnung bei DEBUG
 #ifndef QT_NO_DEBUG
-	qWarning("WARNUNG Debugversion wird benutzt.\r\nEs könnten sicherheitsrelevante Daten ausgegeben werden!!!!!");
+	qWarning(qPrintable(trUtf8("WARNUNG Debugversion wird benutzt.\r\nEs könnten sicherheitsrelevante Daten ausgegeben werden!!!!!","debug")));
 #endif
 	//Initialisiere Kontext
-	K_PCSC_Kontext=0;
-	K_PCSC_System=SCardEstablishContext(SCARD_SCOPE_SYSTEM,NULL,NULL,&K_PCSC_Kontext);
-	if (K_PCSC_System!=SCARD_S_SUCCESS)
+	K_PCSC_Kontext=NULL;
+	K_Kartenverbindung=NULL;
+	K_RueckegabePCSC=SCardEstablishContext(SCARD_SCOPE_SYSTEM,NULL,NULL,&K_PCSC_Kontext);
+	if (K_RueckegabePCSC!=SCARD_S_SUCCESS)
 #ifndef QT_NO_DEBUG
 	{
-		qWarning()<<QString("QFrankPCSC_Leser Konstruktor: Konnt keine Verbindung zum PC/SC System erstellen.\r\nRückgabekode: %1").arg(K_PCSC_System);
+		qWarning(qPrintable(trUtf8("QFrankPCSC_Leser Konstruktor: Konnt keine Verbindung zum PC/SC System erstellen.\r\nRückgabekode: %1","debug")
+								  .arg(K_RueckegabePCSC)));
 	}
 	else
 		qDebug("QFrankPCSC_Leser Konstruktor: Verbindung zum PC/SC System hergestellt.");
@@ -58,73 +60,102 @@ ulong QFrankPCSC_Leser::Version()
 QFrankPCSC_Leser::~QFrankPCSC_Leser()
 {
 	//Vom PC/SC System trennen
-	K_PCSC_System=SCardReleaseContext(K_PCSC_Kontext);
+	if(K_PCSC_Kontext!=NULL)
+	{
+		K_RueckegabePCSC=SCardReleaseContext(K_PCSC_Kontext);
 #ifndef QT_NO_DEBUG
-	if(K_PCSC_System!=SCARD_S_SUCCESS)
-		qWarning()<<QString("QFrankPCSC_Leser Destruktor: Fehler beim Trennen vom PC/SC System. Rückgabekode: %1").arg(K_PCSC_System);
+		if(K_RueckegabePCSC!=SCARD_S_SUCCESS)
+			qWarning(qPrintable(trUtf8("QFrankPCSC_Leser Destruktor: Fehler beim Trennen vom PC/SC System. Rückgabekode: %1","debug").arg(K_RueckegabePCSC)));
 	else
-		qDebug("QFrankPCSC_Leser Destruktor: Verbindung zum PC/SC System getrennt");
+			qDebug("QFrankPCSC_Leser Destruktor: Verbindung zum PC/SC System getrennt");
 #endif
+	}
 }
 
 QFrankLesegeraet::Rueckgabecodes QFrankPCSC_Leser::LeserInitialisieren()
 {
 	//Haben wir eine Verbindung zum PC/SC System??
-	if (K_PCSC_Kontext==0)
+	if (K_PCSC_Kontext==NULL)
 		return QFrankLesegeraet::LeserNichtInitialisiert;
 #ifndef QT_NO_DEBUG
 	qDebug("QFrankPCSC_Leser LeserInitialisieren: Verbinde mit PC/SC Leser");
 #endif
 
-//Liste abhohlen
-#ifdef Q_WS_WIN
-	//Windows
-	DWORD  Parameter= SCARD_AUTOALLOCATE;
-	LPWSTR Geraeteliste=NULL;
-		if(SCardListReaders(K_PCSC_Kontext,NULL,(LPWSTR)&Geraeteliste,&Parameter)!=SCARD_S_SUCCESS)
-#else
-	//Unix
-	LPSTR Geraeteliste;
+	//Liste abhohlen
+	//Unix+Windows Unter Windows würder es zwar kürzer gehen aber so ist es einheitlich
+	LPSTR Geraeteliste,EinGeraet;          
 	//Länge der Liste Ermitteln
 	DWORD LaengeDerListe;
 	SCardListReaders( K_PCSC_Kontext, NULL, NULL, &LaengeDerListe);
-	Geraeteliste=(char*)malloc(sizeof(char)*LaengeDerListe);
-		if(SCardListReaders(K_PCSC_Kontext,NULL,Geraeteliste,&LaengeDerListe)!=SCARD_S_SUCCESS)
-#endif
+	Geraeteliste=(LPSTR)malloc(sizeof(char) * LaengeDerListe);
+	if(SCardListReaders(K_PCSC_Kontext,NULL,Geraeteliste,&LaengeDerListe)!=SCARD_S_SUCCESS)
 	{
 #ifndef QT_NO_DEBUG
 		qCritical("QFrankPCSC_Leser LeserInitialisieren: Kein PC/SC Leser gefunden");
 #endif	
 		K_VerbindungZumLeser=false;
-//Unter Unix müssen wir aufräumen
-#ifndef Q_WS_WIN
 		free(Geraeteliste);
-#endif
-		return QFrankLesegeraet::ParameterFalsch;
+		return QFrankLesegeraet::LeserNichtInitialisiert;
 	}
-#ifdef Q_WS_WIN
-	QString Geraete=QString::fromStdWString(Geraeteliste);
-#else
-	QString Geraete=QString(Geraeteliste);
-#endif
-//Unter Unix müssen wir aufräumen
-#ifndef Q_WS_WIN
+	QStringList Geraete;
+	//Die Liste bestet aus /0 terminierten Strings und ended mit einer doppelten /0
+	EinGeraet = Geraeteliste;
+    while (strlen(EinGeraet))
+    {
+		Geraete<<QString(EinGeraet);
+        //auf zum Nächsten:)
+        EinGeraet += strlen(EinGeraet);
+    }	
 	free(Geraeteliste);
-#else
-	if(SCardFreeMemory(K_PCSC_Kontext,Geraeteliste)!=SCARD_S_SUCCESS)
-		qFatal("QFrankPCSC_Leser LeserInitialisieren: konnte den Speicher für die Geräteliste nicht freigeben.");		
-#endif	
+	if(Geraete.isEmpty())
 #ifndef QT_NO_DEBUG
-	qDebug()<<QString("QFrankPCSC_Leser LeserInitialisieren: gefundene Leser: %1").arg(Geraete);
+	{
+		qCritical("QFrankPCSC_Leser LeserInitialisieren: Die Liste der Leser ist leer");
+		return QFrankLesegeraet::LeserNichtInitialisiert;
+	}
+#else
+		return QFrankLesegeraet::LeserNichtInitialisiert;
+#endif
+#ifndef QT_NO_DEBUG
+	qDebug(qPrintable(QString("QFrankPCSC_Leser LeserInitialisieren: gefundene Leser: %1").arg(Geraete.join(";"))));
 #endif	
 	//Mit dem 1. Leser verbinden
+	SCARD_READERSTATE Leserstatus;
+	Leserstatus.szReader=strdup(Geraete.at(0).toLocal8Bit());
+	Leserstatus.dwCurrentState = SCARD_STATE_UNAWARE;
+	K_RueckegabePCSC=SCardGetStatusChange(K_PCSC_Kontext,1,&Leserstatus,1);
+	if(K_RueckegabePCSC!=SCARD_S_SUCCESS)
+#ifndef QT_NO_DEBUG
+	{
+		qCritical(qPrintable(trUtf8("QFrankPCSC_Leser LeserInitialisieren: konnte den Leser nicht ansprechen. Rückgabekode: 0x%1","debug")
+									.arg(K_RueckegabePCSC,0,16)));
+		return QFrankLesegeraet::LeserNichtInitialisiert;
+	}
+#else
+		return QFrankLesegeraet::LeserNichtInitialisiert;
+#endif
+	//schauen wir mal ob der Leser bereit ist. Entweder ist eine Karte drin oder nicht:)
+	if( !(((Leserstatus.dwEventState&SCARD_STATE_CHANGED) && (Leserstatus.dwEventState&SCARD_STATE_EMPTY)) ||
+		((Leserstatus.dwEventState&SCARD_STATE_CHANGED) && (Leserstatus.dwEventState&SCARD_STATE_PRESENT))))
+#ifndef QT_NO_DEBUG
+	{
+		qCritical(qPrintable(trUtf8("QFrankPCSC_Leser LeserInitialisieren: Der Leser ist nicht bereit. Status: 0x%1","debug").arg(Leserstatus.dwEventState,0,16)));
+		return QFrankLesegeraet::LeserNichtInitialisiert;
+	}
+#else
+		return QFrankLesegeraet::LeserNichtInitialisiert;
+#endif
+#ifndef QT_NO_DEBUG
+	qDebug("QFrankPCSC_Leser LeserInitialisieren: Leser bereit");
+#endif
+	Versuchen die Sicherheitsklasse zu ermitteln
 	return QFrankLesegeraet::ParameterFalsch;
 }
 
 QFrankLesegeraet::Rueckgabecodes QFrankPCSC_Leser::ISO_SelectFile(QByteArray datenfeld)
 {	
 #ifndef QT_NO_DEBUG
-	qDebug()<<"Select File Datenfeld:"<<K_FeldNachHex(datenfeld);
+	qDebug(qPrintable(QString("Select File Datenfeld:").arg(K_FeldNachHex(datenfeld))));
 #endif	
 #ifndef QT_NO_DEBUG
 	//qDebug("Select File ergab: %X",Ergebnis);
