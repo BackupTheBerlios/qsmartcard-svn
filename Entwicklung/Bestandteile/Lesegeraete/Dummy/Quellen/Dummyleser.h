@@ -24,7 +24,7 @@
 #include <Lesegeraet.h>
 
 //XXYYZZ XX=Major YY=Minor ZZ=Patch
-#define DummyleserVersion 0x000200
+#define DummyleserVersion 0x000201
 //Zum übersetzten wird min. Version 0.2.0 des Lesermodells benötigt.
 #if LesegeraetAPI_Version < 0x000200
 #error Es wird min. Version 0.2.0 des Lesermodells benötigt.

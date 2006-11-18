@@ -26,8 +26,8 @@
 
 //XXYYZZ XX=Major YY=Minor ZZ=Patch
 #define PCSC_Version 0x000100
-//Zum übersetzten wird min. Version 0.3.0 des Lesermodells benötigt.
-#if LesegeraetAPI_Version < 0x000300
+//Zum übersetzten wird min. Version 0.3.1 des Lesermodells benötigt.
+#if LesegeraetAPI_Version < 0x000301
 	#error Es wird min. Version 0.3.0 des Lesermodells benötigt.
 #endif
 
@@ -43,14 +43,14 @@ class QFrankPCSC_Leser: public QFrankLesegeraet
 			QFrankLesegeraet::Rueckgabecodes	ISO_UpdateBinary(QByteArray datenfeld);
 			QFrankLesegeraet::Rueckgabecodes	ISO_Verify(QByteArray datenfeld);
 			QFrankLesegeraet::Rueckgabecodes	ISO_ChangeReferenceData(QByteArray datenfeld);
-			QFrankLesegeraet::Rueckgabecodes	ISO_VerifySecure(QByteArray datenfeld);
-			QFrankLesegeraet::Rueckgabecodes	ISO_ChangeReferenceDataSecure(QByteArray datenfeld);
+			QFrankLesegeraet::Rueckgabecodes	ISO_VerifySecure(QByteArray datenfeld){return QFrankLesegeraet::NichtImplementiert;}
+			QFrankLesegeraet::Rueckgabecodes	ISO_ChangeReferenceDataSecure(QByteArray datenfeld){return QFrankLesegeraet::NichtImplementiert;}
 			QFrankLesegeraet::Rueckgabecodes	UniversalIO(const QByteArray &daten, QByteArray &antwort);
 			QFrankLesegeraet::Rueckgabecodes	KarteAnfordern(QByteArray &ATR);
 			QFrankLesegeraet::Rueckgabecodes	KarteEntfernen();
 			QFrankLesegeraet::Leserklasse		Sicherheitsklasse();
 			QFrankLesegeraet::Rueckgabecodes	LeserInitialisieren();
-			QFrankLesegeraet::Rueckgabecodes	SicherePineingabe(const QByteArray &kartenbefehl);
+			QFrankLesegeraet::Rueckgabecodes	SicherePineingabe(const QByteArray &kartenbefehl){return QFrankLesegeraet::NichtImplementiert;}
 			ulong								Version();	
 	private:
 			QFrankLesegeraet::Leserklasse		K_Lesersicherheit;

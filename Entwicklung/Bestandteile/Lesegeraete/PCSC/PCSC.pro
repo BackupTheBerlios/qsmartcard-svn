@@ -18,7 +18,7 @@ PROJEKTTEIL   = PC/SC Leseregät
 TEMPLATE      = lib
 CONFIG		 += plugin
 include (../../../Vorgaben.pri)
-VERSION       = 0.1.0.0
+VERSION       = 0.1.0
 TARGET	      = PCSC-Leser
 QMAKE_TARGET_DESCRIPTION = Zugriff auf Lesegeräte per PC/SC
 INCLUDEPATH	 += ../Lesegeraet

@@ -61,36 +61,36 @@ class QFrankCT_API_Leser: public QFrankLesegeraet
 			void								TreiberdateiSetzen(QString treiber);
 
 	private:
-			typedef char(*pCT_init)(unsigned short terminal,unsigned short port);
-			typedef	char(*pCT_data)(unsigned short terminal, unsigned char *zieladresse,
+			typedef char(*K_pCT_init)(unsigned short terminal,unsigned short port);
+			typedef	char(*K_pCT_data)(unsigned short terminal, unsigned char *zieladresse,
 									unsigned char *quelladresse,unsigned short befehlslaenge,
 									unsigned char *befehle,unsigned short *antwortlaenge,
  									unsigned char *antworten);
-			typedef	char(*pCT_close)(unsigned short terminal);		
-			void								CT_API_schliessen();
-			bool								VerbindungTesten(QString programmteil);
-			bool								DatenSenden(uint terminalnummer, uchar *ziel,uchar *quelle,\
-															ushort befehlslaenge,uchar *befehle,ushort *antwortlaenge,\
-															uchar *antworten);
-			bool								DatenfeldZuKlein(int groesse,QByteArray &Feld,QString programmteil);
-			uint								Portnummer;
-			QString								Treiberdatei;
-			uint								Terminalnummer;
-			bool								VerbindungZumKartenleser;
-			bool								ISO_VerifySecureOderISO_ChangeReferenceDataSecure;
-			bool								ISO_VerifyOderISO_ChangeReferenceData;
-			pCT_init							MeinCT_init;
-			unsigned char						Befehl[300];
-			unsigned short						LaengeDesBefehl;
-			unsigned char						Antwort[65500];
-			unsigned short						LaengeDerAntwort;
-			unsigned char						Zieladresse;
-			unsigned char						Quelladresse;
-			pCT_data							MeinCT_data;
-			pCT_close							MeinCT_close;
-			QFrankLesegeraet::Leserklasse		Lesersicherheit;
+			typedef	char(*K_pCT_close)(unsigned short terminal);		
+			void								K_CT_API_schliessen();
+			bool								K_VerbindungTesten(QString programmteil);
+			bool								K_DatenSenden(uint terminalnummer, uchar *ziel,uchar *quelle,\
+																ushort befehlslaenge,uchar *befehle,ushort *antwortlaenge,\
+																uchar *antworten);
+			bool								K_DatenfeldZuKlein(int groesse,QByteArray &Feld,QString programmteil);
+			uint								K_Portnummer;
+			QString								K_Treiberdatei;
+			uint								K_Terminalnummer;
+			bool								K_VerbindungZumKartenleser;
+			bool								K_ISO_VerifySecureOderISO_ChangeReferenceDataSecure;
+			bool								K_ISO_VerifyOderISO_ChangeReferenceData;
+			unsigned char						K_Befehl[300];
+			unsigned short						K_LaengeDesBefehl;
+			unsigned char						K_Antwort[65500];
+			unsigned short						K_LaengeDerAntwort;
+			unsigned char						K_Zieladresse;
+			unsigned char						K_Quelladresse;
+			K_pCT_init							K_MeinCT_init;
+			K_pCT_data							K_MeinCT_data;
+			K_pCT_close							K_MeinCT_close;
+			QFrankLesegeraet::Leserklasse		K_Lesersicherheit;
 #ifndef QT_NO_DEBUG
-			QString								FeldNachHex(QByteArray feld);
+			QString								K_FeldNachHex(QByteArray feld);
 #endif
 };
 #endif

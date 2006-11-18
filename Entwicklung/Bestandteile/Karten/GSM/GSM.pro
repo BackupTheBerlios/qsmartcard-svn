@@ -19,7 +19,7 @@ TEMPLATE	 = lib
 QT			+= xml
 CONFIG		+= plugin
 include (../../../Vorgaben.pri)
-VERSION		 = 0.1.0.0
+VERSION		 = 0.1.0
 TARGET		 = GSMKarte
 QMAKE_TARGET_DESCRIPTION = Modul für die GSM Karten
 DEFINES	   	+=	DLL_BAUEN

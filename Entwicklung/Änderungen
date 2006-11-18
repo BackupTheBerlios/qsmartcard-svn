@@ -1,6 +1,9 @@
 0.2.1
-- Versionsnummer des CT-API/Dummy Leser Moduls korrekt gesetzt.
+- Versionsnummer der Moduls korrekt gesetzt.
 - PC/SC Modul eingefügt
+- Private Variablen/Funktionen im CT-API Modul besser gekennzeichnet
+- Version des Gerätemodells auf 0.3.1 erhöht.(neuer Rückgabekode NichtImplementiert)
+- Debugausgabe im Terminal/CT-API Modul verschönert.
 
 0.2.0
 - Leser API auf Version 0.3.0 erhöht, damit können Leser Module jetzt eine Universal Methode zur

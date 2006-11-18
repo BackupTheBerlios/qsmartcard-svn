@@ -83,19 +83,19 @@ void QFrankTerminal::PlugInsLaden(QDir pfad)
 {
 	
 #ifndef QT_NO_DEBUG
-	qDebug()<<"Lade Plugins aus:"<<pfad.absolutePath();
+	qDebug(qPrintable(QString("QFrankTerminal PlugInsLaden: Lade Plugins aus: %1").arg(pfad.absolutePath())));
 #endif
-	foreach (QString Datei, pfad.entryList(QDir::Files))
+	Q_FOREACH(QString Datei, pfad.entryList(QDir::Files))
 	{
 #ifndef QT_NO_DEBUG
-		qDebug()<<"prüfe Datei:"<<Datei;
+		qDebug(qPrintable(trUtf8("QFrankTerminal PlugInsLaden: prüfe Datei %1","debug").arg(Datei)));
 #endif
 		QPluginLoader PlugInLader(pfad.absoluteFilePath(Datei));
 		QObject *PlugIn = PlugInLader.instance();
 		if (PlugIn)
 		{
 #ifndef QT_NO_DEBUG
-			qDebug()<<Datei<<"geladen";
+			qDebug(qPrintable(QString("QFrankTerminal PlugInsLaden: %1 geladen").arg(Datei)));
 #endif
 			/*
 				Datei konnte geladen werden.
@@ -105,10 +105,10 @@ void QFrankTerminal::PlugInsLaden(QDir pfad)
 			if(Karte)
 			{
 #ifndef QT_NO_DEBUG
-				qDebug()<<Datei<<"ist ein Kartenplugin";
+				qDebug(qPrintable(QString("QFrankTerminal PlugInsLaden: %1 ist ein Kartenplugin").arg(Datei)));
 #endif
 				//Jedes Bibliothek könnte mehrere Plug-Ins bereitstellen
-			    foreach (QString Pluginname,Karte->Karten())
+			    Q_FOREACH(QString Pluginname,Karte->Karten())
 				{
 					//Neues Objekt anlegen und den Zeiger in die Liste:)
 					TabelleKarten.insert(Pluginname,Karte->erstellen(Pluginname));
@@ -118,9 +118,9 @@ void QFrankTerminal::PlugInsLaden(QDir pfad)
 			if(Leser)
 			{
 #ifndef QT_NO_DEBUG
-				qDebug()<<Datei<<"ist ein Lesegerätplugin";
+				qDebug(qPrintable(trUtf8("QFrankTerminal PlugInsLaden: %1 ist ein Lesegerätplugin","debug").arg(Datei)));
 #endif
-				foreach (QString Pluginname,Leser->Geraete())
+				Q_FOREACH(QString Pluginname,Leser->Geraete())
 				{
 					TabelleLeser.insert(Pluginname,Leser->erstellen(Pluginname));
 				}

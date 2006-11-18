@@ -33,7 +33,8 @@ QFrankPCSC_Leser::QFrankPCSC_Leser(QObject* eltern):QFrankLesegeraet(eltern)
 	K_VerbindungZumLeser=false;
 //Warnung bei DEBUG
 #ifndef QT_NO_DEBUG
-	qWarning(qPrintable(trUtf8("WARNUNG Debugversion wird benutzt.\r\nEs könnten sicherheitsrelevante Daten ausgegeben werden!!!!!","debug")));
+	qWarning(qPrintable(trUtf8("QFrankPCSC_Leser Konstruktor: WARNUNG Debugversion wird benutzt.\r\nEs könnten sicherheitsrelevante Daten ausgegeben werden!!!!!"
+								,"debug")));
 #endif
 	//Initialisiere Kontext
 	K_PCSC_Kontext=NULL;
@@ -62,11 +63,22 @@ QFrankPCSC_Leser::~QFrankPCSC_Leser()
 	//Vom PC/SC System trennen
 	if(K_PCSC_Kontext!=NULL)
 	{
+		//Karte auswerfen(falls in Benutzung)
+		if(K_Kartenverbindung!=NULL)
+		{
+			K_RueckegabePCSC=SCardDisconnect(K_Kartenverbindung,SCARD_EJECT_CARD);
+#ifndef QT_NO_DEBUG
+			if(K_RueckegabePCSC!=SCARD_S_SUCCESS)
+				qWarning(qPrintable(trUtf8("QFrankPCSC_Leser Destruktor: Fehler beim Auswerfen der Karte. Rückgabekode: %1","debug").arg(K_RueckegabePCSC)));
+			else
+				qDebug("QFrankPCSC_Leser Destruktor: Karte ausgeworfen");
+#endif
+		}
 		K_RueckegabePCSC=SCardReleaseContext(K_PCSC_Kontext);
 #ifndef QT_NO_DEBUG
 		if(K_RueckegabePCSC!=SCARD_S_SUCCESS)
 			qWarning(qPrintable(trUtf8("QFrankPCSC_Leser Destruktor: Fehler beim Trennen vom PC/SC System. Rückgabekode: %1","debug").arg(K_RueckegabePCSC)));
-	else
+		else
 			qDebug("QFrankPCSC_Leser Destruktor: Verbindung zum PC/SC System getrennt");
 #endif
 	}
@@ -148,8 +160,14 @@ QFrankLesegeraet::Rueckgabecodes QFrankPCSC_Leser::LeserInitialisieren()
 #ifndef QT_NO_DEBUG
 	qDebug("QFrankPCSC_Leser LeserInitialisieren: Leser bereit");
 #endif
-	Versuchen die Sicherheitsklasse zu ermitteln
-	return QFrankLesegeraet::ParameterFalsch;
+	/*
+		Ermitteln der Sicherheitsklasse nicht möglich, da weder Windows noch Linux den benötigten Teil
+		der PC/SC Norm enthalten. Versuche dies Nachzubilden, führen unter Windows teilweise zum einfrieren
+		des kompletten PC/SC Systems(SmartCard Dienst reagiert nicht mehr). Unter Linux führen die Befehel zu
+		Fehlermeldungen.
+	*/
+	K_VerbindungZumLeser=true;
+	return QFrankLesegeraet::CommandSuccessful;
 }
 
 QFrankLesegeraet::Rueckgabecodes QFrankPCSC_Leser::ISO_SelectFile(QByteArray datenfeld)
@@ -207,6 +225,7 @@ QFrankLesegeraet::Rueckgabecodes QFrankPCSC_Leser::ISO_ChangeReferenceData(QByte
 	return QFrankLesegeraet::ParameterFalsch;		
 }
 
+/*
 QFrankLesegeraet::Rueckgabecodes QFrankPCSC_Leser::ISO_VerifySecure(QByteArray datenfeld)
 {
 	//mindestes ein Klasse 2 Leser(VerifySecure)
@@ -235,7 +254,7 @@ QFrankLesegeraet::Rueckgabecodes QFrankPCSC_Leser::ISO_VerifySecure(QByteArray d
 QFrankLesegeraet::Rueckgabecodes QFrankPCSC_Leser::ISO_ChangeReferenceDataSecure(QByteArray datenfeld)
 {
 	return QFrankLesegeraet::ParameterFalsch;
-}
+}*/
 
 QFrankLesegeraet::Rueckgabecodes QFrankPCSC_Leser::KarteEntfernen()
 {	
@@ -255,6 +274,7 @@ QFrankLesegeraet::Rueckgabecodes QFrankPCSC_Leser::KarteAnfordern(QByteArray &AT
 	return QFrankLesegeraet::ParameterFalsch;
 }
 
+/*
 QFrankLesegeraet::Rueckgabecodes QFrankPCSC_Leser::SicherePineingabe(const QByteArray &kartenbefehl)
 {
 	if(!(K_Lesersicherheit>QFrankLesegeraet::Klasse1 && K_Lesersicherheit<=QFrankLesegeraet::Klasse4))
@@ -272,7 +292,8 @@ QFrankLesegeraet::Rueckgabecodes QFrankPCSC_Leser::SicherePineingabe(const QByte
 #endif
 		return QFrankLesegeraet::ParameterFalsch;
 	}
-}
+	return QFrankLesegeraet::NichtImplementiert;
+}*/
 
 QFrankLesegeraet::Leserklasse QFrankPCSC_Leser::Sicherheitsklasse()
 {
@@ -280,19 +301,19 @@ QFrankLesegeraet::Leserklasse QFrankPCSC_Leser::Sicherheitsklasse()
 	switch(K_Lesersicherheit)
 	{
 		case QFrankLesegeraet::Klasse1:
-										qDebug()<<"Lesser Klasse 1";
+										qDebug("Lesser Klasse 1");
 										break;
 		case QFrankLesegeraet::Klasse2:
-										qDebug()<<"Lesser Klasse 2";
+										qDebug("Lesser Klasse 2");
 										break;
 		case QFrankLesegeraet::Klasse3:
-										qDebug()<<"Lesser Klasse 3";
+										qDebug("Lesser Klasse 3");
 										break;
 		case QFrankLesegeraet::Klasse4:
-										qDebug()<<"Lesser Klasse 4";
+										qDebug("Lesser Klasse 4");
 										break;
 		case QFrankLesegeraet::KlasseUnbekannt:
-										qDebug()<<"Lesser Klasse unbekannt";
+										qDebug("Lesser Klasse unbekannt");
 										break;
 		default:
 										qFatal("Variable Lesersicherheit hat einen unbekanten Wert!!");
