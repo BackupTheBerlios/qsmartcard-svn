@@ -2,7 +2,7 @@
 - Versionsnummer der Module korrekt gesetzt.
 - PC/SC Modul eingefügt(1.Gehversuche)
 - Ausgabe der Debugmeldungen der einzelnen Module vereinheitlicht
-- Version des Gerätemodells auf 0.3.1 erhöht.(neuer Rückgabecodes NichtImplementiert,KarteBetreitsAktiv)
+- Version des Gerätemodells auf 0.3.1 erhöht.(neue Rückgabecodes NichtImplementiert,KarteBetreitsAktiv)
 - Unnötige defines entfernt
 - Terminal:
 			- Es werden nur noch DLL's/SO's auf Module getestet
