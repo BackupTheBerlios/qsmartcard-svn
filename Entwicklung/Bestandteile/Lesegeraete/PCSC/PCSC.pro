@@ -27,13 +27,13 @@ unix{
 	LIBS	 +="-lpcsclite"
 }else{
 	LIBS	 +="-lWinscard"
-	DEFINES	 -= "UNICODE"
-	DEFINES	 += DLL_BAUEN
+	DEFINES	 -= "UNICODE"	
 }
 
 HEADERS	      = Quellen/PCSC-Leser.h\
 				../Lesegeraet/Lesegeraet.h\
 				../Lesegeraet/LesegeraetPlugin.h
+win32:: HEADERS += Quellen/PCSC-Sicherheit.h
 SOURCES	      = Quellen/PCSC-Leser.cpp\
 				Quellen/PCSC-LeserPlugin.cpp\
 				../Lesegeraet/Lesegeraet.cpp\

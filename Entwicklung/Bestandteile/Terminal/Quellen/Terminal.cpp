@@ -26,7 +26,6 @@
 
 QFrankTerminal::QFrankTerminal(QObject *eltern,QString pluginVerzeichnis):QObject(eltern)
 {
-	setObjectName("QFrankTerminal");
 	PlugInsLaden(QDir(pluginVerzeichnis));
 }
 
@@ -83,19 +82,27 @@ void QFrankTerminal::PlugInsLaden(QDir pfad)
 {
 	
 #ifndef QT_NO_DEBUG
-	qDebug(qPrintable(QString("QFrankTerminal PlugInsLaden: Lade Plugins aus: %1").arg(pfad.absolutePath())));
+	qDebug("%s PlugInsLaden: Lade Plugins aus: %s",this->metaObject()->className(),qPrintable(pfad.absolutePath()));
 #endif
+	QStringList Dateitypen;
+//Unter Windows nur dll's sonst so's testen
+#ifdef Q_WS_WIN
+	Dateitypen<<"*.dll";
+#else
+	Dateitypen<<"*.so";
+#endif
+	pfad.setNameFilters(Dateitypen);
 	Q_FOREACH(QString Datei, pfad.entryList(QDir::Files))
 	{
 #ifndef QT_NO_DEBUG
-		qDebug(qPrintable(trUtf8("QFrankTerminal PlugInsLaden: prüfe Datei %1","debug").arg(Datei)));
+		qDebug(qPrintable(trUtf8("%1 PlugInsLaden: prüfe Datei %2","debug").arg(this->metaObject()->className()).arg(Datei)));
 #endif
 		QPluginLoader PlugInLader(pfad.absoluteFilePath(Datei));
 		QObject *PlugIn = PlugInLader.instance();
 		if (PlugIn)
 		{
 #ifndef QT_NO_DEBUG
-			qDebug(qPrintable(QString("QFrankTerminal PlugInsLaden: %1 geladen").arg(Datei)));
+			qDebug("%s PlugInsLaden: %s geladen",this->metaObject()->className(),qPrintable(Datei));
 #endif
 			/*
 				Datei konnte geladen werden.
@@ -105,7 +112,7 @@ void QFrankTerminal::PlugInsLaden(QDir pfad)
 			if(Karte)
 			{
 #ifndef QT_NO_DEBUG
-				qDebug(qPrintable(QString("QFrankTerminal PlugInsLaden: %1 ist ein Kartenplugin").arg(Datei)));
+				qDebug("%s PlugInsLaden: %s ist ein Kartenplugin",this->metaObject()->className(),qPrintable(Datei));
 #endif
 				//Jedes Bibliothek könnte mehrere Plug-Ins bereitstellen
 			    Q_FOREACH(QString Pluginname,Karte->Karten())
@@ -118,7 +125,7 @@ void QFrankTerminal::PlugInsLaden(QDir pfad)
 			if(Leser)
 			{
 #ifndef QT_NO_DEBUG
-				qDebug(qPrintable(trUtf8("QFrankTerminal PlugInsLaden: %1 ist ein Lesegerätplugin","debug").arg(Datei)));
+				qDebug(qPrintable(trUtf8("%1 PlugInsLaden: %2 ist ein Lesegerätplugin","debug").arg(this->metaObject()->className()).arg(Datei)));
 #endif
 				Q_FOREACH(QString Pluginname,Leser->Geraete())
 				{

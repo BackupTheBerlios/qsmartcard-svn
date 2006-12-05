@@ -1,9 +1,16 @@
 0.2.1
-- Versionsnummer der Moduls korrekt gesetzt.
-- PC/SC Modul eingefügt
-- Private Variablen/Funktionen im CT-API Modul besser gekennzeichnet
-- Version des Gerätemodells auf 0.3.1 erhöht.(neuer Rückgabekode NichtImplementiert)
-- Debugausgabe im Terminal/CT-API Modul verschönert.
+- Versionsnummer der Module korrekt gesetzt.
+- PC/SC Modul eingefügt(1.Gehversuche)
+- Ausgabe der Debugmeldungen der einzelnen Module vereinheitlicht
+- Version des Gerätemodells auf 0.3.1 erhöht.(neuer Rückgabecodes NichtImplementiert,KarteBetreitsAktiv)
+- Unnötige defines entfernt
+- Terminal:
+			- Es werden nur noch DLL's/SO's auf Module getestet
+- CT-API:
+			- Private Variablen/Funktionen besser gekennzeichnet			
+- GSM Modul:
+			- Ausgabe der XML Dateien erfolgt jetzt nur im Debugmodus
+			- XML Dateien werden unter Windows als UTF-8 erstellt
 
 0.2.0
 - Leser API auf Version 0.3.0 erhöht, damit können Leser Module jetzt eine Universal Methode zur

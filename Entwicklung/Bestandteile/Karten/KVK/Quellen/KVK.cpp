@@ -22,7 +22,6 @@
 
 QFrankKVK::QFrankKVK(QObject* eltern):QFrankSmartCard(eltern)
 {
-	setObjectName("QFrankKVK");
 	VariabelnInitialisieren();
 }
 
@@ -148,7 +147,7 @@ bool QFrankKVK::KarteAuslesen()
 	if(Leser==0)
 	{
 #ifndef QT_NO_DEBUG
-		qDebug()<<"KVK Karte: Keine Verbindung mit Lesegerät.";
+		qCritical(qPrintable(trUtf8("%1 KarteAuslesen: Keine Verbindung mit Lesegerät.","debug").arg(this->metaObject()->className())));
 #endif
 		return false;
 	}
@@ -156,7 +155,7 @@ bool QFrankKVK::KarteAuslesen()
 	if(Leser->KarteAnfordern(atr)!=QFrankLesegeraet::CommandSuccessful)
 	{
 #ifndef QT_NO_DEBUG
-		qDebug()<<"KVK Karte: Karte anfordern gescheitert.";
+		qCritical("%s KarteAuslesen: Karte anfordern gescheitert.",this->metaObject()->className());
 #endif
 		return false;
 	}
@@ -165,7 +164,7 @@ bool QFrankKVK::KarteAuslesen()
 	if(KVKLeserWert)
 	{
 #ifndef QT_NO_DEBUG
-		qDebug()<<"KVK Karte: Auslesen nach KVK-Anforderungen";
+		qDebug("%s KarteAuslesen: Auslesen nach KVK-Anforderungen",this->metaObject()->className());
 #endif
 		QByteArray Anwendungskennung(9,0x00);
 		Anwendungskennung[0]=0x04; //AID setzen da eh alle Felder auf 0x00 stehen, werden nur die geädernt,
@@ -179,13 +178,13 @@ bool QFrankKVK::KarteAuslesen()
 		if(Leser->ISO_SelectFile(Anwendungskennung)!=QFrankLesegeraet::CommandSuccessful)
 		{
 #ifndef QT_NO_DEBUG
-			qDebug()<<"KVK Karte: Select File gescheitert, versuche es mit der alten Kennung";
+			qCritical("%s KarteAuslesen: Select File gescheitert, versuche es mit der alten Kennung",this->metaObject()->className());
 #endif
 			Anwendungskennung[4]=0x80;
 			if(Leser->ISO_SelectFile(Anwendungskennung)!=QFrankLesegeraet::CommandSuccessful)
 			{
 #ifndef QT_NO_DEBUG
-				qDebug()<<"KVK Karte: Select File auch mit alter Kennung gescheitert";
+				qCritical("%s KarteAuslesen: Select File auch mit alter Kennung gescheitert",this->metaObject()->className());
 #endif
 				Leser->KarteEntfernen();
 				return false;
@@ -199,7 +198,7 @@ bool QFrankKVK::KarteAuslesen()
 	if(Ergebnis!=QFrankLesegeraet::CommandSuccessful && Ergebnis!=QFrankLesegeraet::WarningEOFbeforeLeBytes)
 	{
 #ifndef QT_NO_DEBUG
-		qDebug()<<"KVK Karte: Read Binary gescheitert";
+		qCritical("%s KarteAuslesen: Read Binary gescheitert",this->metaObject()->className());
 #endif
 		Leser->KarteEntfernen();
 		return false;
@@ -243,8 +242,8 @@ bool QFrankKVK::TagFinden(QFrankKVK::TAGS welches,QByteArray &daten,bool optiona
 										if(optional)
 											return true;
 #ifndef QT_NO_DEBUG
-												qDebug()<<QString("KVK Karte: Ein nicht optionaler Eintrag wurde nicht gefunden\r\n"\
-																  "gesucht wurde TAG: 0x%1").arg((int)welches,0,16);
+												qCritical("%s TagFinden: Ein nicht optionaler Eintrag wurde nicht gefunden\r\n"\
+																  "gesucht wurde TAG: 0x%X",this->metaObject()->className(),welches);
 #endif
 										return false;
 										break;
@@ -258,7 +257,7 @@ bool QFrankKVK::TagFinden(QFrankKVK::TAGS welches,QByteArray &daten,bool optiona
 											//Entsorgen der unnützen Infos				
 											daten.remove(0,Position);
 #ifndef QT_NO_DEBUG
-											qDebug()<<"KVK Karte: Patientendaten"<<FeldNachHex(daten);
+											qDebug("%s TagFinden: Patientendaten %s",this->metaObject()->className(),qPrintable(FeldNachHex(daten)));
 #endif		
 											break;
 		case QFrankKVK::TAG_Kassenname:
@@ -332,7 +331,7 @@ bool QFrankKVK::TagFinden(QFrankKVK::TAGS welches,QByteArray &daten,bool optiona
 											StatusergaenzungWert=WertDesFeldes.at(0);
 											break;
 		default:
-											qFatal("KVK Karte: unbekannter Wert TagFinden!!!!");
+											qFatal("%s TagFinden: unbekannter Tag!!!!",this->metaObject()->className());
 											break;
 	}
 	return true;
@@ -400,8 +399,8 @@ bool QFrankKVK::PruefsummeOK(QByteArray daten)
 	if(daten.at(Ende+1)!=Pruefcode)
 	{
 #ifndef QT_NO_DEBUG
-		qDebug()<<"KVK Karte: Prüfsumme der Karte stimmt nicht";
-		qDebug()<<QString("Soll: %1 Ist: %2").arg((uchar)daten.at(Ende+1),0,16).arg(Pruefcode,0,16);
+		qCritical(qPrintable(trUtf8("%1 PruefsummeOK: Prüfsumme der Karte stimmt nicht\r\n\tSoll: 0x%2 Ist: 0x%3","debug")
+									.arg(this->metaObject()->className()).arg((uchar)daten.at(Ende+1),0,16).arg(Pruefcode,0,16)));	
 #endif
 		return false;
 	}
@@ -423,12 +422,12 @@ bool QFrankKVK::IstEsEineKVK(QByteArray &daten)
 	if(!daten.contains(KarteNeu))
 	{
 #ifndef QT_NO_DEBUG
-		qDebug()<<"KVK Karte: Prüfung auf neue Karte gescheitert, teste auf alte Karte";
+		qCritical(qPrintable(trUtf8("%1 IstEsEineKVK: Prüfung auf neue Karte gescheitert, teste auf alte Karte","debug").arg(this->metaObject()->className())));
 #endif
 		if(!daten.contains(KarteAlt))
 		{
 #ifndef QT_NO_DEBUG
-			qDebug()<<"KVK Karte: Prüfung auf alte Karte gescheitert";
+			qCritical(qPrintable(trUtf8("%1 IstEsEineKVK: Prüfung auf alte Karte gescheitert","debug").arg(this->metaObject()->className())));
 #endif
 			return false;
 		}
@@ -442,7 +441,7 @@ void QFrankKVK::welchenLeser(QFrankLesegeraet *diesen)
 	if(diesen->LeserInitialisieren()!=QFrankLesegeraet::CommandSuccessful)
 	{
 #ifndef QT_NO_DEBUG
-		qDebug()<<"KVK Karte: Leser initialisieren gescheitert.";
+		qCritical("%s welcherLeser: Leser initialisieren gescheitert.",this->metaObject()->className());
 #endif
 		Leser=0;
 		return;

@@ -21,7 +21,7 @@
 #define QFRANKKVK_H
 
 //XXYYZZ XX=Major YY=Minor ZZ=Patch
-#define KVKVersion 0x000100
+#define KVKVersion 0x000101
 
 #include <QtCore>
 #include <SmartCard.h>

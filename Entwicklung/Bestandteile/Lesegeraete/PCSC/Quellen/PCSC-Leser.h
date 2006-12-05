@@ -43,23 +43,30 @@ class QFrankPCSC_Leser: public QFrankLesegeraet
 			QFrankLesegeraet::Rueckgabecodes	ISO_UpdateBinary(QByteArray datenfeld);
 			QFrankLesegeraet::Rueckgabecodes	ISO_Verify(QByteArray datenfeld);
 			QFrankLesegeraet::Rueckgabecodes	ISO_ChangeReferenceData(QByteArray datenfeld);
-			QFrankLesegeraet::Rueckgabecodes	ISO_VerifySecure(QByteArray datenfeld){return QFrankLesegeraet::NichtImplementiert;}
-			QFrankLesegeraet::Rueckgabecodes	ISO_ChangeReferenceDataSecure(QByteArray datenfeld){return QFrankLesegeraet::NichtImplementiert;}
+			QFrankLesegeraet::Rueckgabecodes	ISO_VerifySecure(QByteArray datenfeld);
+			QFrankLesegeraet::Rueckgabecodes	ISO_ChangeReferenceDataSecure(QByteArray datenfeld);
 			QFrankLesegeraet::Rueckgabecodes	UniversalIO(const QByteArray &daten, QByteArray &antwort);
 			QFrankLesegeraet::Rueckgabecodes	KarteAnfordern(QByteArray &ATR);
 			QFrankLesegeraet::Rueckgabecodes	KarteEntfernen();
 			QFrankLesegeraet::Leserklasse		Sicherheitsklasse();
 			QFrankLesegeraet::Rueckgabecodes	LeserInitialisieren();
-			QFrankLesegeraet::Rueckgabecodes	SicherePineingabe(const QByteArray &kartenbefehl){return QFrankLesegeraet::NichtImplementiert;}
+			QFrankLesegeraet::Rueckgabecodes	SicherePineingabe(const QByteArray &kartenbefehl);
 			ulong								Version();	
 	private:
 			QFrankLesegeraet::Leserklasse		K_Lesersicherheit;
 			SCARDCONTEXT						K_PCSC_Kontext;
 			SCARDHANDLE							K_Kartenverbindung; 
 			LONG								K_RueckegabePCSC;
-			bool								K_VerbindungZumLeser;
+			QString								K_NameDesLesers;
+			unsigned char						K_Befehl[300];
+			unsigned short						K_LaengeDesBefehl;
+			unsigned char						K_Antwort[65500];
+			DWORD								K_LaengeDerAntwort;
+			DWORD								K_Kartenprotokoll;
+			void								K_SicherheitsklasseErmitteln();
 #ifndef QT_NO_DEBUG
 			QString								K_FeldNachHex(QByteArray feld);
+			const QString						K_RueckegabePCSCNachText(const LONG &rueckgabe)const;			
 #endif			
 };
 #endif

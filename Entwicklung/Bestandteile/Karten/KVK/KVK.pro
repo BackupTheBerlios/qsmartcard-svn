@@ -21,7 +21,6 @@ include (../../../Vorgaben.pri)
 VERSION       = 0.1.0
 TARGET	      = KVK
 QMAKE_TARGET_DESCRIPTION = Modul für die Krankenversicherungskarte
-DEFINES	     += DLL_BAUEN
 INCLUDEPATH	 += ../SmartCard\
 				../../Lesegeraete/Lesegeraet
 HEADERS		  = Quellen/KVK.h\

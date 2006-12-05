@@ -21,7 +21,6 @@ include (../../../Vorgaben.pri)
 VERSION       = 0.2.1
 TARGET	      = Dummyleser
 QMAKE_TARGET_DESCRIPTION = Dummyleser zum Testen
-DEFINES	     += DLL_BAUEN
 INCLUDEPATH	 += ../Lesegeraet
 HEADERS	      = Quellen/Dummyleser.h\
 				../Lesegeraet/Lesegeraet.h\

@@ -32,9 +32,9 @@ QFrankGSMKarte::QFrankGSMKarte(QObject* eltern):QFrankSmartCard(eltern)
 {
 	//Warnung bei DEBUG
 #ifndef QT_NO_DEBUG
-	qWarning("WARNUNG Debugversion wird benutzt.\r\nEs könnten sicherheitsrelevante Daten ausgegeben werden!!!!!");
-#endif
-	setObjectName("QFrankGSMKarte");
+	qWarning(qPrintable(trUtf8("%1 WARNUNG Debugversion wird benutzt.\r\nEs könnten sicherheitsrelevante Daten ausgegeben werden!!!!!","debug")
+						.arg(this->metaObject()->className())));
+#endif	
 	K_PIN1gesetzt=false;
 	K_PIN2gesetzt=false;
 	K_KarteAkiviert=false;
@@ -53,7 +53,7 @@ bool QFrankGSMKarte::KarteAktivieren()
 	{
 		K_Fehlertext=tr("Keine Verbindung zum Kartenleser");
 #ifndef QT_NO_DEBUG
-		qDebug()<<"QFrankGSMKarte: keine Verbindung zum Leser";
+		qCritical("%s KarteAktivieren: keine Verbindung zum Leser",this->metaObject()->className());
 #endif
 		return false;
 	}
@@ -61,7 +61,7 @@ bool QFrankGSMKarte::KarteAktivieren()
 	if(K_Leser->Version()<0x000300)
 	{
 #ifndef QT_NO_DEBUG
-		qDebug("QFrankGSMKarte: Lesemodul zu alt statt 0x000300 0x%X",K_Leser->Version());
+		qWarning("%s KarteAkivieren: Lesemodul zu alt statt 0x000300 0x%X",this->metaObject()->className(),K_Leser->Version());
 #endif
 		K_Fehlertext=trUtf8("Kartenlesermodul ist zu alt. Es wird min. Version 0.3.0 benötigt");
 		return false;
@@ -70,8 +70,8 @@ bool QFrankGSMKarte::KarteAktivieren()
 	if(K_Leser->KarteAnfordern(ATR)!=QFrankLesegeraet::CommandSuccessfulAsynchron)
 	{
 #ifndef QT_NO_DEBUG
-		qDebug()<<"QFrankGSMKarte Karte aktivieren: keine/falsche Karte im Leser";
-		qDebug()<<K_FeldNachHex(ATR);
+		qCritical("%s KarteAktivieren: Karte aktivieren: keine/falsche Karte im Leser ATR:\r\n%s",
+					this->metaObject()->className(),qPrintable(K_FeldNachHex(ATR)));		
 #endif
 		K_Fehlertext=trUtf8("Keine oder ungültige Karte eingelegt");
 		return false;	
@@ -111,7 +111,7 @@ bool QFrankGSMKarte::K_SeriennummerErmitteln()
 		K_Seriennummer=K_Seriennummer+QString("%1").arg((((uchar)K_Kartenantwort.at(Stelle)) & 0xf0)>>4);
 	}
 #ifndef QT_NO_DEBUG
-	qDebug()<<QString("QFrankGSMKarte Seriennummer ermitteln Ergebnis: %1").arg(K_Seriennummer);
+	qDebug("%s SeriennummerErmitteln: Ergebnis: %s",this->metaObject()->className(),qPrintable(K_Seriennummer));
 #endif
 	return true;
 }
@@ -120,7 +120,7 @@ void QFrankGSMKarte::PinUebertragen(const QByteArray &pinfeld)
 {
 	K_Pinspeicher=pinfeld;
 #ifndef QT_NO_DEBUG
-	qDebug()<<QString("QFrankGSMKarte Pin übertragen: %1").arg(K_FeldNachHex(K_Pinspeicher));
+	qDebug("%s PinUebertragen: PIN: %s",this->metaObject()->className(),qPrintable(K_FeldNachHex(K_Pinspeicher)));
 #endif
 }
 
@@ -143,7 +143,7 @@ const bool QFrankGSMKarte::K_PinEingabe(const uchar &Pinnummer)
 	if(K_SichereEingabeNutzen)
 	{
 #ifndef QT_NO_DEBUG
-		qDebug()<<"QFrankGSMKarte Pin sichere Eingabe";
+		qDebug("%s K_PinEingabe: sichere Pineingabe",this->metaObject()->className());
 #endif
 		K_Kartenbefehl.resize(17);
 		K_Kartenbefehl[0]=0x52;//TAG 
@@ -169,7 +169,7 @@ const bool QFrankGSMKarte::K_PinEingabe(const uchar &Pinnummer)
 	else
 	{
 #ifndef QT_NO_DEBUG
-		qDebug()<<"QFrankGSMKarte Pin unsichere Eingabe";
+		qDebug("%s K_PinEingabe: unsichere Pineingabe",this->metaObject()->className());
 #endif
 		//test mit hardcode
 		K_Kartenbefehl.resize(13);
@@ -182,7 +182,7 @@ const bool QFrankGSMKarte::K_PinEingabe(const uchar &Pinnummer)
 		if (K_Pinspeicher.size()>8 || K_Pinspeicher.size()<4)
 		{
 #ifndef QT_NO_DEBUG
-			qDebug()<<"QFrankGSMKarte Pin unsichere Eingabe: Pin zu lang/kurz";
+			qCritical("%s K_PinEingabe: unsichere Pineingabe: Pin zu lang/kurz",this->metaObject()->className());
 #endif
 			K_Fehlertext=trUtf8("Die Pin darf nicht länger als 8 und nicht kürzer als 4 Stellen sein.");
 			K_Pinspeicher.clear();
@@ -197,10 +197,10 @@ const bool QFrankGSMKarte::K_PinEingabe(const uchar &Pinnummer)
 			else
 			{
 				//teste auf gültiges Zeichen 0x30-0x39
-				if(K_Pinspeicher.at(Stelle)<0x30 | K_Pinspeicher.at(Stelle)>0x39)
+				if(K_Pinspeicher.at(Stelle)<0x30 || K_Pinspeicher.at(Stelle)>0x39)
 				{
 #ifndef QT_NO_DEBUG
-					qDebug()<<"QFrankGSMKarte Pin unsichere Eingabe: ungültiges Zeichen in der Pin";
+					qCritical(qPrintable(trUtf8("%1 K_PinEingabe: unsichere Eingabe: ungültiges Zeichen in der Pin","debug").arg(this->metaObject()->className())));
 #endif
 					K_Fehlertext=tr("Die Pin darf nur aus den Zahlen 0-9 bestehen.");
 					K_Pinspeicher.clear();
@@ -223,34 +223,34 @@ const bool QFrankGSMKarte::K_PinEingabe(const uchar &Pinnummer)
 	{
 		case QFrankLesegeraet::CommandSuccessful:
 #ifndef QT_NO_DEBUG
-													qDebug()<<"QFrankGSMKarte Pin Eingabe: Pin akzeptiert";
+													qDebug("%s K_PinEingabe: Pin akzeptiert",this->metaObject()->className());
 #endif
 													return true;
 													break;
 		case QFrankLesegeraet::ResetNotSuccessful:
 #ifndef QT_NO_DEBUG
-													qDebug()<<"QFrankGSMKarte Pin Eingabe: Zeit abgelaufen";
+													qCritical("%s K_PinEingabe: Zeit abgelaufen",this->metaObject()->className());
 #endif
 													K_Fehlertext=tr("Zeit zu Eingabe der PIN abgelaufen.");					
 													return false;
 													break;
 		case 0x9840:
 #ifndef QT_NO_DEBUG
-													qDebug()<<"QFrankGSMKarte Pin Eingabe: Pin gesperrt";
+													qCritical("%s K_PinEingabe: Pin gesperrt",this->metaObject()->className());
 #endif
 													K_Fehlertext=tr("PIN%1 gesperrt.").arg(Pinnummer);
 													return false;
 													break;
 		case QFrankLesegeraet::CancelByCancelKey:
 #ifndef QT_NO_DEBUG
-													qDebug()<<"QFrankGSMKarte Pin Eingabe: abbruch gedrückt";
+													qCritical(qPrintable(trUtf8("%1 K_PinEingabe: Abbruch gedrückt","debug").arg(this->metaObject()->className())));
 #endif
 													K_Fehlertext=trUtf8("Abbruch gedrückt.");
 													return false;
 													break;
 		case 0x9804:
 #ifndef QT_NO_DEBUG
-													qDebug()<<"QFrankGSMKarte Pin Eingabe: Pin falsch";
+													qCritical("%s K_PinEingabe: Pin falsch",this->metaObject()->className());
 #endif
 													//Kartenstus hohlen dazu wird das MF 0x3F00 gewählt
 													if(!K_SelectFile(0x3f00))
@@ -281,13 +281,14 @@ const bool QFrankGSMKarte::K_PinEingabe(const uchar &Pinnummer)
 													break;
 		case 0x9808:
 #ifndef QT_NO_DEBUG
-													qDebug()<<"QFrankGSMKarte Pin Eingabe: Pin war unnötig";
+													qCritical(qPrintable(trUtf8("%1 K_PinEingabe: Pin war unnötig","debug").arg(this->metaObject()->className())));
 #endif
 													return true;
 													break;
 		default:
 #ifndef QT_NO_DEBUG
-													qFatal("QFrankGSMKarte Pin Eingabe: Rückgabecode 0x%X nicht behandelt.",K_Antwortkode);
+													qFatal(qPrintable(trUtf8("%1 K_PinEingabe: Rückgabecode 0x%2 nicht behandelt.","debug")
+																				.arg(this->metaObject()->className()).arg(K_Antwortkode,0,16)));
 #endif
 													K_Fehlertext=trUtf8("Fehler bei der PIN%1 Prüfung.").arg(Pinnummer);
 													return false;
@@ -345,7 +346,7 @@ QString const QFrankGSMKarte::K_TelefonbuchAuslesen(const QFrankGSMKarte::Welche
 											break;
 	}	
 #ifndef QT_NO_DEBUG
-	qDebug()<<"QFrankGSMKarte"<<TelefonbuchText;
+	qDebug("%s K_TelefonbuchAuslesen: Buch: \"%2\"",this->metaObject()->className(),qPrintable(TelefonbuchText));
 #endif
 	uchar AnzahlDerSpeicherplaetze;
 	uchar LaengeEinesDatensatzes;
@@ -366,14 +367,16 @@ QString const QFrankGSMKarte::K_TelefonbuchAuslesen(const QFrankGSMKarte::Welche
 	Textlaenge=LaengeEinesDatensatzes-0x0e;//Jeder daten min. 14 Bytes
 	AnzahlDerSpeicherplaetze=K_EFAntwort->Dateigroesse()/LaengeEinesDatensatzes;
 #ifndef QT_NO_DEBUG
-	qDebug()<<"QFrankGSMKarte"<<TelefonbuchText<< ": Datensatzgröße"<<LaengeEinesDatensatzes;
-	qDebug()<<"QFrankGSMKarte"<<TelefonbuchText<<": Datensaetze"<<AnzahlDerSpeicherplaetze;
+	qDebug(qPrintable(trUtf8("%1 K_TelefonbuchAuslesen: Buch \"%2\": Datensatzgröße: %3","debug")
+							.arg(this->metaObject()->className()).arg(TelefonbuchText).arg(LaengeEinesDatensatzes)));
+	qDebug(qPrintable(trUtf8("%1 K_TelefonbuchAuslesen: Buch \"%2\": Datensätze: %3")
+							.arg(this->metaObject()->className()).arg(TelefonbuchText).arg(AnzahlDerSpeicherplaetze)));
 #endif
 	//Zum Auslesen muss PIN1 eingegeben worden sein.
 	if (!K_PIN1korrektEingegeben)
 	{
 #ifndef QT_NO_DEBUG
-		qDebug()<<"QFrankGSMKarte"<< TelefonbuchText <<": Pin1 nicht freigeschaltet";
+		qCritical("%s K_TelefonbuchAuslesen: Buch \"%s\": PIN1 nicht freigeschaltet",this->metaObject()->className(),qPrintable(TelefonbuchText));
 #endif
 		K_Fehlertext=trUtf8("Korrekter PIN1 wurde nicht übergeben.");
 		return "";
@@ -447,7 +450,7 @@ QString const QFrankGSMKarte::K_TelefonbuchAuslesen(const QFrankGSMKarte::Welche
 			if ((uchar)K_Kartenantwort.at(Textlaenge+13)!=0xff)
 			{
 #ifndef QT_NO_DEBUG
-				qWarning()<<"QFrankGSMKarte" << TelefonbuchText <<": Nummer >20 Stellen";
+				qCritical("%s K_TelefonbuchAuslesen: Buch \"%s\": Nummer >20 Stellen",this->metaObject()->className(),qPrintable(TelefonbuchText));
 #endif
 				RufnummerText=XML.createTextNode(K_TelefonnummerDecodieren(K_Kartenantwort.mid(Textlaenge+2,10))+"...");
 			}
@@ -465,14 +468,17 @@ QString const QFrankGSMKarte::K_TelefonbuchAuslesen(const QFrankGSMKarte::Welche
 		}
 	}
 	Speicherplatz.setAttribute("benutzt",BenutzteEintraege);
-	
+
+#ifndef QT_NO_DEBUG
 	//Nur zum Debuggen
 	QFile Datei(TelefonbuchText+".xml");
 	Datei.open(QIODevice::WriteOnly);	
 	QTextStream Strom(&Datei);
+	Strom.setCodec("UTF-8");
 	Strom<<XML.toString();
 	Strom.flush();
 	Datei.close();
+#endif
 	
 	return XML.toString();
 }
@@ -557,7 +563,8 @@ bool QFrankGSMKarte::K_ReadRecord(const uchar &datsatznummer,const QFrankGSMKart
 		P3=Datensatzlänge
 	*/
 #ifndef QT_NO_DEBUG
-	qDebug()<<QString("QFrankGSMKarte Read Record Nummer: %1 Modus: %2 Länge: %3").arg(datsatznummer).arg(modus).arg(datensatzlaenge);
+	qDebug(qPrintable(trUtf8("%1 K_ReadRecord: Nummer: %2 Modus: %3 Länge: %4","debug")
+							.arg(this->metaObject()->className()).arg(datsatznummer).arg(modus).arg(datensatzlaenge)));
 #endif
 	if (!K_VerbindungZurKarte())
 		return false;
@@ -573,14 +580,14 @@ bool QFrankGSMKarte::K_ReadRecord(const uchar &datsatznummer,const QFrankGSMKart
 	{
 		K_Fehlertext=tr("Datensatz lesen gescheitert.");
 #ifndef QT_NO_DEBUG
-		qDebug()<<QString("QFrankGSMKarte Read Record: gescheitert Rückgabe Code 0x%1").arg(K_Antwortkode,0,16);
+		qCritical(qPrintable(trUtf8("%1 K_ReadRecord: gescheitert Rückgabecode 0x%2","debug").arg(this->metaObject()->className()).arg(K_Antwortkode,0,16)));
 #endif
 		K_Leser->KarteEntfernen();
 		return false;
 	}
 #ifndef QT_NO_DEBUG
-	qDebug()<<QString("QFrankGSMKarte Read Record: OK Rückgabe Code 0x%1").arg(K_Antwortkode,0,16);
-	qDebug()<<"QFrankGSMKarte Read Record Daten:"<<K_FeldNachHex(K_Kartenantwort);
+	qDebug(qPrintable(tr("%1 K_ReadRecord: OK Rückgabcode 0x%2","debug").arg(this->metaObject()->className()).arg(K_Antwortkode,0,16)));
+	qDebug("%s K_ReadRecord Daten: %s",this->metaObject()->className(),qPrintable(K_FeldNachHex(K_Kartenantwort)));
 #endif
 	return true;
 }
@@ -589,7 +596,7 @@ const QString QFrankGSMKarte::Anbieter()
 {
 	//EF für den Mobilfunkanbieter ist 0x6f46 in dem Verzeichnis GSM 0x7f20
 #ifndef QT_NO_DEBUG
-	qDebug()<<"QFrankGSMKarte Anbieter";
+	qDebug("%s Anbieter",this->metaObject()->className());
 #endif
 	if (!K_VerbindungZurKarte())
 		return "";
@@ -609,7 +616,7 @@ const QString QFrankGSMKarte::Anbieter()
 	//1. Byte unwichtig 2-Ende oder FF enthält den Text
 	QString tmp=K_Zeichenwandlung->SMSnachUTF8(K_Kartenantwort.mid(1,K_EFAntwort->Dateigroesse()-1));
 #ifndef QT_NO_DEBUG
-	qDebug()<<"QFrankGSMKarte Anbieter:"<<tmp;
+	qDebug("%s Anbieter: %s",this->metaObject()->className(),qPrintable(tmp));
 #endif
 	return tmp;
 }
@@ -624,7 +631,7 @@ bool QFrankGSMKarte::K_SelectFile(const uint &was)
 		Länge Daten=0x02
 	*/
 #ifndef QT_NO_DEBUG
-	qDebug()<<QString("QFrankGSMKarte Select File 0x%1").arg(was,0,16);
+	qDebug("%s K_SelectFile: 0x%X",this->metaObject()->className(),was);
 #endif
 if (!K_VerbindungZurKarte())
 		return false;
@@ -644,13 +651,13 @@ if (!K_VerbindungZurKarte())
 	{
 		K_Fehlertext=trUtf8("Datei/Verzeichnis öffnen gescheitert.");
 #ifndef QT_NO_DEBUG
-		qDebug()<<QString("QFrankGSMKarte Select File: gescheitert Rückgabe Code 0x%1").arg(K_Antwortkode,0,16);
+		qCritical(qPrintable(trUtf8("%1 K_SelectFile: gescheitert Rückgabecode 0x%2","debug").arg(this->metaObject()->className()).arg(K_Antwortkode,0,16)));
 #endif
 		K_Leser->KarteEntfernen();
 		return false;
 	}
 #ifndef QT_NO_DEBUG
-	qDebug()<<QString("QFrankGSMKarte Select File: OK Rückgabe Code 0x%1").arg(K_Antwortkode,0,16);
+	qDebug(qPrintable(trUtf8("%1 K_SelectFile: OK Rückgabcode 0x%2","debug").arg(this->metaObject()->className()).arg(K_Antwortkode,0,16)));
 #endif
 	return true;
 }
@@ -665,7 +672,7 @@ bool QFrankGSMKarte::K_ReadBinary(const uchar &anzahl,const uint &offset)
 		Länge Daten= anznzahö
 	*/
 #ifndef QT_NO_DEBUG
-	qDebug()<<"QFrankGSMKarte ReadBinary";
+	qDebug("%s K_ReadBinary",this->metaObject()->className());
 #endif
 	if (!K_VerbindungZurKarte())
 		return false;
@@ -681,13 +688,13 @@ bool QFrankGSMKarte::K_ReadBinary(const uchar &anzahl,const uint &offset)
 	{
 		K_Fehlertext=tr("Es konnte von der GSM Karte nicht gelesen werden.");
 #ifndef QT_NO_DEBUG
-		qDebug()<<QString("QFrankGSMKarte ReadBinary: Lesefehler Rückgabe Code: %1").arg(K_Antwortkode,0,16);
+		qCritical(qPrintable(trUtf8("%1 K_ReadBinary: Lesefehler Rückgabecode: 0x%2","debug").arg(this->metaObject()->className()).arg(K_Antwortkode,0,16)));
 #endif
 		K_Leser->KarteEntfernen();
 		return false;
 	}
 #ifndef QT_NO_DEBUG
-	qDebug()<<"QFrankGSMKarte ReadBinary Daten:"<<K_FeldNachHex(K_Kartenantwort);
+	qDebug("%s K_ReadBinary Daten: %s",this->metaObject()->className(),qPrintable(K_FeldNachHex(K_Kartenantwort)));
 #endif
 	return true;
 }
@@ -699,7 +706,7 @@ bool QFrankGSMKarte::K_VerbindungZurKarte()
 	{
 		K_Fehlertext=tr("Keine Verbindung zum Kartenleser");
 #ifndef QT_NO_DEBUG
-		qDebug()<<"QFrankGSMKarte: keine Verbindung zum Leser";
+		qCritical("%s K_VerbindungZurKarte: keine Verbindung zum Leser",this->metaObject()->className());
 #endif
 		return false;
 	}
@@ -707,7 +714,7 @@ bool QFrankGSMKarte::K_VerbindungZurKarte()
 	{
 		K_Fehlertext=tr("Keine Verbindung zur Karte");
 #ifndef QT_NO_DEBUG
-		qDebug()<<"QFrankGSMKarte: keine Verbindung zur Karte";
+		qCritical("%s K_VerbindungZurKarte: keine Verbindung zur Karte",this->metaObject()->className());
 #endif
 		return false;
 	}
@@ -734,8 +741,8 @@ void QFrankGSMKarte::K_GetResponse(QFrankGSMKarte::Antwort antwort,const uchar &
 	{
 		K_Fehlertext=tr("Es konnte die Antwort eines Befehls nicht empfangen werden.");
 #ifndef QT_NO_DEBUG
-		qDebug()<<QString("QFrankGSMKarte Kartenantwort hohlen: Fehler Rückgabe Code: %1").arg(K_Antwortkode,0,16);
-		qDebug()<<K_FeldNachHex(K_Kartenantwort);
+		qCritical(qPrintable(trUtf8("%1 K_GetResponse: Fehler beim Hohlen der Kartenantwort Rückgabecode: 0x%2 Daten: %3","debug")
+			.arg(this->metaObject()->className()).arg(K_Antwortkode,0,16).arg(K_FeldNachHex(K_Kartenantwort))));
 #endif
 		K_Leser->KarteEntfernen();
 		K_KarteAkiviert=false;
@@ -746,14 +753,14 @@ void QFrankGSMKarte::K_GetResponse(QFrankGSMKarte::Antwort antwort,const uchar &
 	{
 		case QFrankGSMKarte::MF_DF:
 #ifndef QT_NO_DEBUG
-						qDebug()<<"QFrankGSMKarte Kartenantwort hohlen: werte MF/DF aus";
+						qDebug("%s K_GetResponse: werte MF/DF Antwort aus",this->metaObject()->className());
 #endif
 						K_MF_DFAntwortBearbeiten();	
 						
 						break;
 		case QFrankGSMKarte::EF:
 #ifndef QT_NO_DEBUG
-						qDebug()<<"QFrankGSMKarte Kartenantwort hohlen: werte EF aus";
+						qDebug("%s K_GetResponse: werte EF Antwort aus",this->metaObject()->className());
 #endif
 						K_EFAntwortBearbeiten();
 						break;
@@ -805,8 +812,7 @@ void QFrankGSMKarte::K_MF_DFAntwortBearbeiten()
 							break;
 		default:
 #ifndef QT_NO_DEBUG
-							qFatal("QFrankGSMKarte Kartenantwort DF/MF: unerwarteter Verzeichnistype 0x%X",
-								(uchar)K_Kartenantwort.at(6));
+							qFatal("%s K_MF_DFAntwortBearbeiten: unerwarteter Verzeichnistype 0x%X",this->metaObject()->className(),(uchar)K_Kartenantwort.at(6));
 #endif
 							break;
 	}
@@ -846,9 +852,9 @@ void QFrankGSMKarte::K_MF_DFAntwortBearbeiten()
 		K_MF_DFAntwort->SuperPIN2gesetztSetzen(false);
 	K_MF_DFAntwort->SuperPIN2verbleibeneEingabeversucheSetzen(((uchar)K_Kartenantwort.at(21))&0x0f);
 #ifndef QT_NO_DEBUG
-	qDebug()<<"QFrankGSMKarte Kartenantwort DF/MF:";
-	qDebug()<<QString("\tFreier Spreicher im Verzeichnis: 0x%1").arg(K_MF_DFAntwort->FreierSpeicher(),0,16);
-	qDebug()<<QString("\tVerzeichnis ID: 0x%1").arg(K_MF_DFAntwort->DateiID(),0,16);
+	qDebug("%s K_MF_DFAntwortBearbeiten: Kartenantwort DF/MF:",this->metaObject()->className());
+	qDebug("\tFreier Speicher im Verzeichnis: 0x%X",K_MF_DFAntwort->FreierSpeicher());
+	qDebug("\tVerzeichnis ID: 0x%X",K_MF_DFAntwort->DateiID());
 	switch (K_MF_DFAntwort->Dateiart())
 	{
 		case QFrankGSMKarteAntwortbasis::MF:
@@ -862,33 +868,33 @@ void QFrankGSMKarte::K_MF_DFAntwortBearbeiten()
 		qDebug()<<"\tPIN1 aktiviert";
 	else
 		qDebug()<<"\tPIN1 deaktiviert";
-	qDebug()<<QString("\tAnzahl der Unterverzeichnisse: %1").arg(K_MF_DFAntwort->AnzahlDerUnterverzeichnisse());
-	qDebug()<<QString("\tAnzahl der Dateien: %1").arg(K_MF_DFAntwort->AnzahlDerDateien());
-	qDebug()<<QString("\tAnzahl der Sicherheitscodes: %1").arg(K_MF_DFAntwort->AnzahlDerPINs());
-	qDebug()<<"\tStatus PIN1";
+	qDebug("\tAnzahl der Unterverzeichnisse: %u",K_MF_DFAntwort->AnzahlDerUnterverzeichnisse());
+	qDebug("\tAnzahl der Dateien: %u",K_MF_DFAntwort->AnzahlDerDateien());
+	qDebug("\tAnzahl der Sicherheitscodes: %u",K_MF_DFAntwort->AnzahlDerPINs());
+	qDebug("\tStatus PIN1");
 	if(K_MF_DFAntwort->PIN1gesetzt())
-		qDebug()<<"\t\tgesetzt";
+		qDebug("\t\tgesetzt");
 	else
-		qDebug()<<"\t\tnicht gesetzt";
-	qDebug()<<QString("\t\tverbleibene Eingabeversuche: %1 bei 0 gesperrt").arg(K_MF_DFAntwort->PIN1verbleibeneEingabeversuche());
-	qDebug()<<"\tStatus SuperPIN1";
+		qDebug("\t\tnicht gesetzt");
+	qDebug("\t\tverbleibene Eingabeversuche: %u bei 0 gesperrt",K_MF_DFAntwort->PIN1verbleibeneEingabeversuche());
+	qDebug("\tStatus SuperPIN1");
 	if(K_MF_DFAntwort->SuperPIN1gesetzt())
-		qDebug()<<"\t\tgesetzt";
+		qDebug("\t\tgesetzt");
 	else
-		qDebug()<<"\t\tnicht gesetzt";
-	qDebug()<<QString("\t\tverbleibene Eingabeversuche: %1 bei 0 gesperrt").arg(K_MF_DFAntwort->SuperPIN1verbleibeneEingabeversuche());
-	qDebug()<<"\tStatus PIN2";
+		qDebug("\t\tnicht gesetzt");
+	qDebug("\t\tverbleibene Eingabeversuche: %u bei 0 gesperrt",K_MF_DFAntwort->SuperPIN1verbleibeneEingabeversuche());
+	qDebug("\tStatus PIN2");
 	if(K_MF_DFAntwort->PIN2gesetzt())
-		qDebug()<<"\t\tgesetzt";
+		qDebug("\t\tgesetzt");
 	else
-		qDebug()<<"\t\tnicht gesetzt";
-	qDebug()<<QString("\t\tverbleibene Eingabeversuche: %1 bei 0 gesperrt").arg(K_MF_DFAntwort->PIN2verbleibeneEingabeversuche());
-	qDebug()<<"\tStatus SuperPIN2";
+		qDebug("\t\tnicht gesetzt");
+	qDebug("\t\tverbleibene Eingabeversuche: %u bei 0 gesperrt",K_MF_DFAntwort->PIN2verbleibeneEingabeversuche());
+	qDebug("\tStatus SuperPIN2");
 	if(K_MF_DFAntwort->SuperPIN2gesetzt())
-		qDebug()<<"\t\tgesetzt";
+		qDebug("\t\tgesetzt");
 	else
-		qDebug()<<"\t\tnicht gesetzt";
-	qDebug()<<QString("\t\tverbleibene Eingabeversuche: %1 bei 0 gesperrt").arg(K_MF_DFAntwort->SuperPIN2verbleibeneEingabeversuche());
+		qDebug("\t\tnicht gesetzt");
+	qDebug("\t\tverbleibene Eingabeversuche: %u bei 0 gesperrt",K_MF_DFAntwort->SuperPIN2verbleibeneEingabeversuche());
 #endif
 }
 
@@ -933,8 +939,7 @@ void QFrankGSMKarte::K_EFAntwortBearbeiten()
 							break;
 		default:
 #ifndef QT_NO_DEBUG
-							qFatal("QFrankGSMKarte Kartenantwort EF: unerwarteter Dateitype 0x%X",
-								(uchar)K_Kartenantwort.at(6));
+							qFatal("%s K_EFAntwortBearbeiten: unerwarteter Dateitype 0x%X",this->metaObject()->className(),(uchar)K_Kartenantwort.at(6));
 #endif
 							break;
 	}
@@ -952,8 +957,7 @@ void QFrankGSMKarte::K_EFAntwortBearbeiten()
 								break;
 		default:
 #ifndef QT_NO_DEBUG
-								qFatal("QFrankGSMKarte Kartenantwort EF: unerwartete Dateistruktur 0x%X",
-									(uchar)K_Kartenantwort.at(13));
+								qFatal("%s K_EFAntwortBearbeiten: unerwartete Dateistruktur 0x%X",this->metaObject()->className(),(uchar)K_Kartenantwort.at(13));
 
 #endif
 								break;
@@ -982,42 +986,42 @@ void QFrankGSMKarte::K_EFAntwortBearbeiten()
 	//Datensatzlänge
 	K_EFAntwort->DatensatzlaengeSetzen((uchar)K_Kartenantwort.at(14));
 #ifndef QT_NO_DEBUG
-	qDebug()<<"QFrankGSMKarte Kartenantwort EF:";
-	qDebug()<<QString("\tDateigröße: 0x%1").arg(K_EFAntwort->Dateigroesse(),0,16);
-	qDebug()<<QString("\tDatei ID: 0x%1").arg(K_EFAntwort->DateiID(),0,16);
+	qDebug("%s K_EFAntwortBearbeiten: Kartenantwort:",this->metaObject()->className());
+	qDebug(qPrintable(trUtf8("\tDateigröße: 0x%1","debug").arg(K_EFAntwort->Dateigroesse(),0,16)));
+	qDebug("\tDatei ID: 0x%X",K_EFAntwort->DateiID());
 	switch (K_EFAntwort->Dateiart())
 	{
 		case QFrankGSMKarteAntwortbasis::EF:
-							qDebug()<<"\tDateitype: EF";
+							qDebug("\tDateitype: EF");
 							break;
 	}
 	switch(K_EFAntwort->Dateiaufbau())
 	{
 		case QFrankGSMKarteEFAntwort::Transparent:
-								qDebug()<<"\tDateiaufbau: Transparent";
+								qDebug("\tDateiaufbau: Transparent");
 								break;
 		case QFrankGSMKarteEFAntwort::FesteLaenge:
-								qDebug()<<"\tDateiaufbau: Datensatz fester Länge";
+								qDebug(qPrintable(trUtf8("\tDateiaufbau: Datensatz fester Länge","debug")));
 								break;
 		case QFrankGSMKarteEFAntwort::Zyklisch:
-								qDebug()<<"\tDateiaufbau: zyklische Datensätze";
+								qDebug(qPrintable(trUtf8("\tDateiaufbau: zyklische Datensätze","debug")));
 								if(K_EFAntwort->ErhoehenFuerZueklischEFErlaubt())
-									qDebug()<<"\t\teröhen erlaubt";
+									qDebug(qPrintable(trUtf8("\t\teröhen erlaubt","debug")));
 								else
-									qDebug()<<"\t\terhöhen verboten";
+									qDebug(qPrintable(trUtf8("\t\terhöhen verboten","debug")));
 								break;
 	}
-	qDebug()<<"\tDateiberechtigung";
+	qDebug("\tDateiberechtigung");
 	qDebug()<<"\t\tLesen/Suchen:"<<K_Zugrifftext(K_EFAntwort->BerechtigungLesenSuchen());
 	qDebug()<<"\t\tAktualisieren:"<<K_Zugrifftext(K_EFAntwort->BerechtigungAktualisieren());
-	qDebug()<<"\t\tErhöhen:"<<K_Zugrifftext(K_EFAntwort->BerechtigungErhoehen());
+	qDebug()<<qPrintable(trUtf8("\t\tErhöhen:","debug"))<<K_Zugrifftext(K_EFAntwort->BerechtigungErhoehen());
 	qDebug()<<"\t\tRehabilitieren:"<<K_Zugrifftext(K_EFAntwort->BerechtigungRehabilitieren());
-	qDebug()<<"\t\tUngültig erklären:"<<K_Zugrifftext(K_EFAntwort->BerechtigungUngueltigErklaeren());
+	qDebug()<<qPrintable(trUtf8("\t\tUngültig erklären:","debug"))<<K_Zugrifftext(K_EFAntwort->BerechtigungUngueltigErklaeren());
 	if(K_EFAntwort->DateiGueltig())
-		qDebug()<<"\tDatei gültig";
+		qDebug(qPrintable(trUtf8("\tDatei gültig","debug")));
 	else
-		qDebug()<<"\tDatei ungültig";
-	qDebug()<<"\tDatensatzlänge in Bytes"<<K_EFAntwort->Datensatzlaenge();
+		qDebug(qPrintable(trUtf8("\tDatei ungültig","debug")));
+	qDebug(qPrintable(trUtf8("\tDatensatzlänge %1 Bytes","debug").arg(K_EFAntwort->Datensatzlaenge())));
 #endif	
 }
 
@@ -1042,7 +1046,7 @@ void QFrankGSMKarte::welchenLeser(QFrankLesegeraet *diesen)
 	if(diesen->LeserInitialisieren()!=QFrankLesegeraet::CommandSuccessful)
 	{
 #ifndef QT_NO_DEBUG
-		qDebug()<<"QFrankGSMKarte: Leser initialisieren gescheitert.";
+		qDebug("%s welcherLeser: Leser initialisieren gescheitert.",this->metaObject()->className());
 #endif
 		K_Leser=0;
 		return;

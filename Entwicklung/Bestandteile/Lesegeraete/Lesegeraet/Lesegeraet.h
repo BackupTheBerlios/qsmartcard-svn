@@ -59,6 +59,7 @@ class QFrankLesegeraet: public QObject
 				FileNotFound=0x6a82,
 				CommandSuccessful=0x9000,
 				CommandSuccessfulAsynchron=0x9001,
+				KarteBetreitsAktiv=0x0ffc,
 				NichtImplementiert=0xfffd,
 				LeserNichtInitialisiert=0xfffe,
 				ParameterFalsch=0xffff

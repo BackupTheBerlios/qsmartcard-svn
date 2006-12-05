@@ -21,7 +21,6 @@ include (../../../Vorgaben.pri)
 VERSION       = 0.3.0
 TARGET	      = CT-API-Leser
 QMAKE_TARGET_DESCRIPTION = Zugriff auf Lesegeräte per CT-API
-DEFINES	     += DLL_BAUEN
 INCLUDEPATH	 += ../Lesegeraet
 HEADERS	      = Quellen/CT-API-Leser.h\
 				../Lesegeraet/Lesegeraet.h\
