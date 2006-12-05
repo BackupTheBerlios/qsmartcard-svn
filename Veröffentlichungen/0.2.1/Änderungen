@@ -1,0 +1,32 @@
+0.2.1
+- Versionsnummer der Module korrekt gesetzt.
+- PC/SC Modul eingefügt(1.Gehversuche)
+- Ausgabe der Debugmeldungen der einzelnen Module vereinheitlicht
+- Version des Gerätemodells auf 0.3.1 erhöht.(neue Rückgabecodes NichtImplementiert,KarteBetreitsAktiv)
+- Unnötige defines entfernt
+- Terminal:
+			- Es werden nur noch DLL's/SO's auf Module getestet
+- CT-API:
+			- Private Variablen/Funktionen besser gekennzeichnet			
+- GSM Modul:
+			- Ausgabe der XML Dateien erfolgt jetzt nur im Debugmodus
+			- XML Dateien werden unter Windows als UTF-8 erstellt
+
+0.2.0
+- Leser API auf Version 0.3.0 erhöht, damit können Leser Module jetzt eine Universal Methode zur
+  sicheren Pin Eingabe nutzen.
+- CT-API Leser: Rechtschreibfehler in der Debugausgabe behoben.
+- Neues Kartenmodul für GSM Karten eingefügt.
+
+0.1.2
+- CT-API Leser: Bugfix close() wird jetzt nur ausgeführt, wenn eine Verbindung zum Leser besteht.
+  Gab sonst Segmentation fault:(.
+- GPL Lizenz Datei angefügt.
+- Liste der Änderungen angefügt.
+
+0.1.1
+- Das Terminalmodul wirft bei allen Kartenlesern beim beenden die Karte aus.
+- Die Karten- und Leserobjekte werden vom Heap beim beenden entfernt.
+
+0.1
+1. Veröffentlichung
