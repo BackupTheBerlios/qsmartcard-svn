@@ -67,7 +67,7 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::LeserInitialisieren()
 	K_MeinCT_init=(K_pCT_init)QLibrary::resolve(K_Treiberdatei, "CT_init");
 	K_MeinCT_data=(K_pCT_data)QLibrary::resolve(K_Treiberdatei, "CT_data");
 	K_MeinCT_close=(K_pCT_close)QLibrary::resolve(K_Treiberdatei, "CT_close");
-	K_MeinCT_Tastendruck=(K_pCT_setkeycb)QLibrary::resolve(K_Treiberdatei, "CT_keycb");
+	K_MeinCT_Tastendruck=(K_pCT_setkeycb)QLibrary::resolve(K_Treiberdatei, "CT_setkeycb");
 	//wurden alle Funktionen gefunden??
 	if(K_MeinCT_init==0 || K_MeinCT_data==0 || K_MeinCT_close==0)
 	{
@@ -715,6 +715,7 @@ int QFrankCT_API_Leser::K_TasteGerueckt(unsigned short terminal,void *daten)
 		qFatal("%s K_TasteGerueckt: Das Terminal befindet sich nicht in der Tabelle!!",QFrankCT_API_Leser::staticMetaObject.className());
 	else
 		emit K_ListeDerTerminals.value(terminal)->TasteGedrueckt(terminal);
+	return 1;
 }
 
 #ifndef QT_NO_DEBUG
