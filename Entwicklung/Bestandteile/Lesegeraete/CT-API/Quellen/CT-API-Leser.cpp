@@ -79,6 +79,16 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::LeserInitialisieren()
 #endif
 		return  QFrankLesegeraet::LeserNichtInitialisiert;
 	}
+	//Aufruf von CT-init
+	char Rueckgabecode=K_MeinCT_init(K_Terminalnummer,K_Portnummer);
+	if(Rueckgabecode!=0)
+	{
+#ifndef QT_NO_DEBUG
+		qCritical(qPrintable(trUtf8("QFrankCT_API_Leser LeserInitialisieren: CT-init konnte nicht ausgeführt werden. Rückgabe: %1","debug")
+									.arg((int)Rueckgabecode)));
+#endif
+		return QFrankLesegeraet::LeserNichtInitialisiert;
+	}
 	//Kennt der CT-API Treiber die Funktion Tastendruck??
 	if(K_MeinCT_Tastendruck!=0)
 	{
@@ -92,16 +102,6 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::LeserInitialisieren()
 	else
 		qDebug(qPrintable(trUtf8("%1 LeserInitialisieren:: Der Treiber kennt keine Tastenrückmeldung","debug").arg(this->metaObject()->className())));
 #endif
-	//Aufruf von CT-init
-	char Rueckgabecode=K_MeinCT_init(K_Terminalnummer,K_Portnummer);
-	if(Rueckgabecode!=0)
-	{
-#ifndef QT_NO_DEBUG
-		qCritical(qPrintable(trUtf8("QFrankCT_API_Leser LeserInitialisieren: CT-init konnte nicht ausgeführt werden. Rückgabe: %1","debug")
-									.arg((int)Rueckgabecode)));
-#endif
-		return QFrankLesegeraet::LeserNichtInitialisiert;
-	}
 	//Sicherheitsklasse ermitteln
 	K_Befehl[0]=0x20;
 	K_Befehl[1]=0x13;
