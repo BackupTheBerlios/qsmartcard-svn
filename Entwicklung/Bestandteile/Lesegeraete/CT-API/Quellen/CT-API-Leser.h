@@ -69,7 +69,7 @@ class QFrankCT_API_Leser: public QFrankLesegeraet
 									unsigned char *befehle,unsigned short *antwortlaenge,
  									unsigned char *antworten);
 			typedef	char(*K_pCT_close)(unsigned short terminal);
-			typedef char(*K_pCT_setkeycb)(unsigned short terminal,void (*rueckruffunktion)(void *daten),void *data);
+			typedef char(*K_pCT_setkeycb)(unsigned short terminal,int (*rueckruffunktion)(unsigned short terminal,void*daten),void *data);
 			void								K_CT_API_schliessen();
 			bool								K_VerbindungTesten(QString programmteil);
 			bool								K_DatenSenden(uint terminalnummer, uchar *ziel,uchar *quelle,\
@@ -93,7 +93,7 @@ class QFrankCT_API_Leser: public QFrankLesegeraet
 			K_pCT_close							K_MeinCT_close;
 			K_pCT_setkeycb						K_MeinCT_Tastendruck;
 			QFrankLesegeraet::Leserklasse		K_Lesersicherheit;
-			static void							K_TasteGerueckt(void *daten);
+			static int							K_TasteGerueckt(unsigned short terminal,void *daten);
 			static QHash<const uint,QFrankCT_API_Leser*>	K_ListeDerTerminals;
 #ifndef QT_NO_DEBUG
 			QString								K_FeldNachHex(QByteArray feld);

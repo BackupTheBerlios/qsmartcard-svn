@@ -86,7 +86,7 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::LeserInitialisieren()
 		//Haben wir das Terminal schon in der Liste??
 		if(!K_ListeDerTerminals.contains(K_Terminalnummer));
 			K_ListeDerTerminals.insert(K_Terminalnummer,this);
-		K_MeinCT_Tastendruck(K_Terminalnummer,K_TasteGerueckt,(void*)&K_Terminalnummer);
+		K_MeinCT_Tastendruck(K_Terminalnummer,K_TasteGerueckt,NULL);
 	}
 #ifndef QT_NO_DEBUG
 	else
@@ -705,16 +705,16 @@ bool QFrankCT_API_Leser::K_DatenfeldZuKlein(int groesse,QByteArray &Feld,QString
 	return false;
 }
 QHash<const uint,QFrankCT_API_Leser*> QFrankCT_API_Leser::K_ListeDerTerminals;
-void QFrankCT_API_Leser::K_TasteGerueckt(void *daten)
+int QFrankCT_API_Leser::K_TasteGerueckt(unsigned short terminal,void *daten)
 {
 #ifndef QT_NO_DEBUG
 	qDebug("%s K_TasteGerueckt: Es wurde am Leser ein Tastendruck festgstellt.",QFrankCT_API_Leser::staticMetaObject.className());
 #endif
 	//Haben wir das Terminal in der Liste??
-	if(!K_ListeDerTerminals.contains(*(uint*)daten))
+	if(!K_ListeDerTerminals.contains(terminal))
 		qFatal("%s K_TasteGerueckt: Das Terminal befindet sich nicht in der Tabelle!!",QFrankCT_API_Leser::staticMetaObject.className());
 	else
-		emit K_ListeDerTerminals.value(*(uint*)daten)->TasteGedrueckt(*(uint*)daten);
+		emit K_ListeDerTerminals.value(terminal)->TasteGedrueckt(terminal);
 }
 
 #ifndef QT_NO_DEBUG
