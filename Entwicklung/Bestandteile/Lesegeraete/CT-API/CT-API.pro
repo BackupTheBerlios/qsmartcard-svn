@@ -18,7 +18,7 @@ PROJEKTTEIL   = CT-API Leseregät
 TEMPLATE      = lib
 CONFIG		 += plugin
 include (../../../Vorgaben.pri)
-VERSION       = 0.3.0
+VERSION       = 0.4.0
 TARGET	      = CT-API-Leser
 QMAKE_TARGET_DESCRIPTION = Zugriff auf Lesegeräte per CT-API
 INCLUDEPATH	 += ../Lesegeraet

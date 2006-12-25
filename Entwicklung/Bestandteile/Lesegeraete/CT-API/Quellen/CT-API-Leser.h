@@ -24,7 +24,7 @@
 #include <Lesegeraet.h>
 
 //XXYYZZ XX=Major YY=Minor ZZ=Patch
-#define CT_API_Version 0x000300
+#define CT_API_Version 0x000400
 //Zum übersetzten wird min. Version 0.3.0 des Lesermodells benötigt.
 #if LesegeraetAPI_Version < 0x000300
 #error Es wird min. Version 0.3.0 des Lesermodells benötigt.
@@ -59,14 +59,17 @@ class QFrankCT_API_Leser: public QFrankLesegeraet
 			void								PortnummerSetzen(uint portnummer);
 			QString								TreiberdateiHohlen();
 			void								TreiberdateiSetzen(QString treiber);
-
+			
+	signals:
+			void								TasteGedrueckt(const unsigned short &terminal);
 	private:
 			typedef char(*K_pCT_init)(unsigned short terminal,unsigned short port);
 			typedef	char(*K_pCT_data)(unsigned short terminal, unsigned char *zieladresse,
 									unsigned char *quelladresse,unsigned short befehlslaenge,
 									unsigned char *befehle,unsigned short *antwortlaenge,
  									unsigned char *antworten);
-			typedef	char(*K_pCT_close)(unsigned short terminal);		
+			typedef	char(*K_pCT_close)(unsigned short terminal);
+			typedef char(*K_pCT_keycb)(unsigned short terminal,void (*rueckruffunktion)(unsigned short terminal,char status));
 			void								K_CT_API_schliessen();
 			bool								K_VerbindungTesten(QString programmteil);
 			bool								K_DatenSenden(uint terminalnummer, uchar *ziel,uchar *quelle,\
@@ -88,7 +91,10 @@ class QFrankCT_API_Leser: public QFrankLesegeraet
 			K_pCT_init							K_MeinCT_init;
 			K_pCT_data							K_MeinCT_data;
 			K_pCT_close							K_MeinCT_close;
+			K_pCT_keycb							K_MeinCT_Tastendruck;
 			QFrankLesegeraet::Leserklasse		K_Lesersicherheit;
+			static void							K_TasteGerueckt(unsigned short terminal,char status);
+			static QHash<const uint,QFrankCT_API_Leser*>	K_ListeDerTerminals;
 #ifndef QT_NO_DEBUG
 			QString								K_FeldNachHex(QByteArray feld);
 #endif

@@ -1,3 +1,8 @@
+0.2.2
+- CT-API:
+			- Rückmeldung wenn eine Taste am Leser gedrückt worden ist.
+			  Sofern die CT-API Bibliothek des Treibers dies ermöglicht.
+
 0.2.1
 - Versionsnummer der Module korrekt gesetzt.
 - PC/SC Modul eingefügt(1.Gehversuche)
