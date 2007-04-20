@@ -2,6 +2,9 @@
 - CT-API:
 			- Rückmeldung wenn eine Taste am Leser gedrückt worden ist.
 			  Sofern die CT-API Bibliothek des Treibers dies ermöglicht.
+		    - Überprüfung der CT-API Bibliothek des Lesers auf Manipulation.
+			  Entweder unter Linux via der RPM Prüfsumme oder unter Windows
+			  per digitaler Signatur der DLL.
 
 0.2.1
 - Versionsnummer der Module korrekt gesetzt.

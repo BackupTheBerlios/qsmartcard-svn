@@ -1,4 +1,4 @@
-# Copyright (C) 2005-2006 Frank Büttner frank-buettner@gmx.net
+# Copyright (C) 2005-2007 Frank Büttner frank-buettner@gmx.net
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -18,7 +18,7 @@ PROJEKTTEIL   = CT-API Leseregät
 TEMPLATE      = lib
 CONFIG		 += plugin
 include (../../../Vorgaben.pri)
-VERSION       = 0.4.0
+VERSION       = 0.4.1
 TARGET	      = CT-API-Leser
 QMAKE_TARGET_DESCRIPTION = Zugriff auf Lesegeräte per CT-API
 INCLUDEPATH	 += ../Lesegeraet
@@ -29,3 +29,11 @@ SOURCES	      = Quellen/CT-API-Leser.cpp\
 				Quellen/CT-API-LeserPlugin.cpp\
 				../Lesegeraet/Lesegeraet.cpp\
 				../Lesegeraet/LesegeraetPlugin.cpp
+#Signautprüfung der CT-API Datei
+HEADERS		 += Quellen/Signatur.h
+win32{
+SOURCES		+= Quellen/Signatur_win.cpp
+}
+unix{
+SOURCES		+= Quellen/Signatur_rpm.cpp
+}

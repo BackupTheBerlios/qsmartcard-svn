@@ -21,7 +21,7 @@
 #define QFRANKLESEGERAET_H
 
 //XXYYZZ XX=Major YY=Minor ZZ=Patch
-#define LesegeraetAPI_Version 0x000301
+#define LesegeraetAPI_Version 0x000401
 
 #include <QtCore>
 
@@ -60,6 +60,7 @@ class QFrankLesegeraet: public QObject
 				CommandSuccessful=0x9000,
 				CommandSuccessfulAsynchron=0x9001,
 				KarteBetreitsAktiv=0x0ffc,
+				BibliothekManipuliert=0xfffc,
 				NichtImplementiert=0xfffd,
 				LeserNichtInitialisiert=0xfffe,
 				ParameterFalsch=0xffff

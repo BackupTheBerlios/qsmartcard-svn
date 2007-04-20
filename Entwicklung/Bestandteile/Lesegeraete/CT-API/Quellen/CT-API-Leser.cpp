@@ -18,7 +18,9 @@
  */
 
 #include "CT-API-Leser.h"
+#include "Signatur.h"
 
+using namespace QFrank;
 /*!
 	\ingroup lesegeraete
 	\class QFrankCT_API_Leser
@@ -64,6 +66,14 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::LeserInitialisieren()
 	qDebug(qPrintable(QString("QFrankCT_API_Leser LeserInitialisieren: Versuche den CT API Leser mit folgenden Werten zu initialisieren.\r\n"\
 							  "Treiber: %1 Port: %2 Terminalnummer: %3").arg(K_Treiberdatei).arg(K_Portnummer).arg(K_Terminalnummer)));
 #endif
+	//Testen ob die CT-API Bibliothke des Lesers ok ist.
+	if(!CT_API_Manipulationsschutz::BibliothekOK(K_Treiberdatei))
+	{
+#ifndef QT_NO_DEBUG
+		qCritical("%s LeserInitialisieren: CT-API Bibliothek vermutlich manipuliert.",this->metaObject()->className());
+#endif
+		return QFrankLesegeraet::BibliothekManipuliert;
+	}
 	K_MeinCT_init=(K_pCT_init)QLibrary::resolve(K_Treiberdatei, "CT_init");
 	K_MeinCT_data=(K_pCT_data)QLibrary::resolve(K_Treiberdatei, "CT_data");
 	K_MeinCT_close=(K_pCT_close)QLibrary::resolve(K_Treiberdatei, "CT_close");
@@ -94,7 +104,7 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::LeserInitialisieren()
 	{
 		qDebug(qPrintable(trUtf8("%1 LeserInitialisieren:: Der Treiber kennt Tastenrückmeldung","debug").arg(this->metaObject()->className())));
 		//Haben wir das Terminal schon in der Liste??
-		if(!K_ListeDerTerminals.contains(K_Terminalnummer));
+		if(!K_ListeDerTerminals.contains(K_Terminalnummer))
 			K_ListeDerTerminals.insert(K_Terminalnummer,this);
 		K_MeinCT_Tastendruck(K_Terminalnummer,K_TasteGerueckt,NULL);
 	}
