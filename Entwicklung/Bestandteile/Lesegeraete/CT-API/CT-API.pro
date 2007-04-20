@@ -33,6 +33,7 @@ SOURCES	      = Quellen/CT-API-Leser.cpp\
 HEADERS		 += Quellen/Signatur.h
 win32{
 SOURCES		+= Quellen/Signatur_win.cpp
+LIBS		+= -lWintrust
 }
 unix{
 SOURCES		+= Quellen/Signatur_rpm.cpp
