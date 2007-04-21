@@ -142,7 +142,7 @@ QString const QFrankZeichensatzWandlung::SMSnachUTF8(const QByteArray &datenfeld
 										tmp.append(QChar(0x05d));//]
 										break;
 							case 0x2f:
-										tmp.append(QChar(0x05c));//\
+										tmp.append(QChar(0x05c));//"\"
 										break;
 						}
 						Stelle++;

@@ -30,4 +30,4 @@ namespace QFrank
 				 static bool BibliothekOK(const QString &datei);
 	};
 }
-#endif QFRANKCTAPIMANIPULATIONSSCHUTZ_H
+#endif

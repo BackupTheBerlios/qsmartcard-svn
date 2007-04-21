@@ -61,7 +61,7 @@ bool QFrankGSMKarte::KarteAktivieren()
 	if(K_Leser->Version()<0x000300)
 	{
 #ifndef QT_NO_DEBUG
-		qWarning("%s KarteAkivieren: Lesemodul zu alt statt 0x000300 0x%X",this->metaObject()->className(),K_Leser->Version());
+		qWarning("%s KarteAkivieren: Lesemodul zu alt statt 0x000300 0x%X",this->metaObject()->className(),(uint)K_Leser->Version());
 #endif
 		K_Fehlertext=trUtf8("Kartenlesermodul ist zu alt. Es wird min. Version 0.3.0 benötigt");
 		return false;
@@ -192,7 +192,7 @@ const bool QFrankGSMKarte::K_PinEingabe(const uchar &Pinnummer)
 		for (uint Stelle=0;Stelle<8;Stelle++)
 		{
 			//Ende erreicht?
-			if(K_Pinspeicher.size()<Stelle+1)
+			if((uint)K_Pinspeicher.size()<Stelle+1)
 				K_Kartenbefehl[Stelle+5]=0xff;			
 			else
 			{
@@ -346,7 +346,7 @@ QString const QFrankGSMKarte::K_TelefonbuchAuslesen(const QFrankGSMKarte::Welche
 											break;
 	}	
 #ifndef QT_NO_DEBUG
-	qDebug("%s K_TelefonbuchAuslesen: Buch: \"%2\"",this->metaObject()->className(),qPrintable(TelefonbuchText));
+	qDebug("%s K_TelefonbuchAuslesen: Buch: \"%s\"",this->metaObject()->className(),qPrintable(TelefonbuchText));
 #endif
 	uchar AnzahlDerSpeicherplaetze;
 	uchar LaengeEinesDatensatzes;

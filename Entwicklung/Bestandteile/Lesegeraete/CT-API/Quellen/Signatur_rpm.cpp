@@ -17,6 +17,9 @@
  *  
  */
 
+#include "Signatur.h"
+#include <QtCore>
+
 using namespace QFrank;
 
 bool CT_API_Manipulationsschutz::BibliothekOK(const QString &datei)
