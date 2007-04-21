@@ -34,7 +34,8 @@ class QFrankCT_API_Leser: public QFrankLesegeraet
 {
 	Q_OBJECT
 	Q_PROPERTY(uint QFrankCT_API_LeserPortnummer READ PortnummerHohlen WRITE PortnummerSetzen)
-	Q_PROPERTY(QString QFrankCT_API_LeserTreiberdatei READ TreiberdateiHohlen WRITE TreiberdateiSetzen)	
+	Q_PROPERTY(QString QFrankCT_API_LeserTreiberdatei READ TreiberdateiHohlen WRITE TreiberdateiSetzen)
+	Q_PROPERTY(bool QFrankCT_API_LeserSignaturDerBibliothekPruefen READ SignaturpruefungHohlen WRITE SignaturpruefungSetzen)
 
 	public:
 			QFrankCT_API_Leser(QObject* eltern);
@@ -57,8 +58,10 @@ class QFrankCT_API_Leser: public QFrankLesegeraet
 
 			uint								PortnummerHohlen();
 			void								PortnummerSetzen(uint portnummer);
+			void								SignaturpruefungSetzen(const bool &signatur){K_Signaturpruefen=signatur;}
 			QString								TreiberdateiHohlen();
 			void								TreiberdateiSetzen(QString treiber);
+			const bool							SignaturpruefungHohlen()const{return K_Signaturpruefen;}
 			
 	signals:
 			void								TasteGedrueckt(const unsigned short &terminal);
@@ -76,6 +79,7 @@ class QFrankCT_API_Leser: public QFrankLesegeraet
 																ushort befehlslaenge,uchar *befehle,ushort *antwortlaenge,\
 																uchar *antworten);
 			bool								K_DatenfeldZuKlein(int groesse,QByteArray &Feld,QString programmteil);
+			bool								K_Signaturpruefen;
 			uint								K_Portnummer;
 			QString								K_Treiberdatei;
 			uint								K_Terminalnummer;

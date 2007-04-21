@@ -32,6 +32,7 @@ QFrankCT_API_Leser::QFrankCT_API_Leser(QObject* eltern):QFrankLesegeraet(eltern)
 	setObjectName("QFrankCT_API_Leser");
 	K_Portnummer=1;
 	K_Terminalnummer=1;
+	K_Signaturpruefen=true;
 	K_VerbindungZumKartenleser=false;
 	K_ISO_VerifyOderISO_ChangeReferenceData=false;
 	K_ISO_VerifySecureOderISO_ChangeReferenceDataSecure=false;
@@ -66,13 +67,16 @@ QFrankLesegeraet::Rueckgabecodes QFrankCT_API_Leser::LeserInitialisieren()
 	qDebug(qPrintable(QString("QFrankCT_API_Leser LeserInitialisieren: Versuche den CT API Leser mit folgenden Werten zu initialisieren.\r\n"\
 							  "Treiber: %1 Port: %2 Terminalnummer: %3").arg(K_Treiberdatei).arg(K_Portnummer).arg(K_Terminalnummer)));
 #endif
-	//Testen ob die CT-API Bibliothke des Lesers ok ist.
-	if(!CT_API_Manipulationsschutz::BibliothekOK(K_Treiberdatei))
+	if(K_Signaturpruefen)
 	{
+		//Testen ob die CT-API Bibliothke des Lesers ok ist.
+		if(!CT_API_Manipulationsschutz::BibliothekOK(K_Treiberdatei))
+		{
 #ifndef QT_NO_DEBUG
-		qCritical("%s LeserInitialisieren: CT-API Bibliothek vermutlich manipuliert.",this->metaObject()->className());
+			qCritical("%s LeserInitialisieren: CT-API Bibliothek vermutlich manipuliert.",this->metaObject()->className());
 #endif
-		return QFrankLesegeraet::BibliothekManipuliert;
+			return QFrankLesegeraet::BibliothekManipuliert;
+		}
 	}
 	K_MeinCT_init=(K_pCT_init)QLibrary::resolve(K_Treiberdatei, "CT_init");
 	K_MeinCT_data=(K_pCT_data)QLibrary::resolve(K_Treiberdatei, "CT_data");

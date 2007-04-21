@@ -255,7 +255,9 @@ int main(int argc, char *argv[])
 	//test für GSM Karten
 	
 #ifndef Q_WS_WIN
-	Terminal->LeserHohlen("CT-API-Leser")->setProperty("QFrankCT_API_LeserTreiberdatei","/usr/lib/ctapi/libctapi-cyberjack.so");
+	Terminal->LeserHohlen("CT-API-Leser")->setProperty("QFrankCT_API_LeserTreiberdatei","/usr/lib/ctapi/libctapi-cyberjack.so");	
+#else
+	//Terminal->LeserHohlen("CT-API-Leser")->setProperty("QFrankCT_API_LeserSignaturDerBibliothekPruefen",false);
 #endif
 	Terminal->KarteHohlen("GSM Karte")->welchenLeser(Terminal->LeserHohlen("CT-API-Leser"));
 	//richtige Karte im Leser??
