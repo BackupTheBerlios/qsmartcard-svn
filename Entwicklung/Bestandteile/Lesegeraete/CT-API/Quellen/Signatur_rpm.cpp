@@ -24,5 +24,45 @@ using namespace QFrank;
 
 bool CT_API_Manipulationsschutz::BibliothekOK(const QString &datei)
 {
+	QProcess MD5;
+	MD5.setProcessChannelMode(QProcess::MergedChannels);
+	MD5.start("/usr/sbin/prelink",QStringList()<<"--md5"<<"-y"<<datei);
+	if((!MD5.waitForFinished()) || (MD5.exitCode()!=0))
+	{
+#ifndef QT_NO_DEBUG
+		qDebug("Die MD5 Prüfsumme für die Datei %s konnte nicht ermittelt werden.",qPrintable(datei));
+		qDebug("Ursache: %s",MD5.readAll().data());
+#endif
+		return false;
+	}
+	QString Pruefsumme=QString(MD5.readAll().data());
+	Pruefsumme=Pruefsumme.left(Pruefsumme.indexOf(" "));
+#ifndef QT_NO_DEBUG
+	qDebug("Prüfsumme der Datei %s: %s",qPrintable(datei),qPrintable(Pruefsumme));
+#endif
+	QProcess Pruefung;
+	Pruefung.setProcessChannelMode(QProcess::MergedChannels);
+	Pruefung.start("rpm",QStringList() <<"-q"<<"--fileid"<<qPrintable(Pruefsumme));
+	if(!Pruefung.waitForStarted())
+	{
+#ifndef QT_NO_DEBUG
+		qDebug("Die Überprüfung der Datei %s konnte nicht gestartet werden.",qPrintable(datei));
+#endif
+		return false;
+	}
+	// warten bis es fertig ist
+	if(!Pruefung.waitForFinished())
+	{
+#ifndef QT_NO_DEBUG
+		qDebug("Die Überprüfung der Datei %s konnte nicht abgeschlossen werden.",qPrintable(datei));
+#endif
+		return false;
+	}
+#ifndef QT_NO_DEBUG
+	qDebug("Die Überprüfung der Datei %s Ergab: %i Text: %s",qPrintable(datei),Pruefung.exitCode(),
+								 Pruefung.readAll().data());
+#endif
+	if(Pruefung.exitCode()==0)
+		return true;
 	return false;
 }
