@@ -42,7 +42,7 @@ QFrankCT_API_Leser::QFrankCT_API_Leser(QObject* eltern):QFrankLesegeraet(eltern)
 	//K_Treiberdatei="G:\\Versuch\\cj\\ctFilter.dll";
 	K_Treiberdatei=QString("%1%2").arg(getenv("windir")).arg("\\system32\\ctrsct32.dll");
 #else
-	K_Treiberdatei="/usr/lib/readers/libctapi-cyberjack.so";
+	K_Treiberdatei="/usr/lib/ctapi/libctapi-cyberjack.so.1";
 #endif
 	//Warnung bei DEBUG
 #ifndef QT_NO_DEBUG

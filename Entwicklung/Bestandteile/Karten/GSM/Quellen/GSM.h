@@ -21,7 +21,7 @@
 #define QFRANKGSMKARTE_H
 
 //XXYYZZ XX=Major YY=Minor ZZ=Patch
-#define GSMKarteVersion 0x000101
+#define GSMKarteVersion 0x000102
 
 #include <QtCore>
 #include <SmartCard.h>
